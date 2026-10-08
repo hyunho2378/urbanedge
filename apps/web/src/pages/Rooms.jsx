@@ -1,162 +1,57 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, ArrowUpRight } from 'lucide-react'
-import { Button, Container, StationSign, TransitMap, platformById } from '@urbanedge/ds'
+import { Container, StationSign, platformById } from '@urbanedge/ds'
 import { PageShell, Tx, useV } from '../components/pages/Bilingual.jsx'
-import { PageTop } from '../components/pages/PageTop.jsx'
-import { PlatformBadge } from '../components/pages/PlatformBadge.jsx'
-import { Tape } from '../components/pages/Tape.jsx'
-import { NETWORK, PLATFORMS, STATION } from '../components/pages/content.js'
+import { PLATFORMS, STATION } from '../components/pages/content.js'
 import { usePageTitle } from '../components/pages/usePageTitle.js'
 import { RoomExplorer } from '../components/rooms/RoomExplorer.jsx'
+import { ZONES } from '../components/rooms/zones.js'
 
 const T = {
   title: { en: 'Platforms', ko: '승강장' },
-  h1: { en: 'Three photo rooms', ko: '촬영 방 세 곳' },
-  lead: {
-    en: 'Subway, Karaoke and Retro. Each room has its own kiosk.',
-    ko: '지하철, 노래방, 레트로 방마다 촬영 기기가 하나씩 있다.',
-  },
-  tape: [
-    { en: 'Now boarding: Gyeongju Metro', ko: '승차 안내: 경주 메트로' },
-    { en: 'This station is GY-01 UrbanEdge', ko: '이번 역은 GY-01 어반엣지입니다' },
-    { en: 'Platform change: walk to the next room', ko: '승강장을 바꿀 때는 옆방으로 걸어가세요' },
-    { en: 'Mind the lens, it sits below the screen', ko: '렌즈는 화면 아래에 있으니 주의하세요' },
-  ],
-  pause: { en: 'Pause announcements', ko: '안내 문구 멈추기' },
-  play: { en: 'Resume announcements', ko: '안내 문구 다시 흐르기' },
-  mapTitle: { en: 'Pick your platform.', ko: '승강장 선택' },
-  mapLabel: { en: 'UrbanEdge station map with three platforms', ko: '승강장 세 곳이 있는 어반엣지역 노선도' },
-  boardingNow: { en: 'Now boarding', ko: '지금 승차 중' },
-  why: { en: 'Why it photographs well', ko: '잘 나오는 이유' },
-  open: { en: 'Open this platform', ko: '이 승강장 보기' },
-  next: { en: 'Next platform', ko: '다음 승강장' },
-  allTitle: { en: 'One platform per mood', ko: '분위기마다 하나씩 승강장' },
-  ctaTitle: { en: 'How to', ko: '이용 안내' },
-  ctaLink: { en: 'Open the guide', ko: '이용 안내 보기' },
+  h1: { en: 'Inside the shop', ko: '매장 안' },
+  open: { en: 'Open room', ko: '방 보기' },
 }
 
 export default function Rooms() {
   const v = useV()
   usePageTitle(T.title)
-  const [active, setActive] = useState('karaoke')
+  const [active, setActive] = useState('subway')
   const at = Math.max(0, PLATFORMS.findIndex((s) => s.id === active))
   const st = PLATFORMS[at]
   const prev = PLATFORMS[(at - 1 + PLATFORMS.length) % PLATFORMS.length]
   const next = PLATFORMS[(at + 1) % PLATFORMS.length]
-  const rail = useRef(null)
   const photo = st.photoList[1] || st.photoList[0]
-
-  const select = (id) => {
-    if (PLATFORMS.some((p) => p.id === id)) setActive(id)
-  }
-  const onRailKey = (e) => {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
-    const el = rail.current
-    if (!el) return
-    e.preventDefault()
-    el.scrollBy({ left: (e.key === 'ArrowRight' ? 1 : -1) * el.clientWidth * 0.6, behavior: 'smooth' })
-  }
+  const facts = ZONES.find((z) => z.id === st.id)
   const nm = (p) => ({ name: p.title.en, nameKo: p.title.ko })
 
   return (
     <PageShell>
-      <PageTop title={T.h1} lead={T.lead} />
+      <header className="pt-24 md:pt-40">
+        <Container className="4xl:max-w-screen-4xl">
+          <Tx {...T.h1} as="h1" role="title" inner="text-display-m" className="text-text-pri" />
+        </Container>
+      </header>
       <RoomExplorer />
-      <Tape items={T.tape} pause={T.pause} play={T.play} />
 
-      <section aria-labelledby="rooms-map" className="section-y">
+      <section aria-label={v(T.title)} className="pb-64 md:pb-96">
         <Container className="4xl:max-w-screen-4xl">
-          <Tx {...T.mapTitle} as="h2" role="headline" className="text-text-pri" id="rooms-map" />
-
-          <div className="mx-auto mt-32 w-full max-w-wide md:mt-48">
-            <TransitMap network={NETWORK} orientation="auto" activeId={active} onSelect={select} animateTrain aria-label={v(T.mapLabel)} />
+          <div role="tablist" aria-label={v(T.title)} className="flex flex-wrap gap-8">
+            {PLATFORMS.map((p) => (
+              <button key={p.id} type="button" role="tab" aria-selected={p.id === active} onClick={() => setActive(p.id)} className={`min-h-40 rounded-pill border px-16 text-body-sm font-medium transition-colors ${p.id === active ? 'border-yellow bg-yellow text-text-on-yellow' : 'border-text-pri/25 text-text-sec hover:border-yellow'}`}>
+                {p.no} · {v(p.title)}
+              </button>
+            ))}
           </div>
-
-          <div key={st.id} className="mt-48 grid animate-fade-in gap-x-64 gap-y-24 lg:mt-72 lg:grid-cols-12">
-            <div className="lg:col-span-5">
-              <Link to={`/rooms/${st.id}`} className="group relative block overflow-hidden rounded-lg bg-bg-panel" style={{ aspectRatio: '4 / 5' }} aria-label={`${v(T.open)}: ${v(st.title)}`}>
-                <img
-                  src={photo.thumb}
-                  srcSet={`${photo.thumb} ${photo.w}w, ${photo.full} 1350w`}
-                  sizes="(min-width: 1024px) 40vw, 92vw"
-                  alt={v(photo.alt)}
-                  width={photo.w}
-                  height={photo.h}
-                  loading="lazy"
-                  decoding="async"
-                  className="size-full object-cover transition-opacity duration-base ease-out group-hover:opacity-90"
-                />
-                <span className="absolute left-16 top-16 rounded-pill bg-bg-base px-12 py-8 text-text-pri">
-                  <Tx inline {...T.boardingNow} role="label" />
-                </span>
-              </Link>
-            </div>
-
-            <div className="lg:col-span-7 lg:pt-24">
-              <StationSign
-                station={{ code: STATION.code, name: STATION.name, nameKo: STATION.nameKo }}
-                platform={platformById(st.id)}
-                line={{ code: 'GY', color: 'yellow' }}
-                prev={nm(prev)}
-                next={nm(next)}
-                size="md"
-              />
-              <Tx {...st.vibe} as="h3" role="headline" className="mt-32 text-text-pri" />
-              <Tx {...st.story} as="p" role="body" className="mt-16 max-w-read text-text-sec" />
-              <p className="mt-24 max-w-read text-text-meta">
-                <Tx inline {...T.why} role="strong" className="mr-8 text-text-pri" />
-                <Tx inline {...st.why} role="caption" />
-              </p>
-              <div className="mt-32 flex flex-wrap items-center gap-x-24 gap-y-12">
-                <Button as={Link} to={`/rooms/${st.id}`} size="lg">
-                  <Tx inline {...T.open} />
-                  <ArrowRight size={20} aria-hidden="true" />
-                </Button>
-                <button type="button" onClick={() => setActive(next.id)} className="inline-flex min-h-48 items-center gap-8 text-text-sec hover:text-yellow">
-                  <Tx inline {...T.next} role="strong" />
-                  <ArrowRight size={16} aria-hidden="true" />
-                </button>
-              </div>
+          <div key={st.id} className="island-swap mt-24 grid gap-x-48 gap-y-24 lg:grid-cols-12">
+            <Link to={`/rooms/${st.id}`} aria-label={`${v(T.open)}: ${v(st.title)}`} className="relative block overflow-hidden rounded-lg bg-bg-panel lg:col-span-5" style={{ aspectRatio: '4 / 5' }}>
+              <img src={photo.thumb} srcSet={`${photo.thumb} ${photo.w}w, ${photo.full} 1350w`} sizes="(min-width: 1024px) 40vw, 92vw" alt={v(photo.alt)} width={photo.w} height={photo.h} loading="lazy" decoding="async" className="size-full object-cover" />
+            </Link>
+            <div className="lg:col-span-7 lg:pt-16">
+              <StationSign station={{ code: STATION.code, name: STATION.name, nameKo: STATION.nameKo }} platform={platformById(st.id)} line={{ code: 'GY', color: 'yellow' }} prev={nm(prev)} next={nm(next)} size="md" />
+              {facts && <p className="mt-24 max-w-read text-text-sec">{v(facts.desc)}</p>}
             </div>
           </div>
-        </Container>
-      </section>
-
-      <section aria-labelledby="rooms-all" className="overflow-hidden bg-bg-elev py-64 md:py-96">
-        <Container className="4xl:max-w-screen-4xl">
-          <Tx {...T.allTitle} as="h2" role="headline" className="text-text-pri" id="rooms-all" />
-        </Container>
-        <ul ref={rail} tabIndex={0} onKeyDown={onRailKey} aria-label={v(T.allTitle)} className="mt-32 flex snap-x snap-mandatory gap-12 overflow-x-auto px-page pb-24 md:gap-24" style={{ scrollbarWidth: 'none' }}>
-          {PLATFORMS.map((s, i) => {
-            const ph = s.photoList[0]
-            return (
-              <li key={s.id} className={`w-4/5 shrink-0 snap-start md:w-1/3 xl:w-1/4 ${i % 2 ? 'md:mt-48' : ''}`}>
-                <Link to={`/rooms/${s.id}`} className="group block">
-                  <div className="relative overflow-hidden rounded-lg bg-bg-panel" style={{ aspectRatio: i % 2 ? '4 / 5' : '3 / 4' }}>
-                    <img src={ph.thumb} alt={v(ph.alt)} width={ph.w} height={ph.h} loading="lazy" decoding="async" className="size-full object-cover transition-opacity duration-base ease-out group-hover:opacity-85" />
-                    <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-scrim to-transparent" />
-                    <PlatformBadge no={s.no} accent={s.accent} size="md" className="absolute left-16 top-16" />
-                    <p className="t-title absolute inset-x-16 bottom-16 text-text-pri">{s.name}</p>
-                  </div>
-                  <p className="mt-16 flex items-start gap-8 text-text-pri">
-                    <Tx {...s.vibe} role="subhead" className="min-w-0 flex-1" />
-                    <ArrowUpRight size={18} aria-hidden="true" className="mt-4 shrink-0 text-yellow transition-transform duration-base ease-out group-hover:-translate-y-4 group-hover:translate-x-4" />
-                  </p>
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
-      </section>
-
-      <section aria-labelledby="rooms-cta" className="section-y">
-        <Container className="4xl:max-w-screen-4xl">
-          <Tx {...T.ctaTitle} as="h2" role="headline" className="max-w-read text-text-pri" id="rooms-cta" />
-          <Link to="/guide" className="t-strong mt-24 inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
-            <Tx inline {...T.ctaLink} />
-            <ArrowRight size={18} aria-hidden="true" />
-          </Link>
         </Container>
       </section>
     </PageShell>

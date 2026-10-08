@@ -16,14 +16,14 @@ const T = {
   platform: { en: 'Platform', ko: '승강장' },
   station: { en: 'GY-01 UrbanEdge Station', ko: 'GY-01 어반엣지역' },
   zoom: { en: 'Open photo', ko: '사진 열기' },
-  on: { en: 'On the platform', ko: '승강장에 있는 것' },
+  on: { en: 'In the room', ko: '방 안' },
   why: { en: 'Why it photographs well', ko: '잘 나오는 이유' },
-  posesTitle: { en: 'Poses that work here', ko: '이 승강장에서 해 볼 포즈' },
+  posesTitle: { en: 'Poses', ko: '포즈' },
   posesSub: {
     en: 'Each one uses something that is really in the room. Change pose every shot and the strip reads like a short story.',
     ko: '방에 실제로 놓인 소품을 기준으로 골랐으며, 컷마다 포즈를 바꾸면 인화물 한 장이 짧은 이야기처럼 읽힌다.',
   },
-  morePhotos: { en: 'More from this platform', ko: '이 승강장의 다른 모습' },
+  morePhotos: { en: 'Photos', ko: '사진' },
   ticketTitle: { en: 'Your Metro Ticket', ko: '메트로 승차권' },
   ticketLine: { en: 'Gyeongju Metro, GY-01 UrbanEdge', ko: '경주 메트로, GY-01 어반엣지' },
   ticketWink: {
@@ -97,7 +97,6 @@ function PlatformView({ st }) {
                 <h1 className="t-display mt-8 text-display-m text-text-pri md:text-display-l">{st.name}</h1>
               </div>
             </div>
-            <Tx {...st.vibe} as="p" role="lead" className="mt-16 max-w-read text-text-pri" />
           </Container>
         </div>
         <span className="pointer-events-none absolute right-16 top-16 inline-flex items-center gap-8 rounded-pill bg-scrim px-14 py-8 text-text-pri">
@@ -108,16 +107,9 @@ function PlatformView({ st }) {
 
       <section className="section-y">
         <Container className="grid gap-x-64 gap-y-32 lg:grid-cols-12 4xl:max-w-screen-4xl">
-          <div className="lg:col-span-7">
-            <Tx {...st.story} as="p" role="lead" className="text-text-pri" />
-            <p className="mt-24 max-w-read text-text-sec">
-              <Tx inline {...T.why} role="strong" className="mr-8 text-text-pri" />
-              <Tx inline {...st.why} role="body" />
-            </p>
-          </div>
+          <div className="lg:col-span-7" />
           <div className="lg:col-span-5 lg:pt-8">
-            <Tx {...T.on} as="h2" role="label" className="text-text-meta" />
-            <ul className="mt-16 flex flex-wrap items-center gap-x-16 gap-y-8">
+                        <ul className="mt-16 flex flex-wrap items-center gap-x-16 gap-y-8">
               {st.props.map((p, i) => (
                 <li key={i} className="flex items-center gap-16 text-text-pri">
                   {i > 0 && (
@@ -136,7 +128,6 @@ function PlatformView({ st }) {
       <section aria-labelledby="poses" className="bg-bg-elev py-64 md:py-96">
         <Container className="4xl:max-w-screen-4xl">
           <Tx {...T.posesTitle} as="h2" role="headline" className="text-text-pri" id="poses" />
-          <Tx {...T.posesSub} as="p" role="body" className="mt-12 max-w-read text-text-sec" />
         </Container>
         <ul
           className="mt-32 flex snap-x snap-mandatory gap-12 overflow-x-auto px-page pb-16 md:mx-auto md:grid md:max-w-wide md:grid-cols-3 md:gap-24 md:overflow-visible md:pb-0 4xl:max-w-screen-4xl"
@@ -145,12 +136,11 @@ function PlatformView({ st }) {
           aria-label={v(T.posesTitle)}
         >
           {st.poses.map((p, i) => (
-            <li key={p.id} className={cx('w-4/5 shrink-0 snap-start md:w-auto', i === 1 && 'md:mt-48')}>
+            <li key={p.id} className={cx('w-[72%] max-w-240 shrink-0 snap-start md:w-auto md:max-w-none', i === 1 && 'md:mt-48')}>
               <div className="rounded-lg bg-bg-panel px-24 pb-8 pt-32 text-text-pri">
                 <PoseDrawing id={p.id} label={v(p.title)} className="mx-auto max-w-240" />
               </div>
               <Tx {...p.title} as="h3" role="subhead" className="mt-16 text-text-pri" />
-              <Tx {...p.desc} as="p" role="body" className="mt-8 text-text-sec" />
             </li>
           ))}
         </ul>
@@ -176,46 +166,11 @@ function PlatformView({ st }) {
         </section>
       )}
 
-      <section aria-labelledby="ticket" className="bg-bg-elev py-64 md:py-96">
-        <Container className="grid items-center gap-x-64 gap-y-32 lg:grid-cols-12 4xl:max-w-screen-4xl">
-          <div className="lg:col-span-5">
-            <Tx {...T.ticketTitle} as="h2" role="headline" className="text-text-pri" id="ticket" />
-            <Tx {...NOTICE} as="p" role="caption" className="mt-12 text-text-meta" />
-          </div>
-          <div className="lg:col-span-7">
-            <Ticket platform={st} line={T.ticketLine} station={stationLine} fare={fare} wink={T.ticketWink} date={date} admit={T.admit}>
-              <ShareButton url={origin} title={`${st.name} | UrbanEdge`} text={v(st.vibe)} variant="ghost" lang={lang}>
-                <Tx inline {...T.share} />
-              </ShareButton>
-            </Ticket>
-          </div>
-        </Container>
-      </section>
-
-      <nav aria-label={v(T.all)} className="section-y">
-        <Container className="grid gap-12 md:grid-cols-2 md:gap-24 4xl:max-w-screen-4xl">
-          {[
-            { p: prev, dir: 'prev', label: T.prev },
-            { p: next, dir: 'next', label: T.next },
-          ].map(({ p, dir, label }) => (
-            <Link key={dir} to={`/rooms/${p.id}`} rel={dir} className={cx('group flex items-center gap-16 rounded-pill bg-bg-panel p-12 transition-colors duration-base ease-out hover:bg-bg-raised', dir === 'next' && 'md:flex-row-reverse md:text-right')}>
-              <PlatformBadge no={p.no} accent={p.accent} size="lg" />
-              <span className="min-w-0 flex-1">
-                <Tx {...label} as="span" role="caption" className="block text-text-meta" />
-                <span className="t-subhead mt-4 block truncate text-text-pri">{p.name}</span>
-              </span>
-              {dir === 'prev' ? (
-                <ArrowLeft size={22} aria-hidden="true" className="mr-12 shrink-0 text-yellow transition-transform duration-base ease-out group-hover:-translate-x-4" />
-              ) : (
-                <ArrowRight size={22} aria-hidden="true" className="mr-12 shrink-0 text-yellow transition-transform duration-base ease-out group-hover:translate-x-4 md:ml-12 md:mr-0" />
-              )}
-            </Link>
-          ))}
-        </Container>
-        <Container className="mt-24 4xl:max-w-screen-4xl">
+      <nav aria-label={v(T.all)} className="pb-64">
+        <Container className="4xl:max-w-screen-4xl">
           <Link to="/rooms" className="t-strong inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
+            <ArrowLeft size={18} aria-hidden="true" />
             <Tx inline {...T.all} />
-            <ArrowRight size={18} aria-hidden="true" />
           </Link>
         </Container>
       </nav>

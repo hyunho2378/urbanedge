@@ -21,7 +21,7 @@ export const PRICE = { base: 7000, prints: 2, currency: 'KRW' }
 export const INSTAGRAM = { handle: '@__urbanedge', url: 'https://www.instagram.com/__urbanedge/' }
 // 완료 화면 QR 주소: 웹사이트의 모바일 결과 페이지(/result/:sessionId, apps/web/src/pages/Result.jsx). 사이트 주소는 VITE_SITE_URL, 없으면 배포 주소를 쓴다.
 // 업로드 서버가 아직 없으므로 세션 id는 데모 값(RESULT_SESSION_ID)이고, 웹 쪽이 샘플 사진과 영상을 보여 준다.
-const SITE = ((typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SITE_URL) || 'https://urbanedge.vercel.app').replace(/\/$/, '')
+const SITE = ((typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SITE_URL) || 'https://urbanedge-web.vercel.app').replace(/\/$/, '')
 export const RESULT_SESSION_ID = 'demo'
 export const resultUrl = (lang) => `${SITE}/result/${RESULT_SESSION_ID}?lang=${lang === 'ko' ? 'ko' : 'en'}`
 

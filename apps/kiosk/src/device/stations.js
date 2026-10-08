@@ -1,7 +1,7 @@
 // stations.js: 경주 메트로 용어. docs/NAMING.md가 기준이다(10월 9일 새벽).
-// 시스템 Gyeongju Metro(GY), 첫 역 GY-01 UrbanEdge(어반엣지역, 황리단길). 방 4곳은 이 역 안의 승강장 1에서 4다.
+// 시스템 Gyeongju Metro(GY), 첫 역 GY-01 UrbanEdge(어반엣지역, 황리단길). 유료 촬영 방 3곳이 이 역 안의 승강장 1에서 3이다.
 // 역 안내판은 항상 "GY-01 UrbanEdge"이고 방 이름은 승강장 태그로 붙는다. 화장실 방은 없다.
-// 승강장 강조색: Subway 노랑, Karaoke 빨강, Public Phone 파랑, Retro 초록. 이 키오스크는 승강장마다 따로 있다.
+// 승강장 강조색: Subway 노랑, Karaoke 빨강, Retro 초록. 이 키오스크는 승강장마다 따로 있다.
 export const SYSTEM = { code: 'GY', name: { en: 'Gyeongju Metro', ko: '경주 메트로' } }
 
 export const STATION = { id: 'urbanedge', code: 'GY-01', name: { en: 'UrbanEdge', ko: '어반엣지' }, place: { en: 'Hwangridan-gil', ko: '황리단길' } }
@@ -9,8 +9,7 @@ export const STATION = { id: 'urbanedge', code: 'GY-01', name: { en: 'UrbanEdge'
 export const PLATFORMS = [
   { id: 'subway', n: 1, color: 'yellow', title: { en: 'Subway Shot', ko: '지하철 샷' } },
   { id: 'karaoke', n: 2, color: 'red', title: { en: 'Karaoke Shot', ko: '노래방 샷' } },
-  { id: 'phone', n: 3, color: 'blue', title: { en: 'Public Phone Shot', ko: '공중전화 샷' } },
-  { id: 'retro', n: 4, color: 'green', title: { en: 'Retro Shot', ko: '레트로 샷' } },
+  { id: 'retro', n: 3, color: 'green', title: { en: 'Retro Shot', ko: '레트로 샷' } },
 ]
 
 export const platformOf = (id) => PLATFORMS.find((p) => p.id === id) ?? null

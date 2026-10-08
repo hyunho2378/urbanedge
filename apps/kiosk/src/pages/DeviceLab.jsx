@@ -23,7 +23,7 @@ export default function DeviceLab() {
           >
             <Stage>
               <div className="grid h-full w-full place-items-center border-8 border-yellow bg-bg-base text-text-pri">
-                <p className="font-display text-k-title font-black">1920 x 1080</p>
+                <p className="font-display text-k-title font-bold">1920 x 1080</p>
               </div>
             </Stage>
           </DeviceFrame>

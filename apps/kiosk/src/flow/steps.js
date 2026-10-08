@@ -8,8 +8,6 @@ export const STEPS = [
   { id: 'frame', label: { ko: '프레임', en: 'Frame' } },
   { id: 'pay', label: { ko: '결제', en: 'Pay' } },
   { id: 'guide', label: { ko: '포즈', en: 'Poses' } },
-  { id: 'retouch', label: { ko: '보정', en: 'Retouch' } },
-  { id: 'ready', label: { ko: '카메라 확인', en: 'Lens check' } },
   { id: 'shoot', label: { ko: '촬영', en: 'Shoot' } },
   { id: 'select', label: { ko: '컷 배치', en: 'Arrange' } },
   { id: 'print', label: { ko: '인화', en: 'Print' } },

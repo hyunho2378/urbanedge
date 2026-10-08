@@ -13,7 +13,7 @@ export function StampMark({ platform, size = 160, rot = 0, className }) {
       <circle cx="60" cy="60" r="60" className={FILL[platform.color]} />
       <circle cx="60" cy="60" r="54" className={cx('fill-none', strokeCls)} strokeWidth="4" />
       <circle cx="60" cy="60" r="45.6" className={cx('fill-none', strokeCls)} strokeWidth="1.6" />
-      <text x="60" y="58" textAnchor="middle" dominantBaseline="middle" className={cx('font-brand', fillCls)} fontSize="36" fontWeight="800">
+      <text x="60" y="58" textAnchor="middle" dominantBaseline="middle" className={cx('font-brand', fillCls)} fontSize="36" fontWeight="700">
         {`P${platform.n}`}
       </text>
       <text x="60" y="83" textAnchor="middle" className={cx('font-label', fillCls)} fontSize="14" fontWeight="600" textLength={Math.min(78, label.length * 8.2)} lengthAdjust="spacingAndGlyphs">

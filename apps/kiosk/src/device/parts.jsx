@@ -190,7 +190,7 @@ export function NoticeCctvPart() {
       <path d="M35.5 17.5 L40 15 V25 L35.5 22.5 Z" style={fill('black', 0.85)} />
       <rect x="25" y="24" width="4" height="4" style={fill('black', 0.85)} />
       <path d="M21 11.5 L40 30.5" style={stroke('line-red', 1, 2.4)} />
-      <text x="30.5" y="45" textAnchor="middle" fontSize="6.8" fontWeight="800" className="font-sans" style={fill('black', 0.88)}>
+      <text x="30.5" y="45" textAnchor="middle" fontSize="6.8" fontWeight="700" className="font-sans" style={fill('black', 0.88)}>
         CCTV 녹화중
       </text>
       <text x="30.5" y="51.4" textAnchor="middle" fontSize="3.8" fontWeight="500" className="font-sans" style={fill('black', 0.7)}>

@@ -1,5 +1,5 @@
 // ScreenOnly.jsx v2: 경로 `/screen`. 프로그램 화면만 1920x1080 비율로 창을 꽉 채워(레터박스) 보여 준다.
-// 처음 열리면 코치마크 투어가 뜨고(?tour=0이면 끔), 우클릭과 텍스트 선택과 드래그를 막는다.
+// 코치마크 투어는 ?tour=1일 때만 열린다, 우클릭과 텍스트 선택과 드래그를 막는다.
 // ?embed=1이면 웹 iframe용으로 건너뛰기 링크와 긴 투어를 빼고 짧은 안내만 보인다.
 import { Link, useSearchParams } from 'react-router-dom'
 import { RotateCw } from 'lucide-react'
@@ -17,7 +17,8 @@ export default function ScreenOnly({ ctrl }) {
   const embed = params.get('embed') === '1'
   const lang = useLangValue()
   const ctx = embed ? 'embed' : 'screen'
-  const tour = useTour({ total: TOUR_STEPS[ctx].length, autoOpen: true })
+  // v3: 투어는 자동으로 열지 않는다(?tour=1로만 연다). 화면 안 온보딩은 결제와 첫 촬영 전 팁 두 번과 탑승 안내 한 장이다.
+  const tour = useTour({ total: TOUR_STEPS[ctx].length, autoOpen: false })
   const portrait = useMedia('(orientation: portrait) and (max-width: 700px)')
 
   return (

@@ -24,7 +24,7 @@ export function slotPlaceholder(n) {
     ctx.fillStyle = rgb('bg-raised')
     ctx.fillRect(0, 0, c.width, c.height)
     ctx.fillStyle = rgb('text-pri', 0.5)
-    ctx.font = "800 150px 'Pretendard Variable', Poppins, sans-serif"
+    ctx.font = "700 150px 'Pretendard Variable', Poppins, sans-serif"
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText(String(n), c.width / 2, c.height / 2)
@@ -66,7 +66,7 @@ export function drawStamp(ctx, cx, cy, r, platform, rot = 0) {
   ctx.fillStyle = ink
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.font = `800 ${Math.round(r * 0.6)}px Poppins, 'Pretendard Variable', sans-serif`
+  ctx.font = `700 ${Math.round(r * 0.6)}px Poppins, 'Pretendard Variable', sans-serif`
   ctx.fillText(`P${platform.n}`, 0, -r * 0.1)
   const label = platform.name.replace(' SHOT', '')
   let size = r * 0.24

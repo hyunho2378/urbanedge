@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { STEPS, STEP_IDS } from './steps.js'
-import { FLOW, CAMERA_STEPS } from './config.js'
+import { FLOW, CAMERA_STEPS, PRICE } from './config.js'
 import { useCamera, samplesReady } from './camera.js'
 import { DEFAULT_RETOUCH } from './retouch.js'
 import { composeSheet, copiesOf, defaultFrameFor, ensureFonts, frameById, framesFor, overlayStamps, slotCount } from './prints.js'
@@ -40,11 +40,10 @@ function zoneFor(step, introPage, pay) {
   switch (step) {
     case 'attract':
     case 'guide':
-    case 'ready':
     case 'shoot':
       return 'camera'
     case 'intro':
-      return introPage === 1 ? 'camera' : introPage === 2 ? 'slot' : null
+      return null
     case 'pay':
       return pay.method === 'coupon' && pay.view === 'scan' ? 'camera' : 'card'
     case 'print':
@@ -55,7 +54,8 @@ function zoneFor(step, introPage, pay) {
   }
 }
 
-export const INTRO_PAGES = 5
+// v3: 탑승 안내는 한 장이다(네 정거장 노선). 렌즈와 단말기 안내는 해당 단계 옆 칸의 팁으로 옮겼다(docs/KIOSK_V3.md).
+export const INTRO_PAGES = 1
 
 export function useKioskController(options = {}) {
   const speed = options.speed ?? 1
@@ -217,13 +217,17 @@ export function useKioskController(options = {}) {
     [patchPay, later],
   )
   const payTap = useCallback((ok = true) => {
-    if (live.current.pay.method !== 'card' || live.current.pay.status !== 'waiting') return
+    const m = live.current.pay.method
+    if ((m !== 'card' && m !== 'samsung') || live.current.pay.status !== 'waiting') return
     finishPay(ok)
   }, [finishPay])
   const payCash = useCallback(() => {
     const p = live.current.pay
     if (p.method !== 'cash' || p.status !== 'waiting') return
-    const cash = Math.min(1, p.cash + 0.5)
+    // 지폐는 5,000원 한 장, 이어서 1,000원씩 들어간다(합계 7,000원). cash는 0부터 1 비율이다.
+    const paid = Math.round(p.cash * PRICE.base)
+    const bill = paid < 5000 ? 5000 : 1000
+    const cash = Math.min(1, (paid + bill) / PRICE.base)
     patchPay({ cash })
     if (cash >= 1) later(() => finishPay(true), 300)
   }, [patchPay, finishPay, later])
@@ -360,11 +364,17 @@ export function useKioskController(options = {}) {
     [go, reset, setCuts, setFrame, patchPay, fillSampleShots, initArrangement, setArrangement, composeUrl, startPrintState],
   )
 
+  // ?step=으로 시작하면 그 단계에 필요한 상태(컷 수, 프레임, 결제, 촬영 컷)를 goTo와 같은 방식으로 채운다.
+  useEffect(() => {
+    if (options.step && options.step !== 'attract') goTo(options.step)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const retake = useCallback(() => {
     sync({ shots: [], arrangement: [] })
     setShots([])
     setArrangementState([])
-    go('ready')
+    go('guide')
   }, [go])
 
   const next = useCallback(() => {
@@ -391,12 +401,6 @@ export function useKioskController(options = {}) {
         if (L.pay.status === 'success') go('guide')
         break
       case 'guide':
-        go('retouch')
-        break
-      case 'retouch':
-        go('ready')
-        break
-      case 'ready':
         go('shoot')
         break
       case 'select':
@@ -439,12 +443,6 @@ export function useKioskController(options = {}) {
         break
       case 'guide':
         go('frame')
-        break
-      case 'retouch':
-        go('guide')
-        break
-      case 'ready':
-        go('retouch')
         break
       case 'select':
         retake()

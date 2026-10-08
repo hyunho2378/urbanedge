@@ -7,7 +7,7 @@ const TONES = {
   primary: 'bg-yellow text-text-onYellow',
   ink: 'bg-bg-base text-text-pri',
   soft: 'bg-bg-raised text-text-pri',
-  ghost: 'bg-transparent text-text-pri',
+  ghost: 'bg-transparent text-text-sec px-0',
   ghostInk: 'bg-transparent text-text-onYellow',
 }
 
@@ -17,15 +17,15 @@ export const KButton = forwardRef(function KButton({ tone = 'primary', icon: Ico
       ref={ref}
       type="button"
       className={cx(
-        'ue-press kt-btn inline-flex min-h-touch min-w-touch select-none items-center justify-center gap-16 rounded-pill px-48 transition-[transform,opacity,background-color] duration-fast ease-out disabled:pointer-events-none disabled:opacity-40',
+        'ue-press kt-btn inline-flex min-h-touch min-w-touch select-none items-center justify-center gap-12 rounded-pill px-40 transition-[transform,opacity,background-color] duration-fast ease-out disabled:pointer-events-none disabled:opacity-40',
         TONES[tone],
         className,
       )}
       {...rest}
     >
-      {Icon && <Icon size={40} strokeWidth={2.4} aria-hidden="true" />}
+      {Icon && <Icon size={32} strokeWidth={2.4} aria-hidden="true" />}
       <span className="inline-grid">{children}</span>
-      {IconRight && <IconRight size={40} strokeWidth={2.4} aria-hidden="true" />}
+      {IconRight && <IconRight size={32} strokeWidth={2.4} aria-hidden="true" />}
     </button>
   )
 })

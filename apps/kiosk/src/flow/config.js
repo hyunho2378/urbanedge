@@ -25,6 +25,6 @@ export const RESULT_SESSION_ID = 'demo'
 export const resultUrl = (lang) => `${SITE}/result/${RESULT_SESSION_ID}?lang=${lang === 'ko' ? 'ko' : 'en'}`
 
 // 카메라를 켜야 하는 단계
-export const CAMERA_STEPS = ['retouch', 'ready', 'shoot']
+export const CAMERA_STEPS = ['guide', 'shoot']
 // 무입력 타이머를 멈추는 단계: 대기 화면, 촬영 중, 인화 대기
 export const IDLE_OFF_STEPS = ['attract', 'shoot', 'print']

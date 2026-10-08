@@ -3,7 +3,7 @@
    애니메이션은 transform과 opacity만 쓴다. 글꼴 굵기는 400 이상만 쓴다. */
 
 .dv-root {
-  --dv-ratio: 1.3;
+  --dv-ratio: 1.16;
   --dv-fade-rgb: var(--ue-bg-elev);
   position: relative;
   width: 100%;

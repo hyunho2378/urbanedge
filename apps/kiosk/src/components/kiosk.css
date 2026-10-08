@@ -1,139 +1,86 @@
-/* kiosk.css: 키오스크 화면 전용 타이포 레시피, 표면, 키프레임. 색 값은 var(--ue-*) 토큰만 쓴다.
-   애니메이션은 transform과 opacity만 움직인다. 동작 줄이기는 tailwind-preset의 전역 규칙이 함께 처리한다. */
+/* kiosk.css v3: 키오스크 화면 전용 타이포 레시피, 표면, 키프레임. 색 값은 var(--ue-*) 토큰만 쓴다.
+   v3 굵기 위계(docs/KIOSK_V3.md): 제목 700, 소제목 600, 본문 450, 라벨 600, 캡션 500. 800 이상은 쓰지 않는다.
+   크기 하한은 28px(라벨, 캡션)이고 본문은 36px다. 애니메이션은 transform과 opacity만 움직인다. */
 
-/* ---------- 타이포 레시피(1920x1080 캔버스 고정 px, UI.md 13장의 굵기 배합) ---------- */
-.kt-display { font-family: 'Pretendard Variable', Pretendard, sans-serif; font-size: 168px; font-weight: 800; line-height: 0.96; letter-spacing: -0.04em; }
-.kt-title { font-size: 104px; font-weight: 750; line-height: 1.04; letter-spacing: -0.03em; }
-.kt-headline { font-size: 72px; font-weight: 700; line-height: 1.12; letter-spacing: -0.022em; }
-.kt-subhead { font-size: 52px; font-weight: 650; line-height: 1.2; letter-spacing: -0.015em; }
-.kt-lead { font-size: 44px; font-weight: 450; line-height: 1.5; letter-spacing: -0.008em; }
-.kt-body { font-size: 36px; font-weight: 420; line-height: 1.6; letter-spacing: -0.004em; }
-.kt-strong { font-size: 36px; font-weight: 650; line-height: 1.5; letter-spacing: -0.006em; }
-.kt-label { font-family: 'Barlow Condensed', 'Pretendard Variable', Pretendard, sans-serif; font-size: 28px; font-weight: 600; line-height: 1.2; letter-spacing: 0.14em; text-transform: uppercase; }
-.kt-caption { font-size: 28px; font-weight: 500; line-height: 1.45; letter-spacing: 0.005em; }
-.kt-display:lang(ko), .kt-display [lang="ko"] { line-height: 1.08; letter-spacing: -0.035em; }
-.kt-title:lang(ko), .kt-title [lang="ko"] { line-height: 1.16; letter-spacing: -0.03em; }
-.kt-headline:lang(ko), .kt-headline [lang="ko"] { line-height: 1.22; letter-spacing: -0.025em; }
-.kt-subhead:lang(ko), .kt-subhead [lang="ko"] { line-height: 1.32; letter-spacing: -0.02em; }
-.kt-lead:lang(ko), .kt-lead [lang="ko"] { line-height: 1.62; letter-spacing: -0.012em; }
-.kt-body:lang(ko), .kt-body [lang="ko"] { line-height: 1.72; letter-spacing: -0.01em; }
-.kt-strong:lang(ko), .kt-strong [lang="ko"] { line-height: 1.64; letter-spacing: -0.01em; }
-.kt-label:lang(ko), .kt-label [lang="ko"] { line-height: 1.3; letter-spacing: 0.08em; text-transform: none; font-family: 'Pretendard Variable', Pretendard, sans-serif; }
+/* ---------- 타이포 레시피(1920x1080 캔버스 고정 px) ---------- */
+.kt-display { font-size: 128px; font-weight: 700; line-height: 1; letter-spacing: -0.035em; }
+.kt-title { font-size: 88px; font-weight: 700; line-height: 1.06; letter-spacing: -0.028em; }
+.kt-headline { font-size: 64px; font-weight: 700; line-height: 1.12; letter-spacing: -0.02em; }
+.kt-subhead { font-size: 48px; font-weight: 600; line-height: 1.2; letter-spacing: -0.014em; }
+.kt-lead { font-size: 40px; font-weight: 450; line-height: 1.45; letter-spacing: -0.008em; }
+.kt-body { font-size: 36px; font-weight: 450; line-height: 1.5; letter-spacing: -0.004em; }
+.kt-strong { font-size: 36px; font-weight: 600; line-height: 1.4; letter-spacing: -0.006em; }
+.kt-label { font-family: 'Barlow Condensed', 'Pretendard Variable', Pretendard, sans-serif; font-size: 28px; font-weight: 600; line-height: 1.2; letter-spacing: 0.12em; text-transform: uppercase; }
+.kt-caption { font-size: 28px; font-weight: 500; line-height: 1.45; letter-spacing: 0.004em; }
+.kt-btn { font-size: 36px; font-weight: 600; line-height: 1; letter-spacing: -0.01em; }
+
+.kt-display:lang(ko), .kt-display [lang="ko"] { line-height: 1.12; letter-spacing: -0.03em; }
+.kt-title:lang(ko), .kt-title [lang="ko"] { line-height: 1.18; letter-spacing: -0.026em; }
+.kt-headline:lang(ko), .kt-headline [lang="ko"] { line-height: 1.24; letter-spacing: -0.022em; }
+.kt-subhead:lang(ko), .kt-subhead [lang="ko"] { line-height: 1.32; letter-spacing: -0.018em; }
+.kt-lead:lang(ko), .kt-lead [lang="ko"] { line-height: 1.56; letter-spacing: -0.012em; }
+.kt-body:lang(ko), .kt-body [lang="ko"] { line-height: 1.62; letter-spacing: -0.01em; }
+.kt-strong:lang(ko), .kt-strong [lang="ko"] { line-height: 1.5; letter-spacing: -0.01em; }
+.kt-label:lang(ko), .kt-label [lang="ko"] { line-height: 1.3; letter-spacing: 0.04em; text-transform: none; font-family: 'Pretendard Variable', Pretendard, sans-serif; }
 .kt-caption:lang(ko), .kt-caption [lang="ko"] { line-height: 1.55; letter-spacing: 0; }
 .kt-btn:lang(ko), .kt-btn [lang="ko"] { letter-spacing: -0.02em; }
 /* 영문 칸은 한글 루트 안에서도 영문 값으로 되돌린다 */
-.kt-display [lang="en"] { line-height: 0.96; letter-spacing: -0.04em; }
-.kt-title [lang="en"] { line-height: 1.04; letter-spacing: -0.03em; }
-.kt-headline [lang="en"] { line-height: 1.12; letter-spacing: -0.022em; }
-.kt-subhead [lang="en"] { line-height: 1.2; letter-spacing: -0.015em; }
-.kt-lead [lang="en"] { line-height: 1.5; letter-spacing: -0.008em; }
-.kt-body [lang="en"] { line-height: 1.6; letter-spacing: -0.004em; }
-.kt-strong [lang="en"] { line-height: 1.5; letter-spacing: -0.006em; }
-.kt-label [lang="en"] { line-height: 1.2; letter-spacing: 0.14em; text-transform: uppercase; font-family: 'Barlow Condensed', 'Pretendard Variable', Pretendard, sans-serif; }
-.kt-caption [lang="en"] { line-height: 1.45; letter-spacing: 0.005em; }
-.kt-btn [lang="en"] { letter-spacing: -0.012em; }
+.kt-display [lang="en"] { line-height: 1; letter-spacing: -0.035em; }
+.kt-title [lang="en"] { line-height: 1.06; letter-spacing: -0.028em; }
+.kt-headline [lang="en"] { line-height: 1.12; letter-spacing: -0.02em; }
+.kt-subhead [lang="en"] { line-height: 1.2; letter-spacing: -0.014em; }
+.kt-lead [lang="en"] { line-height: 1.45; letter-spacing: -0.008em; }
+.kt-body [lang="en"] { line-height: 1.5; letter-spacing: -0.004em; }
+.kt-strong [lang="en"] { line-height: 1.4; letter-spacing: -0.006em; }
+.kt-label [lang="en"] { line-height: 1.2; letter-spacing: 0.12em; text-transform: uppercase; font-family: 'Barlow Condensed', 'Pretendard Variable', Pretendard, sans-serif; }
+.kt-caption [lang="en"] { line-height: 1.45; letter-spacing: 0.004em; }
+.kt-btn [lang="en"] { letter-spacing: -0.01em; }
 .kt-num { font-variant-numeric: tabular-nums; }
 
 /* ---------- 표면 ---------- */
-/* 지하철 타일 벽: 가는 줄 격자 */
-.k-tiles {
-  background-color: rgb(var(--ue-bg-base));
-  background-image:
-    linear-gradient(rgb(var(--ue-text-pri) / 0.045) 2px, transparent 2px),
-    linear-gradient(90deg, rgb(var(--ue-text-pri) / 0.045) 2px, transparent 2px);
-  background-size: 160px 80px;
-  background-position: -1px -1px;
-}
-.k-tiles-yellow {
-  background-color: rgb(var(--ue-yellow));
-  background-image:
-    linear-gradient(rgb(var(--ue-black) / 0.09) 2px, transparent 2px),
-    linear-gradient(90deg, rgb(var(--ue-black) / 0.09) 2px, transparent 2px);
-  background-size: 160px 80px;
-  background-position: -1px -1px;
-}
-/* 노란 점자 블록: 점 격자 */
-.k-tactile {
-  background-color: rgb(var(--ue-yellow));
-  background-image: radial-gradient(circle at 50% 50%, rgb(var(--ue-yellow-pressed)) 0 7px, transparent 8px);
-  background-size: 36px 36px;
-}
-/* 경고 테이프 띠 */
-.k-tape {
-  background-color: rgb(var(--ue-yellow));
-  background-image: repeating-linear-gradient(135deg, rgb(var(--ue-black)) 0 28px, transparent 28px 56px);
-}
-.k-fade-b { background-image: linear-gradient(to top, rgb(var(--ue-bg-base)) 8%, rgb(var(--ue-bg-base) / 0)); }
-.k-fade-t { background-image: linear-gradient(to bottom, rgb(var(--ue-bg-base)) 12%, rgb(var(--ue-bg-base) / 0)); }
-.k-vignette { background-image: radial-gradient(ellipse at 50% 45%, rgb(var(--ue-black) / 0) 55%, rgb(var(--ue-black) / 0.55)); }
 .k-canvas { display: block; }
-.k-island-ring { box-shadow: 0 0 0 1px rgb(var(--ue-text-pri) / 0.16), 0 18px 48px rgb(var(--ue-black) / 0.5); }
-.k-lift { box-shadow: 0 24px 64px rgb(var(--ue-black) / 0.45), 0 4px 14px rgb(var(--ue-black) / 0.35); }
+.k-lift { box-shadow: 0 28px 72px rgb(var(--ue-black) / 0.5), 0 4px 14px rgb(var(--ue-black) / 0.35); }
 .k-photo-edge { outline: 1px solid rgb(var(--ue-white) / 0.1); outline-offset: -1px; }
+/* 노선 한 줄: 상단 진행 표시의 바탕 선 */
+.k-line { background-color: rgb(var(--ue-text-pri) / 0.16); }
 
 /* ---------- 키프레임 ---------- */
-@keyframes k-enter { from { opacity: 0; transform: translate3d(72px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
-@keyframes k-enter-back { from { opacity: 0; transform: translate3d(-72px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
-.k-enter { animation: k-enter 480ms var(--ue-ease-out) both; }
-.k-enter-back { animation: k-enter-back 480ms var(--ue-ease-out) both; }
-@keyframes k-rise { from { opacity: 0; transform: translate3d(0, 28px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
-.k-rise { animation: k-rise 560ms var(--ue-ease-out) both; }
+@keyframes k-enter { from { opacity: 0; transform: translate3d(40px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes k-enter-back { from { opacity: 0; transform: translate3d(-40px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+.k-enter { animation: k-enter 420ms var(--ue-ease-out) both; }
+.k-enter-back { animation: k-enter-back 420ms var(--ue-ease-out) both; }
+@keyframes k-rise { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+.k-rise { animation: k-rise 520ms var(--ue-ease-out) both; }
 .k-d1 { animation-delay: 80ms; } .k-d2 { animation-delay: 160ms; } .k-d3 { animation-delay: 240ms; } .k-d4 { animation-delay: 320ms; }
 
 /* 카운트다운 숫자: 키오스크 타입 스케일 밖의 전용 크기 */
-@keyframes k-count { 0% { opacity: 0; transform: scale(1.35); } 16% { opacity: 1; transform: scale(1); } 100% { opacity: 1; transform: scale(0.94); } }
-.k-count { font-size: 420px; font-weight: 800; line-height: 1; letter-spacing: -0.04em; animation: k-count 1000ms var(--ue-ease-out) both; }
+@keyframes k-count { 0% { opacity: 0; transform: scale(1.2); } 16% { opacity: 1; transform: scale(1); } 100% { opacity: 1; transform: scale(0.96); } }
+.k-count { font-size: 360px; font-weight: 700; line-height: 1; letter-spacing: -0.04em; animation: k-count 1000ms var(--ue-ease-out) both; }
 
-@keyframes k-breathe { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.03); } }
-.k-breathe { animation: k-breathe 2.8s var(--ue-ease-out) infinite; }
-
-/* 렌즈 쪽을 가리키는 신호: 아래로 꾸준히 흔들린다 */
-@keyframes k-nudge { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, 14px, 0); } }
-.k-nudge { animation: k-nudge 1.5s var(--ue-ease-out) infinite; }
-@keyframes k-chevron { 0% { opacity: 0.15; transform: translate3d(0, -10px, 0); } 50% { opacity: 1; transform: translate3d(0, 0, 0); } 100% { opacity: 0.15; transform: translate3d(0, 10px, 0); } }
-.k-chevron { animation: k-chevron 1.5s ease-in-out infinite both; }
-.k-chevron-2 { animation-delay: 0.25s; }
-.k-chevron-3 { animation-delay: 0.5s; }
-@keyframes k-ripple { 0% { opacity: 0.7; transform: scale(1); } 100% { opacity: 0; transform: scale(2.2); } }
-.k-ripple { animation: k-ripple 1.8s var(--ue-ease-out) infinite; }
-.k-ripple-2 { animation-delay: 0.9s; }
+/* 렌즈나 단말기 쪽을 가리키는 신호: 천천히 아래로 */
+@keyframes k-nudge { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, 12px, 0); } }
+.k-nudge { animation: k-nudge 1.6s var(--ue-ease-out) infinite; }
+@keyframes k-nudge-dr { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(10px, 10px, 0); } }
+.k-nudge-dr { animation: k-nudge-dr 1.6s var(--ue-ease-out) infinite; }
+@keyframes k-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+.k-pulse { animation: k-pulse 1.6s ease-in-out infinite; }
 
 @keyframes k-caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 .k-caret { animation: k-caret 1s steps(1, end) infinite; }
-@keyframes k-stamp { 0% { opacity: 0; transform: scale(1.5) rotate(-12deg); } 60% { opacity: 1; transform: scale(0.94) rotate(2deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+@keyframes k-stamp { 0% { opacity: 0; transform: scale(1.4) rotate(-10deg); } 60% { opacity: 1; transform: scale(0.95) rotate(2deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
 .k-stamp { animation: k-stamp 420ms var(--ue-ease-out) both; }
-@keyframes k-pop { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+@keyframes k-pop { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }
 .k-pop { animation: k-pop 320ms var(--ue-ease-out) both; }
+/* 인화지가 천천히 떠 있는 느낌 */
+@keyframes k-print-bob { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -6px, 0); } }
+.k-print-bob { animation: k-print-bob 2.8s ease-in-out infinite; }
+@keyframes k-spin { to { transform: rotate(360deg); } }
+.k-spin { animation: k-spin 1s linear infinite; }
 
-/* 세로로 흐르는 사진 열(대기 화면) */
-@keyframes k-scroll-up { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(0, -50%, 0); } }
-@keyframes k-scroll-down { from { transform: translate3d(0, -50%, 0); } to { transform: translate3d(0, 0, 0); } }
-.k-scroll-up { animation: k-scroll-up 70s linear infinite; }
-.k-scroll-down { animation: k-scroll-down 84s linear infinite; }
-/* 테이프 글자 흐름 */
-@keyframes k-flow { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
-.k-flow { animation: k-flow 38s linear infinite; }
-/* 아일랜드 안쪽 열차 */
-@keyframes k-train-idle { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -2px, 0); } }
-.k-train-idle { animation: k-train-idle 1.2s ease-in-out infinite; }
-/* 인화지가 현상되는 느낌: 덮개가 걷힌다 */
-@keyframes k-print-bob { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -8px, 0); } }
-.k-print-bob { animation: k-print-bob 2.6s ease-in-out infinite; }
-/* 결제 단말기의 초록 불 */
-@keyframes k-led { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
-.k-led { animation: k-led 0.9s ease-in-out infinite; }
-/* 손가락 끌기 데모 */
-@keyframes k-drag-demo { 0%, 12% { transform: translate3d(0, 0, 0); opacity: 0; } 22% { opacity: 1; } 70% { transform: translate3d(var(--k-dx, 220px), var(--k-dy, 0), 0); opacity: 1; } 86%, 100% { transform: translate3d(var(--k-dx, 220px), var(--k-dy, 0), 0); opacity: 0; } }
-.k-drag-demo { animation: k-drag-demo 2.8s var(--ue-ease-out) infinite; }
-
-/* 동작 줄이기: 무한 반복 애니메이션은 정지한 채 보이는 상태로 둔다(끝 프레임의 투명 상태로 남기지 않는다) */
+/* 동작 줄이기: 반복 애니메이션은 보이는 상태로 멈춘다 */
 @media (prefers-reduced-motion: reduce) {
-  .k-chevron, .k-breathe, .k-caret, .k-print-bob, .k-nudge, .k-led, .k-train-idle { animation: none !important; opacity: 1; transform: none; }
-  .k-ripple, .k-drag-demo { animation: none !important; opacity: 0; }
-  .k-scroll-up, .k-scroll-down, .k-flow { animation: none !important; }
+  .k-nudge, .k-nudge-dr, .k-pulse, .k-caret, .k-print-bob, .k-spin { animation: none !important; opacity: 1; transform: none; }
 }
-
-.kt-btn { font-size: 40px; font-weight: 650; line-height: 1; letter-spacing: -0.012em; }
 
 .k-noscroll { scrollbar-width: none; -ms-overflow-style: none; }
 .k-noscroll::-webkit-scrollbar { display: none; }

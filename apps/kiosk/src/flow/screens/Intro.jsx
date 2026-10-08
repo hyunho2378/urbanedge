@@ -1,76 +1,31 @@
-import { cx } from '@urbanedge/ds'
-import { T } from '../../components/lang.jsx'
-import { CouponDemo, DragDemo, HowRoute, LensDiagram, StandDiagram } from '../../components/Illustrations.jsx'
+import { T, useLang } from '../../components/lang.jsx'
 import { COPY } from '../copy.js'
-import { INTRO_PAGES } from '../controller.js'
-import { DEMO_COUPON } from '../coupon.js'
 
-// 3. intro: 온보딩 다섯 장이 가로로 넘어간다(자동 진행 없음, 오른쪽 아래 다음 버튼으로 넘긴다).
-//   1 이용 순서와 이야기  2 카메라는 화면 아래(hintZone camera)  3 서는 곳과 1번 출구(hintZone slot)  4 끌어서 바꾸기  5 쿠폰
-// 한 장에 하나의 생각만 담는다. 노랑 면은 카메라 위치를 강조하는 장이다.
-const TILES = ['/img/team/shot-1.jpg', '/img/team/shot-2.jpg', '/img/team/shot-3.jpg']
-
-function Slide({ yellow, title, body, children }) {
+// 3. intro v3: 온보딩 첫 순간. 노선도처럼 네 정거장(선택, 결제, 촬영, 인화)을 한 줄로 보여 주는 한 장이다.
+const X0 = 240
+const X1 = 1680
+export default function Intro() {
+  const lang = useLang()
+  const stops = COPY.intro.stops
+  const gap = (X1 - X0) / (stops.length - 1)
   return (
-    <section className={cx('absolute inset-y-0 h-full overflow-hidden', yellow ? 'k-tiles-yellow text-text-onYellow' : 'k-tiles text-text-pri')} style={{ width: 1920 }}>
-      <div className="absolute" style={{ left: 64, top: 176, width: 820 }}>
-        <T n={title} as="h1" className="kt-title" />
-        <T n={body} as="p" className={cx('kt-body mt-32', yellow ? 'text-text-onYellow' : 'text-text-sec')} />
+    <div className="absolute inset-0 bg-bg-base">
+      <div className="absolute" style={{ left: 120, top: 240, width: 1300 }}>
+        <T n={COPY.intro.title} as="h1" className="kt-title" />
+        <T n={COPY.intro.body} as="p" className="kt-lead mt-24 text-text-sec" />
       </div>
-      <div className="absolute" style={{ left: 980, top: 150, width: 880, height: 780 }}>
-        {children}
-      </div>
-    </section>
-  )
-}
-
-export default function Intro({ ctrl }) {
-  const page = ctrl.introPage
-  const S = COPY.intro.slides
-  const slides = [
-    <Slide key="how" title={S.how.title} body={S.how.body}>
-      <div className="flex h-full items-center justify-center">
-        <HowRoute stops={S.how.stops} />
-      </div>
-    </Slide>,
-    <Slide key="lens" yellow title={S.lens.title} body={S.lens.body}>
-      <div className="flex h-full items-start justify-center" style={{ paddingTop: 10 }}>
-        <LensDiagram />
-      </div>
-    </Slide>,
-    <Slide key="stand" title={S.stand.title} body={S.stand.body}>
-      <div className="flex h-full items-start justify-center">
-        <StandDiagram />
-      </div>
-    </Slide>,
-    <Slide key="touch" title={S.touch.title} body={S.touch.body}>
-      <div className="flex h-full items-center justify-center">
-        <DragDemo tiles={TILES} />
-      </div>
-    </Slide>,
-    <Slide key="coupon" yellow title={S.coupon.title} body={S.coupon.body}>
-      <div className="flex h-full items-center justify-center">
-        <CouponDemo code={DEMO_COUPON} />
-      </div>
-    </Slide>,
-  ]
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      <div className="absolute inset-y-0 left-0 transition-transform duration-slow ease-out" style={{ width: 1920 * INTRO_PAGES, transform: `translate3d(${-page * 1920}px, 0, 0)` }}>
-        {slides.map((s, i) => (
-          <div key={i} className="absolute inset-y-0" style={{ left: i * 1920, width: 1920 }}>
-            {s}
-          </div>
+      <ol className="absolute inset-x-0" style={{ top: 600, height: 280 }} aria-label={COPY.intro.title[lang]}>
+        <span className="absolute rounded-pill bg-yellow" style={{ left: X0, width: X1 - X0, top: 34, height: 12 }} aria-hidden="true" />
+        {stops.map((s, i) => (
+          <li key={s.en} className="k-rise absolute flex flex-col items-center text-center" style={{ left: X0 + i * gap - 200, width: 400, top: 0, animationDelay: `${i * 90}ms` }}>
+            <span className="kt-strong kt-num grid place-items-center rounded-pill bg-bg-base text-text-pri ring-8 ring-yellow" style={{ width: 80, height: 80 }} aria-hidden="true">
+              {i + 1}
+            </span>
+            <T n={s} as="span" className="kt-subhead mt-32" />
+            <T n={s.sub} as="span" className="kt-body mt-4 text-text-sec" />
+          </li>
         ))}
-      </div>
-      <p className={cx('kt-caption absolute flex items-center gap-12', page === 1 || page === 4 ? 'text-text-onYellow' : 'text-text-meta')} style={{ left: 380, bottom: 82 }} role="status">
-        <span className="flex gap-8" aria-hidden="true">
-          {Array.from({ length: INTRO_PAGES }, (_, i) => (
-            <span key={i} className={cx('block rounded-pill', i === page ? 'bg-current' : 'bg-current opacity-30')} style={{ width: i === page ? 36 : 12, height: 12 }} />
-          ))}
-        </span>
-        <T n={COPY.intro.page} v={{ n: page + 1, total: INTRO_PAGES }} inline />
-      </p>
+      </ol>
     </div>
   )
 }

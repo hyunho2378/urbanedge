@@ -5,7 +5,7 @@ import { StripView } from '../../components/StripView.jsx'
 import { DragLayer, useDrag } from '../../components/useDrag.jsx'
 import { useStageRef } from '../../components/stage.js'
 import { COPY } from '../copy.js'
-import { defaultFrameFor, photosFromArrangement } from '../prints.js'
+import { defaultFrameFor } from '../prints.js'
 
 // 11. select: 찍은 컷을 인화 칸에 끌어 놓는다. 위 줄은 찍은 컷, 아래 줄은 인화 순서 칸이고 오른쪽 미리보기가 바로 바뀐다.
 // 끌기가 어려운 사람을 위해 컷을 한 번 누르면 첫 빈 칸에 들어가고, 칸을 누르면 비워진다.
@@ -18,9 +18,16 @@ export default function Select({ ctrl }) {
   const S = arrangement.length
   const n = shots.length
   const big = Math.max(n, S) <= 4
-  const tw = big ? 160 : 120
-  const th = big ? 213 : 160
-  const photos = useMemo(() => photosFromArrangement(arrangement, shots), [arrangement, shots])
+  const tw = big ? 150 : 120
+  const th = big ? 200 : 160
+  // 미리보기는 회색 자리표시 없이 실제 인화물처럼 보인다. 빈 칸에는 아직 배치하지 않은 컷을 순서대로 채워 보여 준다.
+  const photos = useMemo(() => {
+    const free = shots.map((_, i) => i).filter((i) => !arrangement.includes(i))
+    return arrangement.map((v) => {
+      const k = v != null ? v : free.shift()
+      return k != null && shots[k] ? shots[k].canvas : null
+    }).filter(Boolean)
+  }, [arrangement, shots])
   const slotAt = (c) => {
     const el = document.elementFromPoint(c.x, c.y)
     const s = el && el.closest('[data-slot]')
@@ -61,15 +68,19 @@ export default function Select({ ctrl }) {
   }
 
   return (
-    <div className="k-tiles absolute inset-0">
-      <div className="absolute" style={{ left: 64, top: 172, width: 1080 }}>
-        <T n={S < n ? COPY.select.titlePick : COPY.select.titleArrange} v={{ n: S }} as="h1" className="kt-headline" />
-        <T n={COPY.select.hint} as="p" className="kt-body mt-8 text-text-sec" />
+    <div className="absolute inset-0 bg-bg-base">
+      <div className="absolute" style={{ left: 120, top: 212 }}>
+        {frame && <StripView frame={frame} photos={photos} date={ctrl.date} roomId={ctrl.room} message={ctrl.message} height={680} scale={1} className="k-lift" label={COPY.select.tray.en} />}
       </div>
 
-      <div className="absolute" style={{ left: 64, top: 350 }} data-coach="select">
-        <T n={COPY.select.tray} as="p" className="kt-caption mb-8 text-text-meta" />
-        <ul className="flex gap-12" data-tray="">
+      <div className="absolute" style={{ left: 760, top: 236, width: 1096 }}>
+        <T n={S < n ? COPY.select.titlePick : COPY.select.titleArrange} v={{ n: S }} as="h1" className="kt-headline" />
+        <T n={COPY.select.hint} as="p" className="kt-body mt-12 text-text-sec" />
+      </div>
+
+      <div className="absolute" style={{ left: 760, top: 420 }}>
+        <T n={COPY.select.tray} as="p" className="kt-label mb-16 text-text-meta" />
+        <ul className="flex flex-wrap gap-16" style={{ width: 1096 }} data-tray="">
           {shots.map((s, i) => {
             const at = arrangement.indexOf(i)
             return (
@@ -82,14 +93,14 @@ export default function Select({ ctrl }) {
                   style={{ width: tw, height: th }}
                 >
                   <img src={s.url} alt="" draggable="false" className={cx('h-full w-full object-cover transition-opacity duration-fast', at >= 0 && 'opacity-30')} />
-                  {at >= 0 && <span className="kt-strong kt-num absolute inset-0 grid place-items-center text-yellow">{at + 1}</span>}
+                  {at >= 0 && <span className="kt-subhead kt-num absolute inset-0 grid place-items-center text-yellow">{at + 1}</span>}
                 </button>
               </li>
             )
           })}
         </ul>
-        <T n={COPY.select.stripOrder} as="p" className="kt-caption mb-8 mt-28 text-text-meta" />
-        <ul className="flex gap-12">
+        <T n={COPY.select.stripOrder} as="p" className="kt-label mb-16 mt-40 text-text-meta" />
+        <ul className="flex flex-wrap gap-16" style={{ width: 1096 }}>
           {arrangement.map((v, s) => (
             <li key={s}>
               <div
@@ -102,15 +113,11 @@ export default function Select({ ctrl }) {
                 className={cx('relative touch-none overflow-hidden rounded-lg transition-[transform,background-color] duration-fast', v == null ? 'bg-bg-panel' : 'bg-bg-raised', over === s && 'scale-105 bg-yellow')}
                 style={{ width: tw, height: th }}
               >
-                {v != null ? <img src={shots[v].url} alt="" draggable="false" className="h-full w-full object-cover" /> : <span className="kt-subhead kt-num absolute inset-0 grid place-items-center text-text-meta">{s + 1}</span>}
+                {v != null ? <img src={shots[v].url} alt="" draggable="false" className="h-full w-full object-cover" /> : <span className="kt-strong kt-num absolute inset-0 grid place-items-center text-text-meta">{s + 1}</span>}
               </div>
             </li>
           ))}
         </ul>
-      </div>
-
-      <div className="absolute" style={{ left: 1285, top: 170 }}>
-        {frame && <StripView frame={frame} photos={photos} date={ctrl.date} roomId={ctrl.room} message={ctrl.message} height={700} className="k-lift" label={COPY.select.tray.en} />}
       </div>
       <DragLayer drag={drag}>{(p) => <img src={p.src} alt="" className="rounded-lg object-cover" style={{ width: tw, height: th }} />}</DragLayer>
     </div>

@@ -1,40 +1,38 @@
 import { T } from '../../components/lang.jsx'
 import { PoseFigure } from '../../components/PoseFigure.jsx'
+import { Tip } from '../../components/Tip.jsx'
 import { COPY } from '../copy.js'
-import { roomById, PLATFORM_BG } from '../rooms.js'
-import { cx } from '@urbanedge/ds'
+import { roomById } from '../rooms.js'
 
-// 7. guide: 승강장(방)마다 다른 포즈 제안 네 가지. 아래 렌즈 표지가 계속 카메라 위치를 가리킨다.
+// 7. guide v3.1: 촬영 직전 한 장. 처음 한 번은 렌즈 위치 팁(온보딩 세 번째 순간)이 포즈 자리에 열리고, 닫으면 포즈 네 가지가 나온다.
+// 보정과 얼굴 맞추기 단계는 없다. 아래 가운데의 렌즈 신호는 KioskScreen이 그린다.
 export default function Guide({ ctrl }) {
   const room = roomById(ctrl.room)
   const poses = room.copy.poses
+  const seen = ctrl.coach.seen.lens
   return (
-    <div className="k-tiles absolute inset-0">
-      <div className="absolute" style={{ left: 64, top: 172, width: 1000 }}>
-        <div className="flex items-center gap-20">
-          <span className={cx('grid place-items-center rounded-pill font-label font-bold', PLATFORM_BG[room.color])} style={{ width: 80, height: 80, fontSize: 44 }}>
-            {room.n}
-          </span>
-          <T n={room.title} as="p" className="kt-headline" />
-        </div>
-        <T n={COPY.guide.title} v={{ room: room.title }} as="h1" className="sr-only" />
+    <div className="absolute inset-0 bg-bg-base">
+      <div className="absolute" style={{ left: 120, top: 236, width: 1500 }}>
+        <T n={COPY.guide.title} v={{ room: room.title }} as="h1" className="kt-title" />
+        <T n={COPY.guide.tip} as="p" className="kt-lead mt-16 text-text-sec" />
       </div>
-      <div className="absolute" style={{ left: 1100, top: 190, width: 756 }}>
-        <T n={COPY.guide.tip} as="p" className="kt-body text-text-sec" />
-      </div>
-      <ul className="absolute grid" style={{ left: 64, top: 372, gridTemplateColumns: 'repeat(4, 412px)', columnGap: 48 }}>
-        {poses.map((p, i) => (
-          <li key={i} className={cx('k-rise', `k-d${i + 1}`)}>
-            <div className="grid place-items-center rounded-xl bg-bg-raised" style={{ height: 232 }}>
-              <div style={{ height: 184 }}>
+      {seen ? (
+        <ul className="absolute grid" style={{ left: 120, top: 500, gridTemplateColumns: 'repeat(4, 380px)', columnGap: 56 }}>
+          {poses.map((p, i) => (
+            <li key={i} className={`k-rise k-d${i + 1}`}>
+              <div className="flex items-end" style={{ height: 180 }}>
                 <PoseFigure fig={p.fig} className="h-full w-auto text-yellow" />
               </div>
-            </div>
-            <T n={{ en: p.en[0], ko: p.ko[0] }} as="p" className="kt-strong mt-16" />
-            <T n={{ en: p.en[1], ko: p.ko[1] }} as="p" className="kt-body text-text-sec" />
-          </li>
-        ))}
-      </ul>
+              <T n={{ en: p.en[0], ko: p.ko[0] }} as="p" className="kt-strong mt-28" />
+              <T n={{ en: p.en[1], ko: p.ko[1] }} as="p" className="kt-body mt-4 text-text-sec" />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div className="absolute" style={{ left: 120, top: 440, width: 1200 }}>
+          <Tip focus="camera" title={COPY.tip.lensTitle} body={COPY.tip.lensBody} onDone={() => ctrl.markCoach('lens')} />
+        </div>
+      )}
     </div>
   )
 }

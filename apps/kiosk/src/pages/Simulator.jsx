@@ -9,7 +9,6 @@ import { Bi, Button, cx, pickLang, useLangValue } from '@urbanedge/ds'
 import { UEMark } from '@urbanedge/brand'
 import DeviceFrame from '../device/DeviceFrame.jsx'
 import Stage from '../device/Stage.jsx'
-import StepIsland from '../device/StepIsland.jsx'
 import Tour from '../device/Tour.jsx'
 import { TOUR_STEPS } from '../device/tourCopy.js'
 import { NOTICE } from '../device/stations.js'
@@ -168,7 +167,8 @@ export default function Simulator({ ctrl }) {
   const [blocked, setBlocked] = useState(false)
   const listRef = useRef(null)
   const tourCtx = embed ? 'embedDevice' : 'sim'
-  const tour = useTour({ total: TOUR_STEPS[tourCtx].length, autoOpen: embed })
+  // v3: 투어는 버튼(Take the tour)이나 ?tour=N으로만 연다. 자동으로 화면을 덮지 않는다.
+  const tour = useTour({ total: TOUR_STEPS[tourCtx].length, autoOpen: false })
   const [tourHint, setTourHint] = useState(null)
   const before = useRef(null)
 
@@ -355,7 +355,6 @@ export default function Simulator({ ctrl }) {
       ) : null}
 
       <section className="flex flex-col items-center justify-center gap-12 bg-bg-elev px-16 py-16 lg:min-w-0 lg:flex-1 lg:px-24" aria-label={t('deviceLabel')}>
-        <StepIsland steps={steps} step={step} room={room} className="w-full max-w-md" />
         {device}
         {live}
       </section>

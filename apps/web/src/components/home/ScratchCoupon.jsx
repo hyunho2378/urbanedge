@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Check, Copy, Lock } from 'lucide-react'
+import { Check, Copy, Link2, Lock, Share2 } from 'lucide-react'
 import { cx } from '@urbanedge/ds'
 import { SITE } from '../../data/site.js'
 import { usePick } from '../../i18n/index.jsx'
-import { markRevealed, useRevealed, useShared } from './rewards.js'
-import { useShare } from './kit.jsx'
 import { B } from '../../layout/B.jsx'
 
 // CSS 변수(RGB 3채널)를 canvas용 색 문자열로 읽는다. 소스에 색 리터럴을 쓰지 않기 위해서다.
@@ -13,16 +11,67 @@ const cssRgb = (name, alpha = 1) => {
   return `rgb(${v.split(' ').join(',')}${alpha < 1 ? `,${alpha}` : ''})`
 }
 
-// 스크래치 쿠폰. 공유 시트를 열었다 닫으면 잠금이 풀린다(정직 시스템, 메모리에만 저장).
-// 긁기: 포인터와 터치. 키보드와 보조기기: "Reveal" 버튼.
+// 스크래치 쿠폰. 실제로 공유해야 열린다.
+// 1) Web Share API가 있으면 navigator.share가 성공(resolve)했을 때만 연다. 취소(AbortError)는 열지 않는다.
+// 2) 없으면 링크 복사 또는 X, Facebook, LINE 공유 링크를 누른 뒤에 연다(카카오톡은 SDK 키가 없어 링크 복사로 붙여 넣는다).
+// 상태는 이 컴포넌트의 React state에만 있다(저장소 없음, 새로고침하면 초기화).
+// 긁기: 포인터와 터치. 키보드와 보조기기: "바로 확인" 버튼.
 export default function ScratchCoupon({ className }) {
   const pick = usePick()
-  const shared = useShared()
-  const revealed = useRevealed()
+  const [shared, setShared] = useState(false)
+  const [revealed, setRevealed] = useState(false)
+  const [targets, setTargets] = useState(false) // Web Share가 없을 때 공유 대상 목록
+  const [linkCopied, setLinkCopied] = useState(false)
   const canvas = useRef(null)
   const state = useRef({ down: false, last: null, strokes: 0 })
   const [copied, setCopied] = useState(false)
-  const share = useShare({ title: SITE.name, text: pick({ en: 'Gyeongju has no subway, so UrbanEdge built a station.', ko: '경주에 지하철이 없어서 어반엣지가 역을 만들었다.' }) })
+  const markRevealed = useCallback(() => setRevealed(true), [])
+  const url = (typeof window !== 'undefined' ? window.location.origin : 'https://urbanedge-web.vercel.app') + '/'
+  const text = pick({ en: 'UrbanEdge, a photo studio in Hwangridan-gil, Gyeongju', ko: '경주 황리단길 사진관 어반엣지' })
+  const enc = encodeURIComponent
+  const shareLinks = [
+    { id: 'x', label: 'X', href: `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}` },
+    { id: 'fb', label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}` },
+    { id: 'line', label: 'LINE', href: `https://social-plugins.line.me/lineit/share?url=${enc(url)}` },
+  ]
+
+  const startShare = async () => {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title: SITE.name, text, url })
+        setShared(true)
+      } catch (e) {
+        // 취소는 그대로 잠근다. 그 밖의 실패는 대체 공유 목록을 연다.
+        if (e?.name !== 'AbortError') setTargets(true)
+      }
+      return
+    }
+    setTargets(true)
+  }
+  const copyLink = async () => {
+    let ok = false
+    try {
+      await navigator.clipboard.writeText(url)
+      ok = true
+    } catch {
+      // 클립보드 API가 막히면 예전 방식으로 복사한다.
+      const ta = document.createElement('textarea')
+      ta.value = url
+      ta.setAttribute('readonly', '')
+      ta.style.position = 'fixed'
+      ta.style.opacity = '0'
+      document.body.append(ta)
+      ta.select()
+      try {
+        ok = document.execCommand('copy')
+      } catch {
+        ok = false
+      }
+      ta.remove()
+    }
+    setLinkCopied(ok)
+    if (ok) setShared(true)
+  }
 
   const paintFoil = useCallback(() => {
     const c = canvas.current
@@ -117,19 +166,34 @@ export default function ScratchCoupon({ className }) {
         <div className="flex flex-col items-start justify-center gap-4 p-20 md:p-24" style={{ minHeight: 148 }}>
           {shared ? (
             <>
-              <p className="t-label text-text-meta"><B v={{ en: 'Kiosk coupon', ko: '키오스크 쿠폰' }} inline /></p>
+              <p className="t-label text-text-meta"><B v={{ en: 'Coupon', ko: '쿠폰' }} inline /></p>
               <p className="t-title tracking-wide text-yellow" aria-live="polite">
                 {revealed ? SITE.coupon.code : pick({ en: 'Scratch to reveal', ko: '긁어서 확인' })}
               </p>
-              <p className="t-caption text-text-sec"><B v={{ en: 'Show this code at the kiosk.', ko: '키오스크에서 이 코드를 보여 준다.' }} inline /></p>
+              {linkCopied && !revealed && <p className="t-caption text-text-sec"><B v={{ en: 'Link copied. Paste it to a friend.', ko: '링크를 복사했다. 친구에게 붙여 넣어 보내면 된다.' }} inline /></p>}
             </>
           ) : (
             <>
-              <Lock size={22} aria-hidden="true" className="text-text-meta" />
-              <p className="t-subhead"><B v={{ en: 'Share the line to unlock a scratch card.', ko: '노선을 공유하면 스크래치 카드가 열린다' }} inline /></p>
-              <button type="button" onClick={share.open} className="ue-press mt-8 inline-flex min-h-48 items-center rounded-pill bg-yellow px-24 font-ui text-body-sm font-semibold text-text-onYellow transition-colors duration-fast ease-out hover:bg-yellow-hover">
-                <B v={{ en: 'Share to unlock', ko: '공유하고 열기' }} inline />
-              </button>
+              <p className="inline-flex items-center gap-8 t-body text-text-sec"><Lock size={18} aria-hidden="true" /><B v={{ en: 'Locked until you share', ko: '공유하면 열린다' }} inline /></p>
+              {!targets ? (
+                <button type="button" onClick={startShare} className="ue-press mt-8 inline-flex min-h-48 items-center gap-8 rounded-pill bg-yellow px-24 font-ui text-body-sm font-semibold text-text-onYellow transition-colors duration-fast ease-out hover:bg-yellow-hover">
+                  <Share2 size={18} aria-hidden="true" />
+                  <B v={{ en: 'Share', ko: '공유하기' }} inline />
+                </button>
+              ) : (
+                <div className="mt-8 flex flex-wrap items-center gap-8">
+                  <button type="button" onClick={copyLink} className="ue-press inline-flex min-h-48 items-center gap-8 rounded-pill bg-yellow px-20 font-ui text-body-sm font-semibold text-text-onYellow transition-colors duration-fast ease-out hover:bg-yellow-hover">
+                    <Link2 size={16} aria-hidden="true" />
+                    <B v={{ en: 'Copy link', ko: '링크 복사' }} inline />
+                  </button>
+                  {shareLinks.map((l) => (
+                    <a key={l.id} href={l.href} target="_blank" rel="noopener noreferrer" onClick={() => setShared(true)} className="ue-press inline-flex min-h-48 items-center rounded-pill bg-bg-raised px-20 font-ui text-body-sm font-semibold text-text-pri transition-colors duration-fast ease-out hover:bg-yellow hover:text-text-onYellow">
+                      {l.label}
+                      <span className="sr-only">{pick({ en: '(opens in a new tab)', ko: '(새 탭에서 열림)' })}</span>
+                    </a>
+                  ))}
+                </div>
+              )}
             </>
           )}
         </div>
@@ -168,7 +232,6 @@ export default function ScratchCoupon({ className }) {
           )}
         </div>
       )}
-      {share.sheet}
     </div>
   )
 }

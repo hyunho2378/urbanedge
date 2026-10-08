@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 
-// 메모리에만 두는 보상 상태. 공유 시트를 열었다 닫으면 스크래치 쿠폰이 열린다(정직 시스템). 저장소를 쓰지 않으므로 새로고침하면 초기화된다.
+// 메모리에만 두는 공유 표시. 스크래치 쿠폰은 더 이상 이 값을 쓰지 않는다(쿠폰은 실제 공유가 끝나야 열리며 상태는 ScratchCoupon 안에 있다).
 let shared = false
 let revealed = false
 const subs = new Set()

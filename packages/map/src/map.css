@@ -65,7 +65,20 @@
 .uemap-btn--icon { padding: 0; width: 2.75rem; }
 
 /* 컨트롤: 오른쪽 아래의 작은 확대 축소 */
-.uemap-zoom { position: absolute; right: 0.75rem; bottom: 4.25rem; z-index: 3; display: flex; flex-direction: column; gap: 0.25rem; }
+.uemap-zoom { position: absolute; right: 0.75rem; top: 0.75rem; z-index: 3; display: flex; flex-direction: column; gap: 0.25rem; }
+.uemap-zoom--low { top: 4.25rem; }
+/* 내 위치: 지도 왼쪽 위의 하나뿐인 주 버튼 */
+.uemap-mebtn {
+  position: absolute; left: 0.75rem; top: 0.75rem; z-index: 3;
+  display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.75rem; padding: 0 1rem 0 0.875rem; border: 0; border-radius: 999px;
+  background: rgb(var(--ue-yellow)); color: rgb(var(--ue-text-on-yellow));
+  font-family: 'SUIT Variable', 'Pretendard Variable', sans-serif; font-weight: 700; font-size: 0.9375em; white-space: nowrap; cursor: pointer;
+  box-shadow: 0 6px 18px rgb(var(--ue-black) / 0.35);
+}
+.uemap-mebtn--on { background: rgb(var(--ue-bg-base) / 0.92); color: rgb(var(--ue-text-pri)); }
+.uemap-mebtn:disabled { opacity: 0.7; cursor: progress; }
+.uemap-mebtn:active { transform: scale(0.97); }
+.uemap-mebtn:focus-visible { outline: 2px solid rgb(var(--ue-focus)); outline-offset: 3px; }
 .uemap-fab {
   display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border: 0; border-radius: 50%;
   background: rgb(var(--ue-bg-base) / 0.9); color: rgb(var(--ue-text-pri)); cursor: pointer;
@@ -93,6 +106,8 @@
 .uemap-link:disabled { opacity: 0.55; cursor: default; }
 .uemap-status { min-height: 0; max-width: 100%; padding: 0 0.5rem; color: rgb(var(--ue-text-pri)); font-size: 0.78em; line-height: 1.4; text-shadow: 0 1px 6px rgb(var(--ue-bg-base)), 0 0 2px rgb(var(--ue-bg-base)); }
 .uemap-status:empty { display: none; }
+.uemap-status--box { padding: 0.5rem 0.75rem; border-radius: 0.75rem; background: rgb(var(--ue-bg-base) / 0.92); text-shadow: none; font-size: 0.875em; }
+.uemap-status--err { box-shadow: inset 3px 0 0 rgb(var(--ue-yellow)); }
 .uemap-status a { color: rgb(var(--ue-yellow)); text-underline-offset: 3px; margin-right: 0.75em; white-space: nowrap; }
 .uemap-status__note { color: rgb(var(--ue-text-sec)); }
 .uemap[data-theme='light'] .uemap-status { background: rgb(var(--ue-bg-base) / 0.82); border-radius: 0.5rem; padding: 0.25rem 0.5rem; text-shadow: none; }

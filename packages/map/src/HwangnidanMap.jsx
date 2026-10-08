@@ -1,9 +1,9 @@
 // HwangnidanMap.jsx: 황리단길 지도 컴포넌트. 화면에 들어올 때 MapLibre + three.js 엔진(engine.js)을 동적으로 불러온다.
-// 프롭: mode('3d'|'2d'), theme('dark'|'light'), showRoute, showConcept(후보 역을 흐리게 표시), className, onReady, lang('en'|'ko'), controls, modeToggle, themeToggle, lazy, cooperative, onModeChange, onThemeChange, forceRaster
+// 프롭: mode('3d'|'2d'), theme('dark'|'light'), showRoute, details(경로 설명 링크, 기본 끔), showConcept(후보 역을 흐리게 표시), className, onReady, lang('en'|'ko'), controls, modeToggle, themeToggle, lazy, cooperative, onModeChange, onThemeChange, forceRaster
 // onReady({ recenter, setMode, setTheme, showRouteFromMe, clearMyRoute, map, fallback })
 // WebGL을 쓸 수 없거나 엔진이 실패하면(컨텍스트 손실 포함) 어떤 오류도 밖으로 던지지 않고 RasterFallback(2D 래스터)으로 대체한다.
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
-import { LocateFixed, Minus, Moon, Plus, Sun } from 'lucide-react'
+import { Crosshair, LocateFixed, Minus, Moon, Plus, Sun, X } from 'lucide-react'
 import { SHOP, LINE } from './shop.js'
 import { loadBaked, loadRoute } from './baked.js'
 import { pickText } from './i18n.js'
@@ -42,8 +42,9 @@ export function HwangnidanMap({
   onReady,
   lang = 'en',
   controls = true,
-  modeToggle = true,
-  themeToggle = true,
+  modeToggle = false,
+  themeToggle = false,
+  details = false,
   lazy = true,
   cooperative = true,
   onModeChange,
@@ -194,7 +195,6 @@ export function HwangnidanMap({
     : me.status === 'far' ? t.meFar(me.distanceM)
     : t[me.status] || t.unavailable
   const meNeedsLinks = me && ['far', 'denied', 'unavailable', 'timeout', 'unsupported'].includes(me.status)
-  const showPrivacy = me && (me.status === 'locating' || (me.status === 'ok' && me.kind === 'walk'))
 
   return (
     <div
@@ -226,59 +226,57 @@ export function HwangnidanMap({
 
       {controls && (ready || raster) && (
         <>
-          <div className="uemap-pill" role="toolbar" aria-label={t.toolsLabel}>
-            {!raster && modeToggle && (
-              <div className="uemap-seg" role="group" aria-label={t.modeGroup}>
-                <button type="button" className="uemap-btn" aria-pressed={mode === '2d'} aria-label={t.mode2dLabel} onClick={() => pickMode('2d')}>{t.mode2d}</button>
-                <button type="button" className="uemap-btn" aria-pressed={mode === '3d'} aria-label={t.mode3dLabel} onClick={() => pickMode('3d')}>{t.mode3d}</button>
-              </div>
-            )}
-            {themeToggle && (
-              <button type="button" className="uemap-btn uemap-btn--icon" aria-label={theme === 'dark' ? t.toLight : t.toDark} onClick={toggleTheme}>
-                {theme === 'dark' ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
-              </button>
-            )}
-            <button type="button" className="uemap-btn uemap-btn--icon" aria-label={t.recenter} onClick={recenter}><LocateFixed size={18} aria-hidden="true" /></button>
-          </div>
+          <button
+            type="button"
+            className={cx('uemap-mebtn', meActive && 'uemap-mebtn--on')}
+            aria-describedby={noteId}
+            aria-pressed={meActive}
+            disabled={me?.status === 'locating'}
+            onClick={meActive ? clearMyRoute : showRouteFromMe}
+          >
+            {meActive ? <X size={18} aria-hidden="true" /> : <LocateFixed size={18} aria-hidden="true" />}
+            <span>{me?.status === 'locating' ? t.locatingShort : meActive ? t.hideMyRoute : t.useMyLocation}</span>
+          </button>
 
-          {!raster && (
-            <div className="uemap-zoom" role="group" aria-label={t.toolsLabel}>
-              <button type="button" className="uemap-fab" onClick={() => engineRef.current?.zoomIn()} aria-label={t.zoomIn}><Plus size={18} aria-hidden="true" /></button>
-              <button type="button" className="uemap-fab" onClick={() => engineRef.current?.zoomOut()} aria-label={t.zoomOut}><Minus size={18} aria-hidden="true" /></button>
+          {!raster && (modeToggle || themeToggle) && (
+            <div className="uemap-pill" role="toolbar" aria-label={t.toolsLabel}>
+              {modeToggle && (
+                <div className="uemap-seg" role="group" aria-label={t.modeGroup}>
+                  <button type="button" className="uemap-btn" aria-pressed={mode === '2d'} aria-label={t.mode2dLabel} onClick={() => pickMode('2d')}>{t.mode2d}</button>
+                  <button type="button" className="uemap-btn" aria-pressed={mode === '3d'} aria-label={t.mode3dLabel} onClick={() => pickMode('3d')}>{t.mode3d}</button>
+                </div>
+              )}
+              {themeToggle && (
+                <button type="button" className="uemap-btn uemap-btn--icon" aria-label={theme === 'dark' ? t.toLight : t.toDark} onClick={toggleTheme}>
+                  {theme === 'dark' ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
+                </button>
+              )}
             </div>
           )}
+
+          <div className={cx('uemap-zoom', (modeToggle || themeToggle) && !raster && 'uemap-zoom--low')} role="group" aria-label={t.toolsLabel}>
+            {!raster && <button type="button" className="uemap-fab" onClick={() => engineRef.current?.zoomIn()} aria-label={t.zoomIn}><Plus size={18} aria-hidden="true" /></button>}
+            {!raster && <button type="button" className="uemap-fab" onClick={() => engineRef.current?.zoomOut()} aria-label={t.zoomOut}><Minus size={18} aria-hidden="true" /></button>}
+            <button type="button" className="uemap-fab" onClick={recenter} aria-label={t.recenter}><Crosshair size={18} aria-hidden="true" /></button>
+          </div>
         </>
       )}
 
       {(ready || raster) && pack && (
         <div className="uemap-foot">
-          {open && <RouteInfoList id={panelId} route={pack.route} places={pack.places} concept={pack.concept} showConcept={showConcept} lang={lang} />}
-          <p className="uemap-cap">
-            <span className="uemap-badge" aria-hidden="true">{LINE.code}</span>
-            <span className="uemap-cap__text">
-              <span className="uemap-cap__line">{lang === 'ko' ? LINE.nameKo : LINE.name}</span>
-              <span className="uemap-cap__sub">{t.walk(f.meters, f.minutes)}</span>
-            </span>
-          </p>
-          <p className="uemap-links-row">
-            <button type="button" className="uemap-link" aria-expanded={open} aria-controls={open ? panelId : undefined} onClick={() => setOpen((v) => !v)}>
-              {open ? t.routeClose : t.routeToggle}
-            </button>
-            <button
-              type="button"
-              className="uemap-link"
-              aria-describedby={noteId}
-              disabled={me?.status === 'locating'}
-              onClick={meActive ? clearMyRoute : showRouteFromMe}
-            >
-              {meActive ? t.hideMyRoute : t.useMyLocation}
-            </button>
-            {showConcept && !raster && (
-              <button type="button" className="uemap-link" onClick={() => engineRef.current?.fitConcept()}>{t.allStops}</button>
-            )}
-          </p>
+          {details && open && <RouteInfoList id={panelId} route={pack.route} places={pack.places} concept={pack.concept} showConcept={showConcept} lang={lang} />}
+          {details && (
+            <p className="uemap-links-row">
+              <button type="button" className="uemap-link" aria-expanded={open} aria-controls={open ? panelId : undefined} onClick={() => setOpen((v) => !v)}>
+                {open ? t.routeClose : t.routeToggle}
+              </button>
+              {showConcept && !raster && (
+                <button type="button" className="uemap-link" onClick={() => engineRef.current?.fitConcept()}>{t.allStops}</button>
+              )}
+            </p>
+          )}
           <span id={noteId} className="uemap-sr">{t.privacy}</span>
-          <p className="uemap-status" role="status" aria-live="polite">
+          <p className={cx('uemap-status', meMsg && 'uemap-status--box', me && me.status !== 'ok' && me.status !== 'locating' && 'uemap-status--err')} role="status" aria-live="polite">
             {meMsg && <span>{meMsg}</span>}
             {meNeedsLinks && (
               <span className="uemap-status__links">
@@ -288,7 +286,6 @@ export function HwangnidanMap({
                 <a href={links.google} target="_blank" rel="noopener noreferrer">{t.googleMaps}</a>
               </span>
             )}
-            {showPrivacy && <span className="uemap-status__note"> {t.privacy}</span>}
           </p>
         </div>
       )}

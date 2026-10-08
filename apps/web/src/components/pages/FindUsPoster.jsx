@@ -1,78 +1,156 @@
-import { Printer } from 'lucide-react'
-import { UEMark } from '@urbanedge/brand'
-import { Button, CautionTape, ExitSign, ShareButton, useLangValue } from '@urbanedge/ds'
+import { useEffect, useState } from 'react'
+import QRCode from 'qrcode'
+import { Download } from 'lucide-react'
+import { Button, cx, useLangValue } from '@urbanedge/ds'
 import { Tx, useV } from './Bilingual.jsx'
 import { SITE } from '../../data/site.js'
-import { NOTICE, STATION } from './content.js'
-import { QrCode } from './QrCode.jsx'
 
-// 출력용 "찾아오는 길" 포스터. 종이에 찍는 것을 전제로 흰 바탕과 검정 글자로 만들고, 사이트 주소의 QR을 넣는다.
-// 인쇄 버튼은 이 포스터만 종이에 내보낸다(@media print로 나머지를 가린다). 장난스러운 설정이며 실제 교통시설이 아니다.
-const PRINT_CSS = `
-@media print {
-  body * { visibility: hidden !important; }
-  .ue-poster, .ue-poster * { visibility: visible !important; }
-  .ue-poster { position: fixed !important; inset: 0 !important; margin: 0 !important; width: 100% !important; max-width: none !important; border-radius: 0 !important; box-shadow: none !important; }
-  .ue-poster-ui { display: none !important; }
-}
-`
-const exact = { WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }
+// 휴대폰 저장용 작은 카드(1080x1350 PNG). 화면에 보이는 그림과 저장되는 파일이 같도록 canvas로 한 번 그려서 둘 다에 쓴다.
+const W = 1080
+const H = 1350
+const FONT = "'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', sans-serif"
 
 const T = {
-  title: { en: 'Find us at Exit 1.', ko: '1번 출구에서 만나요' },
-  addr: { en: '6, Poseok-ro 1079beon-gil, Gyeongju-si, Gyeongbuk', ko: '경북 경주시 포석로1079번길 6' },
-  look: { en: 'Black front, checkerboard step', ko: '검은 외관과 체커보드 문턱' },
-  hours: { en: 'Hours', ko: '영업 시간' },
-  scan: { en: 'Scan for the guide, the platforms and directions', ko: '여정 안내와 승강장, 길 찾기는 QR로 확인' },
-  print: { en: 'Print the poster', ko: '포스터 출력' },
-  share: { en: 'Send it to a friend', ko: '친구에게 보내기' },
-  qr: { en: 'QR code linking to the UrbanEdge website', ko: '어반엣지 웹사이트로 연결되는 QR 코드' },
+  save: { en: 'Save image', ko: '이미지 저장' },
+  alt: {
+    en: 'UrbanEdge card: 6, Poseok-ro 1079beon-gil, Gyeongju. Open 10:00 to 24:00. QR code to the website.',
+    ko: '어반엣지 카드: 경북 경주시 포석로1079번길 6, 10:00부터 24:00까지 영업, 웹사이트 QR 코드',
+  },
 }
 
-export function FindUsPoster() {
+const cssRgb = (name) => {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim().replace(/\s+/g, ' ')
+  return v ? `rgb(${v.split(' ').join(',')})` : null
+}
+
+async function drawCard({ lang, url }) {
+  try {
+    await document.fonts?.ready
+  } catch {
+    /* 글꼴을 기다리지 못해도 기본 글꼴로 그린다 */
+  }
+  const c = document.createElement('canvas')
+  c.width = W
+  c.height = H
+  const g = c.getContext('2d')
+  const ink = cssRgb('--ue-black') || 'rgb(10,10,10)'
+  const paper = cssRgb('--ue-white') || 'rgb(255,255,255)'
+  const yellow = cssRgb('--ue-yellow') || 'rgb(240,200,60)'
+  const grey = 'rgb(96,96,96)'
+  const P = 96
+
+  g.fillStyle = paper
+  g.fillRect(0, 0, W, H)
+  g.fillStyle = yellow
+  g.fillRect(0, 0, W, 24)
+
+  // 1번 출구 표식
+  g.fillStyle = yellow
+  g.beginPath()
+  if (g.roundRect) g.roundRect(P, 120, 96, 96, 18)
+  else g.rect(P, 120, 96, 96)
+  g.fill()
+  g.fillStyle = ink
+  g.font = `800 64px ${FONT}`
+  g.textAlign = 'center'
+  g.textBaseline = 'middle'
+  g.fillText('1', P + 48, 170)
+  g.textAlign = 'left'
+  g.font = `700 34px ${FONT}`
+  g.fillText(lang === 'ko' ? '1번 출구' : 'Exit 1', P + 124, 168)
+
+  g.textBaseline = 'alphabetic'
+  g.font = `800 120px ${FONT}`
+  g.fillText('UrbanEdge', P, 380)
+  g.font = `600 44px ${FONT}`
+  g.fillStyle = grey
+  g.fillText(lang === 'ko' ? '어반엣지 메트로그래피' : 'Metrography, Gyeongju', P, 446)
+
+  // 주소와 시간. 한국어 주소는 택시와 지도 앱에 그대로 보여 줄 수 있게 항상 넣는다.
+  g.fillStyle = ink
+  g.font = `700 48px ${FONT}`
+  g.fillText('경북 경주시 포석로1079번길 6', P, 586)
+  g.font = `500 36px ${FONT}`
+  g.fillStyle = grey
+  g.fillText(lang === 'ko' ? '황리단길 · 검은 외관, 체커보드 문턱' : '6, Poseok-ro 1079beon-gil, Gyeongju', P, 642)
+  g.fillStyle = ink
+  g.font = `700 48px ${FONT}`
+  g.fillText(`${SITE.hours.open} – ${SITE.hours.close}`, P, 742)
+  g.font = `500 36px ${FONT}`
+  g.fillStyle = grey
+  g.fillText(lang === 'ko' ? '매일 영업' : 'Open daily', P, 794)
+
+  // QR(오른쪽 아래, 카드 폭의 약 30%)
+  const q = QRCode.create(url, { errorCorrectionLevel: 'M' })
+  const n = q.modules.size
+  const cell = Math.floor(320 / n)
+  const real = cell * n
+  const qx = W - P - real
+  const qy = H - P - real
+  g.fillStyle = ink
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (q.modules.get(x, y)) g.fillRect(qx + x * cell, qy + y * cell, cell, cell)
+
+  g.font = `600 32px ${FONT}`
+  g.fillStyle = ink
+  g.fillText(url.replace(/^https?:\/\//, '').replace(/\/$/, ''), P, H - P - 56)
+  g.font = `500 30px ${FONT}`
+  g.fillStyle = grey
+  g.fillText('@__urbanedge', P, H - P - 6)
+
+  return new Promise((resolve) => c.toBlob((b) => resolve(b), 'image/png'))
+}
+
+export function FindUsPoster({ className }) {
   const v = useV()
   const lang = useLangValue()
-  const site = (import.meta.env.VITE_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://urbanedge.example')).replace(/\/$/, '') + '/'
-  const hours = { en: `${SITE.hours.open} to ${SITE.hours.close}`, ko: `${SITE.hours.open}부터 ${SITE.hours.close}까지` }
+  const url = (import.meta.env.VITE_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://urbanedge-web.vercel.app')).replace(/\/$/, '') + '/'
+  const [card, setCard] = useState(null) // { blob, src }
+
+  useEffect(() => {
+    let alive = true
+    let src = null
+    drawCard({ lang, url }).then((blob) => {
+      if (!alive || !blob) return
+      src = URL.createObjectURL(blob)
+      setCard({ blob, src })
+    })
+    return () => {
+      alive = false
+      if (src) URL.revokeObjectURL(src)
+    }
+  }, [lang, url])
+
+  const save = async () => {
+    if (!card) return
+    const name = 'urbanedge-card.png'
+    const file = typeof File !== 'undefined' ? new File([card.blob], name, { type: 'image/png' }) : null
+    // 휴대폰은 공유 시트의 "이미지 저장"으로 사진 앱에 바로 넣는다. 데스크탑은 파일로 내려받는다.
+    const coarse = window.matchMedia?.('(pointer: coarse)').matches
+    if (coarse && file && navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: SITE.name })
+        return
+      } catch (e) {
+        if (e?.name === 'AbortError') return
+      }
+    }
+    const a = document.createElement('a')
+    a.href = card.src
+    a.download = name
+    document.body.append(a)
+    a.click()
+    a.remove()
+  }
+
   return (
-    <div>
-      <style>{PRINT_CSS}</style>
-      <article className="ue-poster relative mx-auto w-full max-w-read overflow-hidden rounded-md bg-white text-black shadow-lift" style={{ aspectRatio: '1 / 1.414', ...exact }} aria-label={v(T.title)}>
-        <div className="flex h-full flex-col">
-          <div className="h-16 shrink-0" aria-hidden="true" style={exact}>
-            <CautionTape size={16} />
-          </div>
-          <div className="flex min-h-0 flex-1 flex-col justify-between p-24 md:p-32">
-            <div>
-              <div className="flex items-start justify-between gap-16">
-                <ExitSign number={1} label={STATION.name} labelKo={STATION.nameKo} size="md" />
-                <UEMark className="size-48 shrink-0" aria-hidden="true" />
-              </div>
-              <Tx {...T.title} as="h3" role="display" inner="text-display-m" className="mt-24 text-black" />
-              <Tx {...T.addr} as="p" role="body" className="mt-16 text-bg-raised" />
-              <Tx {...T.look} as="p" role="body" className="text-bg-raised" />
-            </div>
-            <div className="flex items-end justify-between gap-16">
-              <div className="min-w-0">
-                <Tx {...T.hours} as="p" role="caption" className="text-bg-raised" />
-                <Tx {...hours} as="p" role="subhead" className="tabular-nums text-black" />
-                <Tx {...T.scan} as="p" role="caption" className="mt-16 max-w-240 text-bg-raised" />
-                <Tx {...NOTICE} as="p" role="caption" className="mt-8 max-w-240 font-semibold text-black" />
-              </div>
-              <QrCode value={site} label={v(T.qr)} className="w-1/3 shrink-0" />
-            </div>
-          </div>
-        </div>
-      </article>
-      <div className="ue-poster-ui mt-24 flex flex-wrap items-center justify-center gap-x-24 gap-y-8">
-        <Button onClick={() => window.print()} size="lg">
-          <Printer size={20} aria-hidden="true" />
-          <Tx inline {...T.print} />
-        </Button>
-        <ShareButton url={site} title={SITE.name} text={v(T.title)} variant="ghost" lang={lang}>
-          <Tx inline {...T.share} />
-        </ShareButton>
+    <div className={cx('flex flex-col items-start gap-16 sm:flex-row sm:items-end sm:gap-32', className)}>
+      <div className="w-full max-w-[280px] overflow-hidden rounded-md bg-white shadow-lift" style={{ aspectRatio: `${W} / ${H}` }}>
+        {card && <img src={card.src} alt={v(T.alt)} width={W} height={H} className="block size-full" />}
       </div>
+      <Button onClick={save} size="lg" disabled={!card}>
+        <Download size={20} aria-hidden="true" />
+        <Tx inline {...T.save} />
+      </Button>
     </div>
   )
 }

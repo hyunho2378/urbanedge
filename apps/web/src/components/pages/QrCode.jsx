@@ -22,7 +22,7 @@ export function QrCode({ value, label, className }) {
     return { size: n, path: d.join('') }
   }, [value])
   return (
-    <svg viewBox={`-2 -2 ${size + 4} ${size + 4}`} role="img" aria-label={label} className={cx('block h-auto w-full', className)} shapeRendering="crispEdges">
+    <svg viewBox={`-2 -2 ${size + 4} ${size + 4}`} role="img" aria-label={label} className={cx('block h-auto', /\bw-/.test(className || '') ? null : 'w-full', className)} shapeRendering="crispEdges">
       <rect x="-2" y="-2" width={size + 4} height={size + 4} fill="currentColor" className="text-white" />
       <path d={path} fill="currentColor" className="text-black" />
     </svg>

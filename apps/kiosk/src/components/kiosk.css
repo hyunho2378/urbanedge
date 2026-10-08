@@ -10,7 +10,7 @@
 .kt-lead { font-size: 40px; font-weight: 450; line-height: 1.45; letter-spacing: -0.008em; }
 .kt-body { font-size: 36px; font-weight: 450; line-height: 1.5; letter-spacing: -0.004em; }
 .kt-strong { font-size: 36px; font-weight: 600; line-height: 1.4; letter-spacing: -0.006em; }
-.kt-label { font-family: 'Barlow Condensed', 'Pretendard Variable', Pretendard, sans-serif; font-size: 28px; font-weight: 600; line-height: 1.2; letter-spacing: 0.12em; text-transform: uppercase; }
+.kt-label { font-size: 28px; font-weight: 600; line-height: 1.2; letter-spacing: 0; }
 .kt-caption { font-size: 28px; font-weight: 500; line-height: 1.45; letter-spacing: 0.004em; }
 .kt-btn { font-size: 36px; font-weight: 600; line-height: 1; letter-spacing: -0.01em; }
 
@@ -84,3 +84,6 @@
 
 .k-noscroll { scrollbar-width: none; -ms-overflow-style: none; }
 .k-noscroll::-webkit-scrollbar { display: none; }
+
+/* 폰트: Wanted Sans Variable */
+html, body, button, input, textarea, [class*='font-'] { font-family: 'Wanted Sans Variable', 'Wanted Sans', -apple-system, 'Apple SD Gothic Neo', sans-serif !important; }

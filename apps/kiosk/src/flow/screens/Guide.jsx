@@ -1,6 +1,5 @@
 import { T } from '../../components/lang.jsx'
 import { PoseFigure } from '../../components/PoseFigure.jsx'
-import { Tip } from '../../components/Tip.jsx'
 import { COPY } from '../copy.js'
 import { roomById } from '../rooms.js'
 
@@ -30,7 +29,6 @@ export default function Guide({ ctrl }) {
         </ul>
       ) : (
         <div className="absolute" style={{ left: 120, top: 440, width: 1200 }}>
-          <Tip focus="camera" title={COPY.tip.lensTitle} body={COPY.tip.lensBody} onDone={() => ctrl.markCoach('lens')} />
         </div>
       )}
     </div>

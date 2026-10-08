@@ -28,7 +28,6 @@ export default function Finish({ ctrl }) {
         <T n={COPY.finish.qrTitle} as="p" className="kt-strong" />
       </div>
       <div className="absolute" style={{ left: 120, bottom: 28 }}>
-        <T n={COPY.common.imaginary} as="p" className="kt-caption text-text-meta" />
       </div>
     </div>
   )

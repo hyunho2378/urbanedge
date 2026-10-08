@@ -26,12 +26,9 @@ export default function Language({ ctrl }) {
   return (
     <div className="absolute inset-0 bg-bg-base">
       <T n={COPY.language.title} as="h1" className="sr-only" />
-      <p className="kt-label absolute inset-x-0 text-center text-text-meta" style={{ top: 300 }}>
-        Choose a language <span lang="ko">/ 언어를 고르세요</span>
-      </p>
       <div className="absolute flex justify-center gap-48" style={{ left: 0, right: 0, top: 380 }}>
-        <Option code="en" word="English" sub="Continue in English" on={ctrl.lang === 'en'} onPick={() => pick('en')} />
-        <Option code="ko" word="한국어" sub="한국어로 계속" on={ctrl.lang === 'ko'} onPick={() => pick('ko')} />
+        <Option code="en" word="English" sub="" on={ctrl.lang === 'en'} onPick={() => pick('en')} />
+        <Option code="ko" word="한국어" sub="" on={ctrl.lang === 'ko'} onPick={() => pick('ko')} />
       </div>
     </div>
   )

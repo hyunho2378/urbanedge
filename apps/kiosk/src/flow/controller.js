@@ -391,12 +391,7 @@ export function useKioskController(options = {}) {
         go('language')
         break
       case 'language':
-        setIntroPage(0)
-        go('intro')
-        break
-      case 'intro':
-        if (L.introPage < INTRO_PAGES - 1) setIntroPage(L.introPage + 1)
-        else go(L.pay.status === 'success' ? 'cuts' : 'pay')
+        go(L.pay.status === 'success' ? 'cuts' : 'pay')
         break
       case 'cuts':
         if (L.cuts) go('frame')
@@ -433,19 +428,12 @@ export function useKioskController(options = {}) {
       case 'language':
         reset()
         break
-      case 'intro':
-        if (L.introPage > 0) setIntroPage(L.introPage - 1)
-        else go('language')
-        break
       case 'frame':
         go('cuts')
         break
       case 'pay':
         if (L.pay.method && !['processing', 'success'].includes(L.pay.status) && !L.pay.reader) payBack()
-        else if (!L.pay.method) {
-          setIntroPage(INTRO_PAGES - 1)
-          go('intro')
-        }
+        else if (!L.pay.method) go('language')
         break
       case 'guide':
         go('frame')

@@ -30,7 +30,6 @@ function Fare({ ctrl }) {
       <p className={cx('kt-headline kt-num mt-8', coupon && 'text-text-meta line-through')}>
         <T n={COPY.pay.amount} inline />
       </p>
-      <T n={COPY.pay.printsLine} v={{ n: PRICE.prints }} as="p" className="kt-body text-text-sec" />
       {coupon ? <T n={COPY.pay.couponLine} v={{ code: coupon }} as="p" className="kt-strong mt-8 text-yellow" /> : null}
       <div className="relative mt-48" style={{ height: 380 }} aria-hidden="true">
         <div className="absolute" style={{ left: 28, top: 10, transform: 'rotate(-4deg)' }}>

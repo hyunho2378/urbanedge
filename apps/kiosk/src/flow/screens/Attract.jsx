@@ -22,7 +22,6 @@ export default function Attract({ ctrl }) {
             {room.n}
           </span>
           <span className="block">
-            <T n={COPY.common.station} as="span" className="kt-label block text-text-meta" />
             <T n={COPY.common.platformN} v={{ n: room.n }} as="span" className="kt-strong block" />
           </span>
           <T n={room.title} as="span" className="kt-strong text-text-sec" />
@@ -42,7 +41,6 @@ export default function Attract({ ctrl }) {
       ) : null}
 
       <div className="absolute" style={{ left: 120, bottom: 56 }}>
-        <T n={COPY.common.imaginary} as="p" className="kt-caption text-text-meta" />
       </div>
     </div>
   )

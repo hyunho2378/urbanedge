@@ -12,7 +12,6 @@ import { COPY } from './copy.js'
 import { FLOW, IDLE_OFF_STEPS } from './config.js'
 import Attract from './screens/Attract.jsx'
 import Language from './screens/Language.jsx'
-import Intro from './screens/Intro.jsx'
 import Cuts from './screens/Cuts.jsx'
 import Frame from './screens/Frame.jsx'
 import Pay from './screens/Pay.jsx'
@@ -26,7 +25,7 @@ import Finish from './screens/Finish.jsx'
 // 부모(Stage)가 이 컴포넌트를 1920x1080 박스에 넣고 scale로 맞춘다.
 // 구성: 위 길찾기 표지(TopRail), 단계 화면(초점 하나), 왼쪽 아래 뒤로(글자 버튼), 오른쪽 아래 주 행동(노란 알약 하나),
 // 카메라 단계에서만 화면 아래 가운데의 렌즈 신호, 셔터 플래시, 무입력 대화상자. 하단 바와 화면을 덮는 코치마크는 없다.
-const SCREENS = { attract: Attract, language: Language, intro: Intro, cuts: Cuts, frame: Frame, pay: Pay, guide: Guide, shoot: Shoot, select: Select, print: Print, finish: Finish }
+const SCREENS = { attract: Attract, language: Language, cuts: Cuts, frame: Frame, pay: Pay, guide: Guide, shoot: Shoot, select: Select, print: Print, finish: Finish }
 const NO_RAIL = ['attract', 'shoot']
 
 // 단계별 모서리 버튼(문구는 노드로 두고 <T />로 그린다)

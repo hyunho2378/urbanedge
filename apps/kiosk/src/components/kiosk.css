@@ -1,0 +1,68 @@
+/* kiosk.css: 키오스크 화면 전용 키프레임. transform과 opacity만 움직인다. 색 값은 쓰지 않는다.
+   동작 줄이기는 tailwind-preset의 전역 규칙(animation-duration 0.001ms)이 함께 처리한다. */
+
+@keyframes k-enter {
+  from { opacity: 0; transform: translate3d(72px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes k-enter-back {
+  from { opacity: 0; transform: translate3d(-72px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.k-enter { animation: k-enter 480ms var(--ue-ease-out) both; }
+.k-enter-back { animation: k-enter-back 480ms var(--ue-ease-out) both; }
+
+/* 카운트다운 숫자: 키오스크 타입 스케일(최대 168px) 밖의 전용 크기 */
+@keyframes k-count {
+  0% { opacity: 0; transform: scale(1.4); }
+  16% { opacity: 1; transform: scale(1); }
+  100% { opacity: 1; transform: scale(0.92); }
+}
+.k-count { font-size: 360px; line-height: 1; animation: k-count 1000ms var(--ue-ease-out) both; }
+
+/* 숨쉬는 안내 문구 */
+@keyframes k-breathe {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.035); }
+}
+.k-breathe { animation: k-breathe 2.8s var(--ue-ease-out) infinite; }
+
+/* 렌즈 방향 쉐브론: 위에서 아래로 차례로 켜진다 */
+@keyframes k-chevron {
+  0% { opacity: 0.15; transform: translate3d(0, -10px, 0); }
+  50% { opacity: 1; transform: translate3d(0, 0, 0); }
+  100% { opacity: 0.15; transform: translate3d(0, 10px, 0); }
+}
+.k-chevron { animation: k-chevron 1.5s ease-in-out infinite both; }
+.k-chevron-2 { animation-delay: 0.2s; }
+.k-chevron-3 { animation-delay: 0.4s; }
+
+/* 입력 커서 깜빡임 */
+@keyframes k-caret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.k-caret { animation: k-caret 1s steps(1, end) infinite; }
+
+/* 스탬프 찍힘 */
+@keyframes k-stamp {
+  0% { opacity: 0; transform: scale(1.6) rotate(-12deg); }
+  60% { opacity: 1; transform: scale(0.94) rotate(2deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+.k-stamp { animation: k-stamp 420ms var(--ue-ease-out) both; }
+
+/* 인화 종이가 올라오는 느낌의 미리보기 */
+@keyframes k-print-bob {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -8px, 0); }
+}
+.k-print-bob { animation: k-print-bob 2.6s ease-in-out infinite; }
+
+/* 캔버스는 레이아웃 크기를 CSS가 정한다 */
+.k-canvas { display: block; }
+
+/* 동작 줄이기: 무한 반복 애니메이션은 정지한 채 보이는 상태로 둔다(끝 프레임의 투명 상태로 남기지 않는다) */
+@media (prefers-reduced-motion: reduce) {
+  .k-chevron, .k-breathe, .k-caret, .k-print-bob { animation: none !important; opacity: 1; transform: none; }
+}

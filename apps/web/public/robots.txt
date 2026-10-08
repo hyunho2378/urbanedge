@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# 배포 주소가 정해지면 아래 줄의 YOUR-DOMAIN을 바꿔 사이트맵을 연결한다.
+# Sitemap: https://YOUR-DOMAIN/sitemap.xml

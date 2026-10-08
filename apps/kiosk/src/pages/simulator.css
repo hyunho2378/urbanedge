@@ -1,0 +1,43 @@
+/* simulator.css: 시뮬레이터 레이아웃 치수. 색은 Tailwind 토큰 클래스로 JSX에서 준다. */
+
+/* 모바일과 태블릿: 기기가 위, 패널이 아래. 폭 기준으로 크기를 정한다. */
+.sim-device {
+  width: 100%;
+  max-width: 30rem;
+}
+
+/* 데스크톱: 화면 높이에 맞춘다. 기기 높이는 폭 x 1.7(geometry.js RATIO). */
+@media (min-width: 1024px) {
+  .sim-device {
+    width: min(100%, calc((100dvh - 3rem) / 1.7));
+    max-width: none;
+  }
+  .sim-panel {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--ue-text-meta) / 0.5) transparent;
+    width: 23rem;
+    flex: none;
+    height: 100dvh;
+    overflow-y: auto;
+  }
+}
+
+/* 큰 화면: 패널 글자가 작아 보이지 않도록 패널만 확대 */
+@media (min-width: 2560px) {
+  .sim-panel {
+    zoom: 1.5;
+    height: calc(100dvh / 1.5);
+  }
+}
+
+@media (min-width: 3840px) {
+  .sim-panel {
+    zoom: 2;
+    height: calc(100dvh / 2);
+  }
+}
+
+/* /screen: 화면만. 16:9 박스를 뷰포트 안에 맞춘다. */
+.screen-only-box {
+  width: min(100vw, calc(100dvh * 16 / 9));
+}

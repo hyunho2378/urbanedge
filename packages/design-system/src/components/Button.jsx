@@ -16,7 +16,7 @@ const variants = {
 }
 
 const sizes = {
-  md: 'min-h-48 px-24 text-bodySm rounded-md',
+  md: 'min-h-48 px-24 text-body-sm rounded-md',
   lg: 'min-h-56 px-32 text-body rounded-md',
   kiosk: 'min-h-touch min-w-touch px-56 text-k-btn rounded-lg gap-16',
 }

@@ -9,3 +9,5 @@ export { Crosswalk, Checker, CautionTape, RouteRibbon } from './components/Patte
 export { LineBadge } from './components/Line.jsx'
 export { Tag } from './components/Tag.jsx'
 export { Wordmark } from './components/Wordmark.jsx'
+export { StationSign, TrainTrack, LiveIsland, TransitMap } from './metro/index.js'
+export { ShareSheet, ShareButton } from './share/index.js'

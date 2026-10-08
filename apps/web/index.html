@@ -4,10 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0A0A0A" />
-    <title>UrbanEdge web</title>
+    <title>UrbanEdge Metrography | 경주 황리단길 무인 셀프 사진관</title>
+    <meta
+      name="description"
+      content="경북 경주시 황리단길의 무인 셀프 사진관 어반엣지 메트로그래피. 포토 룸 5곳, 영업시간 10:00 ~ 24:00, 기본 7,000원에 인화 2장. Self-service photo studio in Gyeongju with five photo rooms."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Open Graph. og:url과 og:image는 절대 URL이 필요하다. 배포 주소가 정해지면 아래 주석을 풀고 YOUR-DOMAIN을 바꾼다. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="UrbanEdge Metrography" />
+    <meta property="og:title" content="UrbanEdge Metrography | Beyond the Lens, Into the Streets" />
+    <meta property="og:description" content="경주 황리단길 무인 셀프 사진관. Self-service photo studio in Hwangridan-gil, Gyeongju." />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <!-- <meta property="og:url" content="https://YOUR-DOMAIN/" /> -->
+    <!-- <meta property="og:image" content="https://YOUR-DOMAIN/img/lg/hero-crosswalk.jpg" /> -->
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- 글꼴 서버 연결을 미리 열어 첫 화면 글꼴 지연을 줄인다. -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- 히어로 이미지 미리 불러오기(화면 폭에 맞는 파일 하나만) -->
+    <link rel="preload" as="image" href="/img/lg/hero-crosswalk-m.jpg" media="(max-width: 767px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/img/lg/hero-crosswalk.jpg" media="(min-width: 768px)" fetchpriority="high" />
   </head>
   <body>
     <div id="root"></div>
+    <noscript>UrbanEdge Metrography. 경북 경주시 포석로1079번길 6, 10:00 ~ 24:00. This site needs JavaScript.</noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

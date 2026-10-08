@@ -127,6 +127,20 @@ export const typography = {
   tracking: { tightest: '-0.02em', tight: '-0.01em', normal: '0em', wide: '0.12em', wider: '0.22em' },
 }
 
+// 2-1) 타이포 레시피. 역할마다 굵기, 행간, 자간을 묶어 쓴다. 가벼운 굵기만 쓰지 않고 굵은 제목과 보통 본문을 짝지운다.
+// 영문(기본)과 한글(:lang(ko))의 자간과 행간을 따로 둔다. 한글은 자간을 덜 줄이고 행간을 넓힌다.
+export const recipes = {
+  display: { size: 'display-l', weight: 800, leading: 0.96, tracking: '-0.04em', ko: { leading: 1.08, tracking: '-0.035em' } },
+  title: { size: 'h1', weight: 750, leading: 1.04, tracking: '-0.03em', ko: { leading: 1.16, tracking: '-0.03em' } },
+  headline: { size: 'h2', weight: 700, leading: 1.12, tracking: '-0.022em', ko: { leading: 1.22, tracking: '-0.025em' } },
+  subhead: { size: 'h3', weight: 650, leading: 1.2, tracking: '-0.015em', ko: { leading: 1.32, tracking: '-0.02em' } },
+  lead: { size: 'lead', weight: 450, leading: 1.5, tracking: '-0.008em', ko: { leading: 1.62, tracking: '-0.012em' } },
+  body: { size: 'body', weight: 420, leading: 1.6, tracking: '-0.004em', ko: { leading: 1.72, tracking: '-0.01em' } },
+  strong: { size: 'body', weight: 650, leading: 1.5, tracking: '-0.006em', ko: { leading: 1.64, tracking: '-0.01em' } },
+  label: { size: 'label', weight: 600, leading: 1.2, tracking: '0.14em', ko: { leading: 1.3, tracking: '0.08em' } },
+  caption: { size: 'caption', weight: 500, leading: 1.45, tracking: '0.005em', ko: { leading: 1.55, tracking: '0em' } },
+}
+
 // 3) 간격 (px). Tailwind에서 p-24 = 24px
 export const spacing = {
   scale: [0, 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 36, 40, 48, 56, 64, 72, 80, 96, 112, 120, 128, 144, 160, 192, 240],

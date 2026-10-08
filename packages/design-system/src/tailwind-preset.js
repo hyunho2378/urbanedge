@@ -6,6 +6,7 @@ import {
   paletteHighContrast,
   colors,
   typography,
+  recipes,
   spacing,
   layout,
   radius,
@@ -114,6 +115,12 @@ export default {
           MozOsxFontSmoothing: 'grayscale',
           textRendering: 'optimizeLegibility',
         },
+        // 한글 줄바꿈: 어절 단위로 끊고, 긴 영문과 주소는 넘치기 전에 줄을 바꾼다.
+        ':lang(ko)': { wordBreak: 'keep-all', lineBreak: 'strict' },
+        'html, body': { overflowWrap: 'break-word' },
+        'h1, h2, h3, h4, .t-display, .t-title, .t-headline, .t-subhead': { textWrap: 'balance' },
+        'p, li, .t-lead, .t-body': { textWrap: 'pretty' },
+        'button, [role="button"], .nowrap': { whiteSpace: 'nowrap' },
         '::selection': { backgroundColor: 'rgb(var(--ue-yellow))', color: 'rgb(var(--ue-text-on-yellow))' },
         ':focus-visible': { outline: '2px solid rgb(var(--ue-focus))', outlineOffset: '3px' },
         'button, [role="button"], a': { WebkitTapHighlightColor: 'transparent' },
@@ -150,6 +157,19 @@ export default {
           fontWeight: String(typography.weight.medium),
         },
       })
+      // 타이포 레시피 클래스: t-display, t-title, t-headline, t-subhead, t-lead, t-body, t-strong, t-label, t-caption
+      const recipeCss = {}
+      for (const [name, r] of Object.entries(recipes)) {
+        recipeCss[`.t-${name}`] = {
+          fontSize: fontSize[r.size],
+          fontWeight: String(r.weight),
+          lineHeight: String(r.leading),
+          letterSpacing: r.tracking,
+          ...(name === 'label' ? { fontFamily: typography.family.label, textTransform: 'uppercase' } : {}),
+        }
+        recipeCss[`.t-${name}:lang(ko)`] = { lineHeight: String(r.ko.leading), letterSpacing: r.ko.tracking, ...(name === 'label' ? { textTransform: 'none' } : {}) }
+      }
+      addComponents(recipeCss)
       addUtilities({
         '.text-balance': { textWrap: 'balance' },
         '.text-pretty': { textWrap: 'pretty' },

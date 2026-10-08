@@ -1,0 +1,16 @@
+{
+  "name": "@urbanedge/brand",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  }
+}

@@ -1,0 +1,1 @@
+{"name":"@urbanedge/scenes","private":true,"version":"0.1.0","type":"module","main":"./src/index.js","exports":{".":"./src/index.js"},"peerDependencies":{"react":"^18.0.0","react-dom":"^18.0.0"},"dependencies":{"@react-three/drei":"^9.122.0","@react-three/fiber":"^8.18.0","three":"^0.186.1"}}

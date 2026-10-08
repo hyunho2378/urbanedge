@@ -13,6 +13,9 @@ const rules = [
   ['hover scale', /hover:scale-/],
   ['Tailwind 임의값', /\b(?!transition-)[a-z-]+-\[[^\]]+\]/],
   ['이모지', /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/u],
+  ['손톱형 보더(좌측 또는 상단 굵은 선)', /\bborder-(l|t)-(2|4|8|\[)/],
+  ['시스템 공유창', /navigator\.share\b/],
+  ['가벼운 굵기 단독(font-thin/extralight/light)', /\bfont-(thin|extralight|light)\b/],
   ['TypeScript 파일', /^$/],
 ]
 let bad = 0

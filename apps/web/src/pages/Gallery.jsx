@@ -1,29 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowUpRight, ExternalLink, Plus } from 'lucide-react'
-import { Bi, Button, Container, cx } from '@urbanedge/ds'
+import { Plus } from 'lucide-react'
+import { Container, cx } from '@urbanedge/ds'
 import { Lightbox } from '../components/pages/Lightbox.jsx'
 import { PageShell, Tx, useV } from '../components/pages/Bilingual.jsx'
 import { PageTop } from '../components/pages/PageTop.jsx'
-import { Tape } from '../components/pages/Tape.jsx'
 import { Tilt } from '../components/pages/Tilt.jsx'
-import { GALLERY, GALLERY_FILTERS, INSTAGRAM, NAVER_PLACE } from '../components/pages/content.js'
+import { GALLERY, GALLERY_FILTERS } from '../components/pages/content.js'
 import { usePageTitle } from '../components/pages/usePageTitle.js'
 
 const T = {
   title: { en: 'Gallery', ko: '갤러리' },
   h1: { en: 'Gallery', ko: '갤러리' },
-  insta: { en: 'Instagram @__urbanedge', ko: '인스타그램 @__urbanedge' },
-  naver: { en: 'Naver Place photos', ko: '네이버 플레이스 사진' },
   filterAria: { en: 'Photo category', ko: '사진 분류' },
   more: { en: 'Show more photos', ko: '사진 더 보기' },
   zoom: { en: 'Open photo', ko: '사진 열기' },
-  tape: [
-    { en: 'Prints on the wall are real', ko: '벽에 붙은 인화물은 모두 실제 사진입니다' },
-    { en: 'Please do not touch the wet ink', ko: '아직 마르지 않은 잉크는 만지지 마세요' },
-    { en: 'Tag @__urbanedge if you shoot something good', ko: '좋은 사진이 나오면 @__urbanedge를 태그하세요' },
-  ],
-  pause: { en: 'Pause announcements', ko: '안내 문구 멈추기' },
-  play: { en: 'Resume announcements', ko: '안내 문구 다시 흐르기' },
   lb: {
     dialog: { en: 'Photo viewer', ko: '사진 확대 보기' },
     close: { en: 'Close', ko: '닫기' },
@@ -67,40 +57,23 @@ export default function Gallery() {
   const list = useMemo(() => GALLERY.filter((g) => inFilter(g, filter)), [filter])
   useEffect(() => setCount(BLOCK), [filter])
   const visible = list.slice(0, count)
-  const countOf = (id) => GALLERY.filter((g) => inFilter(g, id)).length
-  const shown = { en: `Showing ${visible.length} of ${list.length}`, ko: `${list.length}장 가운데 ${visible.length}장 표시` }
 
   const seg = (on) => cx('ue-press inline-flex min-h-48 items-center gap-8 rounded-pill px-20 font-ui text-bodySm font-semibold transition-colors duration-fast ease-out', on ? 'bg-yellow text-text-onYellow' : 'bg-bg-panel text-text-pri hover:text-yellow')
 
   return (
     <PageShell>
-      <PageTop title={T.h1}>
-        <div className="mt-32 flex flex-wrap items-center gap-x-24 gap-y-12">
-          <Button as="a" href={INSTAGRAM} target="_blank" rel="noopener noreferrer" size="lg">
-            <Tx inline {...T.insta} />
-            <ExternalLink size={18} aria-hidden="true" />
-          </Button>
-          <a href={NAVER_PLACE} target="_blank" rel="noopener noreferrer" className="t-strong inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
-            <Tx inline {...T.naver} />
-            <ArrowUpRight size={18} aria-hidden="true" />
-          </a>
-        </div>
-      </PageTop>
+      <PageTop title={T.h1} />
 
       <section aria-label={v(T.title)} className="pb-64 md:pb-96">
         <Container className="4xl:max-w-screen-4xl">
-          <div className="flex flex-wrap items-center justify-between gap-x-24 gap-y-16">
+          <div className="flex flex-wrap items-center gap-x-24 gap-y-16">
             <div role="group" aria-label={v(T.filterAria)} className="flex flex-wrap gap-8">
               {GALLERY_FILTERS.map((f) => (
                 <button key={f.id} type="button" aria-pressed={filter === f.id} onClick={() => setFilter(f.id)} className={seg(filter === f.id)}>
                   <Tx inline {...f.label} />
-                  <span className={cx('t-caption tabular-nums', filter === f.id ? 'text-text-onYellow' : 'text-text-meta')}>{countOf(f.id)}</span>
                 </button>
               ))}
             </div>
-            <p role="status" aria-live="polite" className="tabular-nums text-text-meta">
-              <Tx inline {...shown} role="caption" />
-            </p>
           </div>
 
           <ul key={filter} className="mt-24 grid animate-fade-in grid-cols-2 gap-8 md:grid-cols-6 md:gap-12" style={{ gridAutoFlow: 'row dense', gridAutoRows: 'clamp(96px, 30vw, 132px)' }}>
@@ -135,8 +108,6 @@ export default function Gallery() {
           )}
         </Container>
       </section>
-
-      <Tape items={T.tape} pause={T.pause} play={T.play} />
 
       {lb != null && <Lightbox items={list} index={lb} onIndex={setLb} onClose={() => setLb(null)} shareTitle={T.shareTitle} label={T.lb} />}
     </PageShell>

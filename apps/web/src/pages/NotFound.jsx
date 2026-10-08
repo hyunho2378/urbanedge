@@ -7,14 +7,14 @@ import { usePageTitle } from '../components/pages/usePageTitle.js'
 
 const T = {
   title: { en: 'Page not found', ko: '페이지를 찾을 수 없음' },
-  h1: { en: 'This train does not stop here.', ko: '이 열차는 이 역에 서지 않는다' },
+  h1: { en: 'Page not found', ko: '페이지를 찾을 수 없다' },
   lead: {
-    en: 'The address may have changed or been mistyped. Gyeongju Metro has exactly one station, so the way back is short.',
-    ko: '주소가 바뀌었거나 잘못 입력되었을 수 있으며, 경주 메트로의 역은 하나뿐이라 돌아가는 길도 짧다.',
+    en: 'The address may be wrong.',
+    ko: '주소가 잘못되었을 수 있다.',
   },
   asked: { en: 'You asked for', ko: '요청한 경로' },
-  home: { en: 'Back to GY-01 UrbanEdge', ko: 'GY-01 어반엣지로 돌아가기' },
-  rooms: { en: 'Browse the platforms', ko: '승강장 둘러보기' },
+  home: { en: 'Home', ko: '홈으로' },
+  rooms: { en: 'Rooms', ko: '촬영 방' },
 }
 
 // 승강장 끝에서 선로가 끊긴 장면을 그린 SVG. 노란 점자 블록 띠와 "서지 않음" 전광판이 들어 있다.

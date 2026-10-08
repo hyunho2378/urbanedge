@@ -122,12 +122,6 @@ export function Lightbox({ items, index, onIndex, onClose, label, shareTitle }) 
         <div className="mt-12 flex items-start justify-between gap-16">
           <div className="min-w-0">
             <Tx {...item.alt} as="p" role="caption" className="text-text-sec" />
-            {item.source && (
-              <a href={item.source} target="_blank" rel="noopener noreferrer" className="t-caption mt-4 inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
-                <Tx inline {...label.source} />
-                <ExternalLink size={14} aria-hidden="true" />
-              </a>
-            )}
           </div>
           <div className="flex shrink-0 items-center gap-12">
             <p className="t-caption tabular-nums text-text-meta" aria-live="polite">

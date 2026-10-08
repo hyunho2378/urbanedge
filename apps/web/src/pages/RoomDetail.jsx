@@ -1,14 +1,12 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Expand } from 'lucide-react'
-import { Container, ShareButton, cx, useLangValue } from '@urbanedge/ds'
-import { SITE } from '../data/site.js'
+import { ArrowLeft, Expand } from 'lucide-react'
+import { Container, cx } from '@urbanedge/ds'
 import { Lightbox } from '../components/pages/Lightbox.jsx'
 import { PageShell, Tx, useV } from '../components/pages/Bilingual.jsx'
 import { PlatformBadge } from '../components/pages/PlatformBadge.jsx'
 import { PoseDrawing } from '../components/pages/Poses.jsx'
-import { Ticket } from '../components/pages/Ticket.jsx'
-import { ACCENT, NOTICE, PLATFORMS, STATION, findStation } from '../components/pages/content.js'
+import { ACCENT, findStation } from '../components/pages/content.js'
 import { usePageTitle } from '../components/pages/usePageTitle.js'
 import NotFound from './NotFound.jsx'
 
@@ -16,24 +14,8 @@ const T = {
   platform: { en: 'Platform', ko: '승강장' },
   station: { en: 'GY-01 UrbanEdge Station', ko: 'GY-01 어반엣지역' },
   zoom: { en: 'Open photo', ko: '사진 열기' },
-  on: { en: 'In the room', ko: '방 안' },
-  why: { en: 'Why it photographs well', ko: '잘 나오는 이유' },
   posesTitle: { en: 'Poses', ko: '포즈' },
-  posesSub: {
-    en: 'Each one uses something that is really in the room. Change pose every shot and the strip reads like a short story.',
-    ko: '방에 실제로 놓인 소품을 기준으로 골랐으며, 컷마다 포즈를 바꾸면 인화물 한 장이 짧은 이야기처럼 읽힌다.',
-  },
   morePhotos: { en: 'Photos', ko: '사진' },
-  ticketTitle: { en: 'Your Metro Ticket', ko: '메트로 승차권' },
-  ticketLine: { en: 'Gyeongju Metro, GY-01 UrbanEdge', ko: '경주 메트로, GY-01 어반엣지' },
-  ticketWink: {
-    en: 'Valid for one photo journey inside this building. Not valid on any real train, bus or taxi.',
-    ko: '이 건물 안의 촬영 여정 한 번에만 쓸 수 있으며, 실제 기차와 버스, 택시에서는 쓸 수 없다.',
-  },
-  admit: { en: 'ADMIT ONE', ko: '1회 탑승' },
-  share: { en: 'Share this platform', ko: '이 승강장 공유' },
-  prev: { en: 'Previous platform', ko: '이전 승강장' },
-  next: { en: 'Next platform', ko: '다음 승강장' },
   all: { en: 'All platforms', ko: '모든 승강장' },
   lb: {
     dialog: { en: 'Photo viewer', ko: '사진 확대 보기' },
@@ -62,26 +44,15 @@ export default function RoomDetail() {
 
 function PlatformView({ st }) {
   const v = useV()
-  const lang = useLangValue()
   const [lb, setLb] = useState(null)
   usePageTitle({ en: `${st.name}, Platform ${st.no}`, ko: `${st.name}, ${st.no}번 승강장` })
 
-  const at = PLATFORMS.findIndex((p) => p.id === st.id)
-  const prev = PLATFORMS[(at - 1 + PLATFORMS.length) % PLATFORMS.length]
-  const next = PLATFORMS[(at + 1) % PLATFORMS.length]
   const [hero, ...more] = st.photoList
   const accent = ACCENT[st.accent]
-  const price = lang === 'ko' ? `${SITE.price.base.toLocaleString('ko-KR')}원` : `₩${SITE.price.base.toLocaleString('en-US')}`
-  const fare = { en: `Base price ${SITE.price.base.toLocaleString('en-US')} won, 2 prints included.`, ko: `기본 요금 ${SITE.price.base.toLocaleString('ko-KR')}원, 인화 2장 포함.` }
-  const d = new Date()
-  const date = `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
-  const origin = typeof window !== 'undefined' ? window.location.href : ''
-  const stationLine = { en: `Platform ${st.no}, ${st.title.en}`, ko: `${st.no}번 승강장, ${st.title.ko}` }
-
   return (
     <PageShell>
       {/* 전면 사진 위에 승강장 번호와 이름. 번호 배지는 승강장 색이다. */}
-      <header className="relative isolate overflow-hidden bg-bg-panel" style={{ height: 'min(82dvh, 880px)', minHeight: '440px' }}>
+      <header className="relative isolate overflow-hidden bg-bg-panel" style={{ height: 'min(56dvh, 560px)', minHeight: '320px' }}>
         <button type="button" onClick={() => setLb(0)} aria-label={`${v(T.zoom)}: ${v(hero.alt)}`} className="absolute inset-0 block size-full">
           <img src={hero.full} srcSet={`${hero.thumb} ${hero.w}w, ${hero.full} 1350w`} sizes="100vw" alt="" width={hero.w} height={hero.h} decoding="async" className="size-full object-cover" />
         </button>
@@ -114,7 +85,7 @@ function PlatformView({ st }) {
                 <li key={i} className="flex items-center gap-16 text-text-pri">
                   {i > 0 && (
                     <span aria-hidden="true" className={accent.text}>
-                      ‡
+                      ·
                     </span>
                   )}
                   <Tx inline {...p} role="subhead" />

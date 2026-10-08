@@ -1,22 +1,25 @@
 .room-explorer { padding-block: clamp(1rem, 3vw, 2rem) clamp(2rem, 5vw, 4rem); }
 .room-explorer__wrap { width: min(100% - 2.5rem, 1400px); margin-inline: auto; }
-.room-explorer__layout { display: grid; gap: 1.25rem; align-items: start; }
+.room-explorer__layout { display: grid; gap: .75rem; align-items: start; }
 .room-explorer__stage { background: #fff; border-radius: .5rem; overflow: hidden; line-height: 0; }
-.room-explorer__stage svg { width: 100%; height: auto; display: block; }
+.room-explorer__stage svg { width: 100%; height: auto; max-height: 40dvh; display: block; }
 .room-explorer__dim { transition: opacity .2s ease; }
-.room-explorer__choices { display: flex; flex-wrap: wrap; gap: .5rem; }
+.room-explorer__choices { display: flex; flex-wrap: nowrap; gap: .5rem; overflow-x: auto; scrollbar-width: none; padding-bottom: .25rem; }
+.room-explorer__choice { flex: none; white-space: nowrap; }
 .room-explorer__choice { min-height: 2.5rem; padding: 0 1rem; border-radius: 999px; border: 1px solid rgb(var(--ue-text-pri) / .25); color: rgb(var(--ue-text-sec)); font-size: .9rem; font-weight: 500; transition: background-color .16s ease, color .16s ease; }
 .room-explorer__choice:hover { border-color: rgb(var(--ue-yellow)); color: rgb(var(--ue-text-pri)); }
 .room-explorer__choice:focus-visible { outline: 3px solid rgb(var(--ue-focus)); outline-offset: 2px; }
 .room-explorer__choice--active, .room-explorer__choice--active:hover { background: rgb(var(--ue-yellow)); border-color: rgb(var(--ue-yellow)); color: rgb(var(--ue-text-on-yellow)); font-weight: 600; }
-.room-explorer__detail { padding-top: 1.25rem; min-height: 8rem; }
+.room-explorer__detail { padding-top: .75rem; min-height: 5.5rem; }
 .room-explorer__detail h3 { font-size: clamp(1.25rem, 2vw, 1.75rem); line-height: 1.3; font-weight: 700; margin: 0 0 .5rem; }
 .room-explorer__detail p { color: rgb(var(--ue-text-sec)); line-height: 1.7; }
 .room-explorer__platform-link { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.75rem; margin-top: 1rem; padding: 0 1rem; border: 1px solid rgb(var(--ue-text-pri) / .25); border-radius: 999px; color: rgb(var(--ue-text-pri)); font-size: .9rem; }
 .room-explorer__platform-link:hover { border-color: rgb(var(--ue-yellow)); color: rgb(var(--ue-yellow)); }
-@media (min-width: 900px) { .room-explorer__layout { grid-template-columns: minmax(0, 1.6fr) minmax(16rem, .7fr); gap: 2.5rem; } .room-explorer__choices { flex-direction: column; flex-wrap: nowrap; } .room-explorer__choice { text-align: left; border-radius: .5rem; } }
+@media (min-width: 900px) { .room-explorer__stage svg { max-height: calc(100dvh - 200px); } .room-explorer__layout { grid-template-columns: minmax(0, 1.6fr) minmax(16rem, .7fr); gap: 2.5rem; } .room-explorer__choices { flex-direction: column; overflow: visible; } .room-explorer__choice { text-align: left; border-radius: .5rem; } }
 @media (prefers-reduced-motion: reduce) { .room-explorer__choice, .room-explorer__dim { transition: none; } }
 /* Dynamic Island style swap for the platform switcher */
 .island-swap { animation: island-in .42s cubic-bezier(.2, .9, .3, 1.15) both; transform-origin: 50% 0; }
 @keyframes island-in { 0% { opacity: 0; transform: scale(.82, .5); border-radius: 999px; } 60% { opacity: 1; } 100% { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .island-swap { animation: none; } }
+.room-explorer__layout > * { min-width: 0; }
+.room-explorer__detail p { overflow-wrap: anywhere; }

@@ -15,7 +15,7 @@ const COPY = {
 export default function Hero() {
   const pick = usePick()
   return (
-    <section aria-labelledby="hero-title" className="relative isolate overflow-hidden" style={{ minHeight: 'min(64dvh, 520px)' }}>
+    <section aria-labelledby="hero-title" className="relative isolate overflow-hidden" style={{ minHeight: 'min(54dvh, 440px)' }}>
       <img src={ROOMS[0].photo.src} alt="" aria-hidden="true" loading="eager" decoding="async" draggable="false" className="absolute inset-0 -z-10 size-full object-cover" />
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/60" />
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-bg-base via-transparent to-bg-base/60" />

@@ -27,9 +27,9 @@ export default function Rooms() {
 
   return (
     <PageShell>
-      <header className="pt-24 md:pt-40">
+      <header className="pt-16 md:pt-24">
         <Container className="4xl:max-w-screen-4xl">
-          <Tx {...T.h1} as="h1" role="title" inner="text-display-m" className="text-text-pri" />
+          <Tx {...T.h1} as="h1" role="headline" className="text-text-pri" />
         </Container>
       </header>
       <RoomExplorer />

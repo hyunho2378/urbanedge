@@ -15,7 +15,7 @@
 .room-explorer__detail p { color: rgb(var(--ue-text-sec)); line-height: 1.7; }
 .room-explorer__platform-link { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.75rem; margin-top: 1rem; padding: 0 1rem; border: 1px solid rgb(var(--ue-text-pri) / .25); border-radius: 999px; color: rgb(var(--ue-text-pri)); font-size: .9rem; }
 .room-explorer__platform-link:hover { border-color: rgb(var(--ue-yellow)); color: rgb(var(--ue-yellow)); }
-@media (min-width: 900px) { .room-explorer__stage svg { max-height: calc(100dvh - 200px); } .room-explorer__layout { grid-template-columns: minmax(0, 1.6fr) minmax(16rem, .7fr); gap: 2.5rem; } .room-explorer__choices { flex-direction: column; overflow: visible; } .room-explorer__choice { text-align: left; border-radius: .5rem; } }
+@media (min-width: 900px) { .room-explorer__stage svg { max-height: calc(100dvh - 210px); } .room-explorer__layout { grid-template-columns: minmax(0, 1.6fr) minmax(16rem, .7fr); gap: 2.5rem; } .room-explorer__choices { flex-direction: column; overflow: visible; } .room-explorer__choice { text-align: left; border-radius: .5rem; } }
 @media (prefers-reduced-motion: reduce) { .room-explorer__choice, .room-explorer__dim { transition: none; } }
 /* Dynamic Island style swap for the platform switcher */
 .island-swap { animation: island-in .42s cubic-bezier(.2, .9, .3, 1.15) both; transform-origin: 50% 0; }

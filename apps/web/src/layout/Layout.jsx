@@ -15,7 +15,7 @@ function PageFallback() {
   const pick = usePick()
   return (
     <div role="status" aria-live="polite" className="grid min-h-dvh place-items-center px-page">
-      <p className="t-label animate-pulse-soft text-text-meta"><B v={{ en: 'Now boarding', ko: '탑승 중' }} inline /></p>
+      <span aria-hidden="true" className="size-12 animate-pulse-soft rounded-pill bg-yellow" /><span className="sr-only"><B v={{ en: 'Loading', ko: '불러오는 중' }} inline /></span>
     </div>
   )
 }

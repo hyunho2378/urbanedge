@@ -1,25 +1,15 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { Menu, Share2, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { cx } from '@urbanedge/ds'
 import { UrbanEdgeWordmark } from '@urbanedge/brand'
-import { LINE, NAV, SITE } from '../data/site.js'
-import { useShare } from '../components/home/kit.jsx'
+import { NAV } from '../data/site.js'
 import { usePick } from '../i18n/index.jsx'
 import LangToggle from './LangToggle.jsx'
 import { lockScroll, unlockScroll } from './scroll.js'
-import { SocialButton } from './SocialLinks.jsx'
+import LogoMark from './LogoMark.jsx'
 import { Wrap } from './Wrap.jsx'
 import { B } from './B.jsx'
-
-// 헤더 로고: 굵은 U 한 글자. 직각 끝을 둔 블록 형태라 UE 심볼과 같은 결을 쓴다.
-function UGlyph() {
-  return (
-    <svg viewBox="0 0 24 24" className="w-24" aria-hidden="true" role="presentation">
-      <path fill="currentColor" d="M3 2h6v11a3 3 0 0 0 6 0V2h6v11a9 9 0 0 1-18 0Z" />
-    </svg>
-  )
-}
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
@@ -37,7 +27,6 @@ export default function Header() {
   const navRef = useRef(null)
   const [bar, setBar] = useState({ x: 0, w: 0, show: false })
   const solid = scrolled || !isHome || open
-  const share = useShare({ title: SITE.name, text: pick(SITE.tagline) })
 
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 24)
@@ -127,9 +116,7 @@ export default function Header() {
               aria-label={pick({ en: 'UrbanEdge Metrography, home', ko: '어반엣지 메트로그래피 홈' })}
               className="ue-press flex items-center gap-10 rounded-md"
             >
-              <span className="grid size-40 shrink-0 place-items-center rounded-md bg-yellow text-text-onYellow">
-                <UGlyph />
-              </span>
+              <LogoMark className="size-36" />
               <UrbanEdgeWordmark className="hidden h-16 w-auto text-text-pri md:block" aria-hidden="true" role="presentation" />
             </Link>
           </div>
@@ -161,14 +148,6 @@ export default function Header() {
           </nav>
 
           <div className="flex min-w-0 flex-1 items-center justify-end gap-8">
-            <button
-              type="button"
-              onClick={share.open}
-              aria-label={pick({ en: 'Share this site', ko: '사이트 공유' })}
-              className="ue-press hidden size-48 place-items-center rounded-pill text-text-pri transition-colors duration-fast ease-out hover:text-yellow md:grid"
-            >
-              <Share2 size={20} aria-hidden="true" />
-            </button>
             <LangToggle />
             <button
               ref={menuBtn}
@@ -184,7 +163,6 @@ export default function Header() {
           </div>
         </Wrap>
       </div>
-      {share.sheet}
 
       {open && (
         <div
@@ -200,9 +178,7 @@ export default function Header() {
           <div className="relative flex h-header-m shrink-0 items-center justify-between px-page">
             <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-px bg-yellow/50" />
             <Link to="/" className="ue-press flex items-center gap-10 rounded-md" aria-label={pick({ en: 'Home', ko: '홈' })}>
-              <span className="grid size-40 shrink-0 place-items-center rounded-md bg-yellow text-text-onYellow">
-                <UGlyph />
-              </span>
+              <LogoMark className="size-36" />
             </Link>
             <button
               ref={closeBtn}
@@ -215,45 +191,23 @@ export default function Header() {
             </button>
           </div>
 
-          <nav aria-label={navLabel} className="px-page pt-24">
-            <p className="t-label mb-12 text-text-meta"><B v={LINE.name} inline /></p>
-            <ol className="relative">
-              <span aria-hidden="true" className="absolute bottom-24 left-12 top-24 w-6 -translate-x-1/2 rounded-pill bg-yellow" />
+          <nav aria-label={navLabel} className="px-page pt-16">
+            <ul>
               {NAV.map((n, i) => (
-                <li key={n.to} className="animate-fade-up" style={{ animationDelay: `${60 + i * 45}ms` }}>
+                <li key={n.to} className="animate-fade-up" style={{ animationDelay: `${40 + i * 35}ms` }}>
                   <NavLink
                     to={n.to}
                     end={n.to === '/'}
                     className={({ isActive }) =>
-                      cx('group flex min-h-56 items-center gap-20 py-4 transition-colors duration-fast ease-out', isActive ? 'text-yellow' : 'text-text-pri hover:text-yellow')
+                      cx('flex min-h-48 items-center border-b border-text-pri/10 text-body font-medium transition-colors duration-fast ease-out', isActive ? 'text-yellow' : 'text-text-pri hover:text-yellow')
                     }
                   >
-                    {({ isActive }) => (
-                      <>
-                        <span aria-hidden="true" className={cx('relative z-10 block size-24 shrink-0 rounded-pill border-4 border-bg-base', isActive ? 'bg-yellow ring-4 ring-yellow/40' : 'bg-white')} />
-                        <span className="t-title"><B v={n.label} inline /></span>
-                      </>
-                    )}
+                    <B v={n.label} inline />
                   </NavLink>
                 </li>
               ))}
-            </ol>
+            </ul>
           </nav>
-
-          <div className="mt-auto px-page pb-32 pt-32">
-            <div className="flex flex-wrap gap-12">
-              <SocialButton kind="instagram" tone="solid" />
-              <SocialButton kind="naver" tone="ghost" />
-            </div>
-            <p className="t-caption mt-24 text-text-sec">
-              <B v={SITE.address} inline />
-              <br />
-              {SITE.hours.open} ~ {SITE.hours.close}
-            </p>
-            <div className="mt-16">
-              <LangToggle />
-            </div>
-          </div>
         </div>
       )}
     </header>

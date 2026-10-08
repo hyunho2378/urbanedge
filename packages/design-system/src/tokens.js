@@ -89,11 +89,11 @@ export const colors = {
 // 2) 타이포그래피
 export const typography = {
   family: {
-    display: "'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', sans-serif",
-    sans: "'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', sans-serif",
-    ui: "'SUIT Variable', SUIT, 'Pretendard Variable', Pretendard, sans-serif",
-    brand: "'Poppins', 'Pretendard Variable', Pretendard, sans-serif",
-    label: "'Barlow Condensed', 'Pretendard Variable', Pretendard, sans-serif",
+    display: "'Wanted Sans Variable', 'Wanted Sans', 'SUIT Variable', SUIT, -apple-system, 'Apple SD Gothic Neo', sans-serif",
+    sans: "'Wanted Sans Variable', 'Wanted Sans', 'SUIT Variable', SUIT, -apple-system, 'Apple SD Gothic Neo', sans-serif",
+    ui: "'SUIT Variable', SUIT, 'Wanted Sans Variable', 'Wanted Sans', 'SUIT Variable', SUIT, sans-serif",
+    brand: "'Poppins', 'Wanted Sans Variable', 'Wanted Sans', 'SUIT Variable', SUIT, sans-serif",
+    label: "'Barlow Condensed', 'Wanted Sans Variable', 'Wanted Sans', 'SUIT Variable', SUIT, sans-serif",
   },
   // [모바일 390px, 데스크탑 1440px] 웹 유동 스케일. tailwind-preset이 clamp로 보간한다.
   size: {

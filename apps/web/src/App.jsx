@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Link, Route, Routes } from 'react-router-dom'
+import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import { LangProvider, usePick } from './i18n/index.jsx'
 import Layout from './layout/Layout.jsx'
 import Home from './pages/Home.jsx'
@@ -52,7 +52,10 @@ export default function App() {
         <Route element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="rooms" element={<Rooms />} />
+          <Route path="rooms/phone" element={<Navigate to="/rooms" replace />} />
           <Route path="rooms/:id" element={<RoomDetail />} />
+          <Route path="metro" element={<Navigate to="/" replace />} />
+          <Route path="station" element={<Navigate to="/" replace />} />
           <Route path="guide" element={<Guide />} />
           <Route path="visit" element={<Visit />} />
           <Route path="gallery" element={<Gallery />} />

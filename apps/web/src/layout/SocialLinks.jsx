@@ -1,6 +1,7 @@
 import { cx } from '@urbanedge/ds'
 import { SITE } from '../data/site.js'
 import { usePick } from '../i18n/index.jsx'
+import { NaverMark } from '../components/pages/NaverMark.jsx'
 
 export function InstagramGlyph({ size = 18, className }) {
   return (
@@ -12,13 +13,9 @@ export function InstagramGlyph({ size = 18, className }) {
   )
 }
 
-// 네이버 플레이스 표시: 초록 N 모양이 아니라 토큰 색의 글자 상자로 둔다(브랜드 색 임의 사용 금지).
+// 네이버 플레이스 표시: 초록 사각형 위 흰 N.
 export function NaverGlyph({ size = 18, className }) {
-  return (
-    <span aria-hidden="true" style={{ width: size, height: size }} className={cx('grid shrink-0 place-items-center rounded-sm bg-current', className)}>
-      <span className="font-brand text-caption font-bold leading-none text-bg-base">N</span>
-    </span>
-  )
+  return <NaverMark size={size} className={className} />
 }
 
 const base =

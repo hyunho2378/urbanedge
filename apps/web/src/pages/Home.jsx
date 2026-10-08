@@ -1,5 +1,4 @@
 import Hero from '../components/home/Hero.jsx'
-import JourneyIsland from '../components/home/JourneyIsland.jsx'
 import Location from '../components/home/Location.jsx'
 import PlatformScene from '../components/home/PlatformScene.jsx'
 import Platforms from '../components/home/Platforms.jsx'
@@ -37,7 +36,6 @@ export default function Home() {
       <PlatformScene />
       <Prints />
       <Location />
-      <JourneyIsland />
     </>
   )
 }

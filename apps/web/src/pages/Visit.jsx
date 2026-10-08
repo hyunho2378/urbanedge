@@ -57,7 +57,7 @@ export default function Visit() {
   return (
     <PageShell>
       <PageTop title={T.h1} lead={T.lead} />
-      <section className="pb-64 md:pb-96">
+      <section className="ue-light py-40 md:py-64">
         <Container className="4xl:max-w-screen-4xl">
           <div ref={mapRef} className="relative w-full overflow-hidden rounded-lg bg-bg-panel" style={{ height: 'clamp(340px, 56dvh, 600px)' }}>
             {mapSeen && <HwangnidanMap mode="3d" showRoute lang={lang} className="size-full" />}

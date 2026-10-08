@@ -36,7 +36,7 @@ export default function Guide() {
   return (
     <PageShell>
       <PageTop title={T.title} />
-      <section className="pb-64 md:pb-96">
+      <section className="ue-light py-40 md:py-64">
         <Container className="grid gap-x-64 gap-y-40 lg:grid-cols-2 4xl:max-w-screen-4xl">
           <ol className="divide-y divide-hairline border-y border-hairline">
             {STEPS.map((s, i) => (

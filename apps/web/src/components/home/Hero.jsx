@@ -22,7 +22,7 @@ export default function Hero() {
       <Wrap className="relative flex flex-col items-center gap-24 pb-48 pt-96 text-center md:pt-128">
         <div>
           <h1 id="hero-title" className="t-title text-text-pri">{pick(COPY.title)}</h1>
-          <p className="t-lead mt-8 text-yellow">{pick(COPY.sub)}</p>
+          <p className="t-lead mt-8 text-text-sec">{pick(COPY.sub)}</p>
           <p className="t-body mt-4 text-text-sec">{pick(COPY.hours)}</p>
         </div>
         <Button as={Link} to="/visit" size="lg">{pick(COPY.go)}</Button>

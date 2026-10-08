@@ -12,7 +12,7 @@ const STEPS = [
 export default function HowItWorks() {
   const pick = usePick()
   return (
-    <Section id="how" labelledBy="how-title" tone="elev" className="!py-24 md:!py-48">
+    <Section id="how" labelledBy="how-title" tone="light" className="!py-24 md:!py-48">
       <h2 id="how-title" className="t-headline text-text-pri">{pick({ en: 'How it works', ko: '이용 방법' })}</h2>
       <ol className="mt-16 grid grid-cols-2 gap-12 md:grid-cols-4 md:gap-24">
         {STEPS.map((s, i) => (

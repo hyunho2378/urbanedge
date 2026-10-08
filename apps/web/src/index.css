@@ -2,3 +2,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 밝은 구간: 흰 바탕에 검정 글자. 노랑은 버튼과 작은 표시에만 쓴다. */
+.ue-light {
+  --ue-bg-base: 255 255 255;
+  --ue-bg-elev: 245 245 242;
+  --ue-bg-panel: 236 236 232;
+  --ue-bg-raised: 226 226 221;
+  --ue-text-pri: 17 17 17;
+  --ue-text-sec: 56 56 56;
+  --ue-text-meta: 92 92 92;
+  --ue-text-disabled: 140 140 140;
+  background-color: rgb(var(--ue-bg-base));
+  color: rgb(var(--ue-text-pri));
+}
+.ue-light .text-yellow { color: rgb(17 17 17); }

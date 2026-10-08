@@ -10,7 +10,7 @@ export const palette = {
   'bg-panel': '26 26 26',
   'bg-raised': '36 36 36',
   'bg-yellow': '245 197 24',
-  'text-pri': '240 240 240',
+  'text-pri': '237 237 237',
   'text-sec': '214 214 214',
   'text-meta': '176 176 176',
   'text-disabled': '120 120 120',

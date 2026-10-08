@@ -48,7 +48,7 @@ export default function Location() {
   )
 
   return (
-    <Section id="location" labelledBy="location-title">
+    <Section id="location" labelledBy="location-title" tone="light">
       <h2 id="location-title" className="t-headline text-text-pri">{pick(COPY.title)}</h2>
       <address className="t-body mt-12 flex flex-wrap items-center gap-x-24 gap-y-8 not-italic text-text-pri">
         <span className="inline-flex items-center gap-8"><MapPin size={18} aria-hidden="true" className="text-yellow" />{pick(SITE.address)}</span>

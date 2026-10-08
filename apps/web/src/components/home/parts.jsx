@@ -10,7 +10,7 @@ export function Section({ id, labelledBy, tone = 'base', className, wrapClass, c
       id={id}
       aria-labelledby={labelledBy}
       style={{ scrollMarginTop: 'var(--ue-header-h)' }}
-      className={cx('relative py-28 md:py-80 lg:py-112', tone === 'elev' && 'bg-bg-elev', tone === 'panel' && 'bg-bg-panel', className)}
+      className={cx('relative py-28 md:py-80 lg:py-112', tone === 'elev' && 'bg-bg-elev', tone === 'panel' && 'bg-bg-panel', tone === 'light' && 'ue-light', className)}
       {...rest}
     >
       <Wrap className={wrapClass}>{children}</Wrap>

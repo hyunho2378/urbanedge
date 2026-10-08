@@ -11,10 +11,10 @@ import { B } from './B.jsx'
 // 푸터: 작게. 로고, 링크 한 줄, 주소와 영업시간 한 줄, 저작권.
 export default function Footer() {
   const pick = usePick()
-  const link = 'inline-flex min-h-40 items-center gap-8 text-body-sm text-text-sec transition-colors duration-fast ease-out hover:text-yellow'
+  const link = 'inline-flex min-h-40 items-center gap-8 text-body-sm text-text-sec transition-colors duration-fast ease-out hover:text-text-pri hover:underline'
 
   return (
-    <footer className="relative bg-bg-elev">
+    <footer className="ue-light relative">
       <Wrap className="py-24 md:py-32">
         <div className="flex flex-col gap-16 md:flex-row md:items-center md:justify-between">
           <Link to="/" aria-label={pick({ en: 'UrbanEdge, home', ko: '어반엣지 홈' })} className="flex items-center gap-10">

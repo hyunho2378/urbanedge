@@ -162,10 +162,11 @@ export const PLATFORMS = ROOMS
 export const platformById = (id) => ROOMS.find((r) => r.id === id)
 
 export const NAV = [
-  { to: '/', label: { en: 'Home', ko: '홈' } },
-  { to: '/rooms', label: { en: 'Platforms', ko: '승강장' } },
-  { to: '/guide', label: { en: 'How to', ko: '이용 안내' } },
+  { to: '/rooms', label: { en: 'Rooms', ko: '촬영 방' } },
+  { to: '/guide', label: { en: 'How to', ko: '이용 방법' } },
   { to: '/visit', label: { en: 'Visit', ko: '오시는 길' } },
+]
+export const FOOT_LINKS = [
   { to: '/gallery', label: { en: 'Gallery', ko: '갤러리' } },
   { to: '/brand', label: { en: 'Brand', ko: '브랜드' } },
 ]

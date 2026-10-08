@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useLayoutEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import { NAV, SITE } from '../data/site.js'
+import { NAV, FOOT_LINKS, SITE } from '../data/site.js'
 import { useLang, usePick } from '../i18n/index.jsx'
 import Footer from './Footer.jsx'
 import Header from './Header.jsx'
@@ -27,7 +27,7 @@ function useRouteTitle() {
   const pick = usePick()
   useLayoutEffect(() => {
     const seg = '/' + (pathname.split('/')[1] || '')
-    const item = NAV.find((n) => n.to === seg)
+    const item = [...NAV, ...FOOT_LINKS].find((n) => n.to === seg)
     document.title =
       pathname === '/'
         ? `${SITE.name} | ${pick({ en: 'No subway in Gyeongju. So we built one.', ko: '경주 황리단길 무인 셀프 사진관' })}`

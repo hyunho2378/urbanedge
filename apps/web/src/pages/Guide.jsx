@@ -6,7 +6,7 @@ import { PageTop } from '../components/pages/PageTop.jsx'
 import { usePageTitle } from '../components/pages/usePageTitle.js'
 
 const T = {
-  title: { en: 'How to', ko: '이용 안내' },
+  title: { en: 'How to', ko: '이용 방법' },
   camAria: {
     en: 'Front of the machine: lens below the screen, card reader to its lower right, print slot at the bottom.',
     ko: '기기 정면: 화면 아래 렌즈, 오른쪽 아래 카드 단말기, 하단 인화 출구.',
@@ -50,7 +50,7 @@ export default function Guide() {
             ))}
           </ol>
           <div>
-            <div className="mx-auto max-w-read rounded-lg bg-bg-panel p-24">
+            <div className="mx-auto max-w-xs rounded-lg bg-bg-panel p-16">
               <CameraDiagram active={part} onSelect={setPart} ariaLabel={v(T.camAria)} />
             </div>
             <ul aria-label={v(T.camList)} className="mt-16 grid grid-cols-2 gap-8">

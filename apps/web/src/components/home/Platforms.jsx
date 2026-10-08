@@ -18,7 +18,7 @@ export default function Platforms() {
           <li key={r.id}>
             <Link to={`/rooms/${r.id}`} className="group block rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-yellow">
               <Photo src={r.photo.src} alt="" ratio="3 / 4" className="rounded-lg transition-transform duration-base ease-out group-hover:scale-[1.02]" sizes="33vw" />
-              <p className="t-strong mt-8 text-text-pri">{pick(r.title)}</p>
+              <p className="t-strong mt-8 text-body-sm text-text-pri md:text-body">{pick(r.title)}</p>
             </Link>
           </li>
         ))}

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { UrbanEdgeWordmark } from '@urbanedge/brand'
-import { SITE } from '../data/site.js'
+import { SITE, FOOT_LINKS } from '../data/site.js'
 import { usePick } from '../i18n/index.jsx'
 import LogoMark from './LogoMark.jsx'
 import { ExtLink } from './ExtLink.jsx'
@@ -22,6 +22,7 @@ export default function Footer() {
             <UrbanEdgeWordmark className="h-14 w-auto text-text-pri" aria-hidden="true" role="presentation" />
           </Link>
           <div className="flex flex-wrap gap-x-20">
+            {FOOT_LINKS.map((n) => <Link key={n.to} to={n.to} className={link}><B v={n.label} inline /></Link>)}
             <ExtLink href={SITE.instagram.url} className={link} icon={false}><InstagramGlyph size={16} />Instagram</ExtLink>
             <ExtLink href={SITE.naverPlace} className={link} icon={false}><NaverGlyph size={16} /><B v={{ en: 'Naver', ko: '네이버' }} inline /></ExtLink>
             <ExtLink href={SITE.maps.google} className={link} icon={false}>Google Maps</ExtLink>

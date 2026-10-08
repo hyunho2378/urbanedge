@@ -11,7 +11,7 @@ import { useNearViewport } from './hooks.js'
 import { Section } from './parts.jsx'
 
 const COPY = {
-  title: { en: 'Find us', ko: '오시는 길' },
+  title: { en: 'Location', ko: '위치' },
   gmaps: { en: 'Google Maps', ko: '구글 지도' },
   place: { en: 'Naver Place', ko: '네이버 플레이스' },
   loading: { en: 'Loading the map', ko: '지도를 불러오는 중' },

@@ -130,7 +130,7 @@ export default function Header() {
                     end={n.to === '/'}
                     className={({ isActive }) =>
                       cx(
-                        'ue-label flex items-center px-12 text-body-sm tracking-wide transition-colors duration-fast ease-out xl:px-16',
+                        'flex items-center px-16 text-body font-medium transition-colors duration-fast ease-out xl:px-20',
                         isActive ? 'text-yellow' : 'text-text-sec hover:text-text-pri',
                       )
                     }

@@ -1,0 +1,15 @@
+{
+  "name": "urbanedge",
+  "private": true,
+  "version": "0.1.0",
+  "description": "UrbanEdge Metrography: 브랜드 웹(apps/web)과 키오스크 시뮬레이터(apps/kiosk) 모노레포",
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "dev:web": "npm run dev -w @urbanedge/web",
+    "dev:kiosk": "npm run dev -w @urbanedge/kiosk",
+    "build:web": "npm run build -w @urbanedge/web",
+    "build:kiosk": "npm run build -w @urbanedge/kiosk",
+    "build": "npm run build:web && npm run build:kiosk",
+    "lint:rules": "node scripts/check-rules.mjs"
+  }
+}

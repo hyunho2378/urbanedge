@@ -1,0 +1,14 @@
+{
+  "name": "@urbanedge/ds",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./tokens": "./src/tokens.js",
+    "./tailwind-preset": "./src/tailwind-preset.js",
+    "./base.css": "./src/styles/base.css"
+  },
+  "peerDependencies": { "react": "^18.0.0", "react-dom": "^18.0.0", "lucide-react": "*" }
+}

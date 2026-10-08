@@ -39,3 +39,10 @@
 /* Reserve the same heading area when the site's KR/EN control changes copy. */
 .room-explorer__heading { min-height: 9.5rem; }
 @media (max-width: 899px) { .room-explorer__heading { min-height: 10.5rem; } }
+.room-explorer__views { display: inline-grid; grid-template-columns: 5.5rem 5.5rem; gap: .25rem; padding: .25rem; margin-bottom: .75rem; border: 1px solid rgb(var(--ue-text-pri) / .2); border-radius: 999px; }
+.room-explorer__view { min-height: 2.5rem; border-radius: 999px; color: rgb(var(--ue-text-sec)); font-weight: 500; font-size: .9rem; }
+.room-explorer__view--active { background: rgb(var(--ue-yellow)); color: rgb(var(--ue-bg-base)); font-weight: 600; }
+.room-explorer__view:focus-visible { outline: 3px solid rgb(var(--ue-focus)); outline-offset: 2px; }
+.room-explorer__render { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff; }
+.room-explorer__detail h3 { font-size: clamp(1.4rem, 2vw, 2rem); line-height: 1.2; font-weight: 700; margin: 0 0 .5rem; }
+.room-explorer__detail .room-explorer__platform-link { margin-top: 1rem; max-width: 14rem; }

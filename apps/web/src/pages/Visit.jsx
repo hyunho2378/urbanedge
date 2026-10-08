@@ -1,145 +1,143 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AtSign, Check, Clock, Copy, CreditCard, ExternalLink, Languages, MapPin, Hand, UserRound, Accessibility } from 'lucide-react'
-import { Button, Reveal } from '@urbanedge/ds'
-import { useLang, usePick } from '../i18n/index.jsx'
+import { ArrowRight, ArrowUpRight, Check, Copy, ExternalLink, LocateFixed } from 'lucide-react'
+import { Button, ExitSign, Container, TransitMap, cx, useLangValue } from '@urbanedge/ds'
+import { GoogleMapEmbed, HwangnidanMap, directionsLinks } from '@urbanedge/map'
 import { SITE } from '../data/site.js'
-import { PageHero } from '../components/pages/PageHero.jsx'
-import { Section } from '../components/pages/Section.jsx'
-import { RouteSteps } from '../components/pages/RouteSteps.jsx'
-import { photo } from '../components/pages/content.js'
+import { PageShell, Tx, useV } from '../components/pages/Bilingual.jsx'
+import { FindUsPoster } from '../components/pages/FindUsPoster.jsx'
+import { OpenNow } from '../components/pages/OpenNow.jsx'
+import { PageTop } from '../components/pages/PageTop.jsx'
+import { Tape } from '../components/pages/Tape.jsx'
+import { useNearView } from '../components/pages/hooks.js'
+import { INSTAGRAM, NAVER_PLACE, PLACE_STRIP, ROUTE_STOPS, STATION } from '../components/pages/content.js'
 import { usePageTitle } from '../components/pages/usePageTitle.js'
 
-const price = SITE.price.base.toLocaleString('en-US')
-
 const T = {
-  title: { ko: '오시는 길', en: 'Visit' },
-  label: { ko: '오시는 길 / VISIT', en: 'VISIT' },
-  h1: { ko: '입구에서 안쪽까지', en: 'From the street to the machine' },
-  desc: {
-    ko: '경주 황리단길의 포석로1079번길 6에 있으며, 입구에서 안쪽으로 들어가면 방 5곳이 이어지고 방마다 기기가 따로 있다.',
-    en: 'Find us at 6, Poseok-ro 1079beon-gil in Gyeongju, near Hwangnidan-gil. Walk in from the entrance and the five rooms follow, each with its own machine.',
+  title: { en: 'Visit', ko: '오시는 길' },
+  h1: { en: 'Find Exit 1.', ko: '1번 출구 찾기' },
+  lead: {
+    en: 'GY-01 UrbanEdge sits at 6, Poseok-ro 1079beon-gil, a lane in the Hwangridan-gil area of Gyeongju. Look for the black front with a checkerboard step. It is the only station of a metro that exists nowhere else, and it is open 10:00 to 24:00.',
+    ko: 'GY-01 어반엣지역은 경주 황리단길 부근 포석로1079번길 6의 골목에 있으며, 검은 외관과 체커보드 문턱이 보이면 1번 출구에 도착한 것이다. 다른 곳에는 없는 지하철의 하나뿐인 역이고, 영업 시간은 10:00부터 24:00까지다.',
   },
-  naver: { ko: '네이버 지도', en: 'Naver Map' },
-  google: { ko: '구글 지도', en: 'Google Maps' },
-  newTab: { ko: '새 탭에서 열림', en: 'opens in a new tab' },
-
-  infoLabel: { ko: '기본 정보', en: 'INFORMATION' },
-  infoTitle: { ko: '방문 전에 확인할 네 가지', en: 'Four things to check before you come' },
-  addr: { ko: '주소', en: 'Address' },
-  hours: { ko: '운영 시간', en: 'Hours' },
-  hoursV: { ko: `${SITE.hours.open}에서 ${SITE.hours.close}까지`, en: `${SITE.hours.open} to ${SITE.hours.close}` },
-  fee: { ko: '이용 요금', en: 'Price' },
-  feeV: { ko: `기본 ${price}원, 인화 ${SITE.price.prints}장 포함`, en: `${price} KRW base, ${SITE.price.prints} prints included` },
-  insta: { ko: '인스타그램', en: 'Instagram' },
-  copy: { ko: '주소 복사', en: 'Copy address' },
-  copied: { ko: '주소를 복사했다', en: 'Address copied' },
-  copyFail: { ko: '복사하지 못했다. 주소를 직접 선택해 주세요', en: 'Copy failed. Please select the address manually' },
-
-  routeLabel: { ko: '동선', en: 'WAYFINDING' },
-  routeTitle: { ko: '입구에서 기기까지 다섯 걸음', en: 'Five steps from the entrance to the machine' },
-  routeIntro: {
-    ko: '안쪽 공간의 세부 배치는 현장에서 확인되는 만큼만 적었으며, 입구에서 안쪽으로 들어가면 방 5곳이 이어진다.',
-    en: 'This route lists only what has been confirmed on site: walk in from the entrance and the five rooms follow one after another.',
+  naverPlace: { en: 'Open Naver Place', ko: '네이버 플레이스 열기' },
+  instagram: { en: 'Instagram @__urbanedge', ko: '인스타그램 @__urbanedge' },
+  dirTitle: { en: 'Walk there', ko: '걸어서 가기' },
+  mapTitle: { en: 'The last stretch, on a map.', ko: '골목 앞까지 지도로 보기' },
+  mapSub: { en: 'Drag to look around, or switch to Google Maps for street names in your own app.', ko: '끌어서 주변을 둘러보거나, 구글 지도로 바꿔 익숙한 앱의 길 이름으로 확인할 수 있다.' },
+  tab3d: { en: '3D map', ko: '3D 지도' },
+  tab2d: { en: '2D map', ko: '2D 지도' },
+  tabG: { en: 'Google Maps', ko: '구글 지도' },
+  mapTabs: { en: 'Map type', ko: '지도 종류' },
+  locate: { en: 'Draw my route here', ko: '내 위치에서 경로 그리기' },
+  locateNote: { en: 'Your location stays in the browser. Nothing is sent or saved.', ko: '위치 정보는 브라우저 안에서만 쓰이며 전송하거나 저장하지 않는다.' },
+  addr: { en: 'Address', ko: '주소' },
+  copy: { en: 'Copy address', ko: '주소 복사' },
+  copied: { en: 'Address copied', ko: '주소를 복사했다' },
+  copyFail: { en: 'Could not copy. Select the address by hand.', ko: '복사하지 못했다. 주소를 직접 선택해 주세요.' },
+  hours: {
+    openNow: { en: 'Open now', ko: '지금 영업 중' },
+    closedNow: { en: 'Closed now', ko: '지금은 영업 종료' },
+    until: { en: 'until', ko: '마감' },
+    opensAt: { en: 'opens at', ko: '오픈' },
+    localTime: { en: 'Time in Gyeongju', ko: '경주 현재 시각' },
   },
-  routeAria: { ko: '입구에서 기기까지 단계', en: 'Steps from the entrance to the machine' },
-
-  accLabel: { ko: '접근성 안내', en: 'ACCESSIBILITY' },
-  accTitle: { ko: '이용 전에 알아 둘 점', en: 'Good to know before you use it' },
-  accIntro: {
-    ko: '확인된 내용만 적었고, 확인되지 않은 항목은 그대로 밝혀 두었다.',
-    en: 'Only confirmed details are listed, and anything unconfirmed is marked as such.',
+  routeTitle: { en: 'From Exit 1 to your print.', ko: '1번 출구에서 인화물까지' },
+  routeSub: { en: 'Tap a stop. This is the order you will walk it, drawn as a metro line.', ko: '정거장을 누르면 사진과 설명이 열린다. 걷게 될 순서를 노선도로 그렸다.' },
+  routeAria: { en: 'Route from Exit 1 to the print slot', ko: '1번 출구에서 인화 출구까지의 노선' },
+  stop: { en: 'Stop', ko: '정거장' },
+  nextStop: { en: 'Next stop', ko: '다음 정거장' },
+  accTitle: { en: 'Before you come', ko: '방문 전에 알아 둘 점' },
+  accBody: {
+    en: 'We have not confirmed the entrance step, the door width or wheelchair access yet, so please message @__urbanedge on Instagram before you come. The kiosk and this website work in English and Korean, and there is no staff on site.',
+    ko: '입구 단차와 문 폭, 휠체어 이용 여부는 아직 확인하지 못했으므로 방문 전에 인스타그램 @__urbanedge로 메시지를 보내 주세요. 키오스크와 이 웹사이트는 영어와 한국어를 지원하고, 현장에 직원은 없다.',
   },
-  cta: { ko: '이용 방법 보기', en: 'Read the guide' },
+  posterTitle: { en: 'Take it with you.', ko: '출력해서 들고 가기' },
+  posterSub: {
+    en: 'A poster for the fridge, the hotel desk or a friend, with a QR code to this site.',
+    ko: '냉장고나 숙소 데스크, 친구에게 건넬 수 있는 포스터이며 이 사이트로 연결되는 QR 코드가 들어 있다.',
+  },
+  stripTitle: { en: 'Photos from Naver Place', ko: '네이버 플레이스의 사진' },
+  gallery: { en: 'See the full gallery', ko: '갤러리 전체 보기' },
+  tape: [
+    { en: 'Attention please: you have reached Exit 1', ko: '안내 말씀드립니다. 1번 출구에 도착했습니다' },
+    { en: 'Doors open on the checkerboard side', ko: '내리실 문은 체커보드 쪽입니다' },
+    { en: 'Please take all your belongings', ko: '두고 내리는 물건이 없도록 확인해 주세요' },
+  ],
+  pause: { en: 'Pause announcements', ko: '안내 문구 멈추기' },
+  play: { en: 'Resume announcements', ko: '안내 문구 다시 흐르기' },
 }
 
-const ROUTE = [
-  {
-    title: { ko: '골목에서 매장 찾기', en: 'Spot the shop from the alley' },
-    body: {
-      ko: '검은 외관에 UrbanEdge Metrography 간판이 붙은 유리 매장이며, 입구 앞 바닥은 체커보드 무늬다.',
-      en: 'A glass-fronted shop with a black facade and the UrbanEdge Metrography sign, with a checkerboard pattern on the floor at the entrance.',
-    },
-    photo: photo('o_21'),
+const STOP_COPY = {
+  alley: {
+    en: 'Turn into the lane off Poseok-ro. The shop is the black one with the checkerboard step, and passers-by tend to slow down here.',
+    ko: '포석로에서 골목으로 접어들면 체커보드 문턱이 있는 검은 건물이 이 가게다.',
   },
-  {
-    title: { ko: '입구로 들어가기', en: 'Step through the entrance' },
-    body: {
-      ko: '유리 너머로 둥근 빨간 거울이 줄지어 붙은 벽이 보이며, 이 벽과 체커보드 바닥이 입구 안쪽의 첫인상이다.',
-      en: 'Through the glass you can see a wall of round red mirrors. That wall and the checkerboard floor are the first things inside.',
-    },
-    photo: photo('o_24'),
+  door: {
+    en: 'Step up onto the black and white squares. This is the gate: the sign over your head says UrbanEdge.',
+    ko: '흑백 체커보드 문턱에 올라서면 머리 위 간판에 UrbanEdge라고 쓰여 있고, 이곳이 개찰구 역할을 한다.',
   },
-  {
-    title: { ko: '안쪽 공간으로 이동', en: 'Move into the inner space' },
-    body: {
-      ko: '입구에서 안쪽으로 들어가면 방 5곳이 이어지며, 파란 타일과 흰 타일 벽에 노란 대기 의자가 놓인 공간을 지나게 된다.',
-      en: 'Walk in from the entrance and the five rooms follow, passing a space with blue and white tiled walls and yellow waiting seats.',
-    },
-    photo: photo('o_18'),
+  mirrors: {
+    en: 'Through the glass you can see a wall packed with round red mirrors. Keep walking in.',
+    ko: '유리 너머로 둥근 빨간 거울이 벽을 가득 채운 모습이 보이며, 계속 안쪽으로 걸어 들어간다.',
   },
-  {
-    title: { ko: '방 앞의 기기 찾기', en: 'Find the machine in your room' },
-    body: {
-      ko: '방마다 키오스크가 따로 있다. 흰색 본체 가운데에 가로형 모니터가 있고, 카메라는 모니터 아래에 있다.',
-      en: 'Each room has its own kiosk. A white body holds a wide monitor in the middle, and the camera sits below it.',
-    },
-    link: { to: '/guide', label: { ko: '카메라 위치 자세히 보기', en: 'See where the camera is' } },
+  hall: {
+    en: 'Further in, yellow seats sit in front of blue and white tile. The platforms follow as you keep going.',
+    ko: '더 들어가면 파란 타일과 하얀 타일 앞에 노란 의자가 놓여 있고, 계속 걸으면 승강장이 이어진다.',
   },
-  {
-    title: { ko: '인화물 받기', en: 'Pick up your prints' },
-    body: {
-      ko: '촬영이 끝나면 기기 아래쪽 인화 출구의 흰색 트레이에서 사진을 가져간다. 기기 위 벽에는 앞서 다녀간 손님의 인화지 콜라주가 붙어 있다.',
-      en: 'When shooting ends, take your prints from the white tray at the slot near the bottom of the machine. Prints from earlier guests are collaged on the wall above it.',
-    },
+  room: {
+    en: 'Pick a platform. Each room has its own kiosk, so walk up to the machine and tap the screen.',
+    ko: '승강장을 고른 뒤 방마다 따로 있는 키오스크로 다가가 화면을 누르면 된다.',
   },
-]
-
-const ACCESS = [
-  {
-    icon: Languages,
-    title: { ko: '언어', en: 'Language' },
-    body: { ko: '기기 화면과 이 웹사이트는 한국어와 영어를 지원한다.', en: 'The kiosk screen and this website support Korean and English.' },
+  slot: {
+    en: 'After the last shot, your print slides onto the white tray near the bottom of the machine.',
+    ko: '마지막 컷이 끝나면 인화물이 기기 하단의 흰색 트레이로 나온다.',
   },
-  {
-    icon: Hand,
-    title: { ko: '조작 방식', en: 'Controls' },
-    body: { ko: '기기는 터치 화면으로 조작하고, 결제는 렌즈 아래 오른쪽의 카드 단말기에서 한다.', en: 'The machine runs on a touch screen, and payment is at the card terminal to the lower right of the lens.' },
-  },
-  {
-    icon: UserRound,
-    title: { ko: '도움 요청', en: 'Getting help' },
-    body: { ko: '무인 셀프 사진관이라 직원이 상주하지 않으며, 기기에 붙은 안내 스티커에 문의 연락처가 적혀 있다.', en: 'This is an unmanned self-service studio with no staff on site, and a sticker on the machine lists a contact for help.' },
-  },
-  {
-    icon: Accessibility,
-    title: { ko: '이동 편의', en: 'Step-free access' },
-    body: {
-      ko: `입구 단차와 문 폭, 휠체어와 유모차 이용 여부는 아직 확인된 정보가 없으며, 방문 전에 인스타그램 ${SITE.instagram.handle}로 문의하면 확인할 수 있다.`,
-      en: `Entrance steps, door width and wheelchair or stroller access are not yet confirmed here. Message us on Instagram ${SITE.instagram.handle} before you visit.`,
-    },
-  },
-]
-
-function Info({ icon: Icon, label, children }) {
-  return (
-    <div className="border-b border-hairline py-24 lg:py-32">
-      <dt className="ue-label flex items-center gap-12 text-label 4xl:text-bodySm text-text-meta">
-        <Icon size={18} aria-hidden="true" className="text-yellow" />
-        {label}
-      </dt>
-      <dd className="mt-12 text-h4 4xl:text-h3 font-bold text-text-pri text-pretty">{children}</dd>
-    </div>
-  )
 }
+
+const MapPane = ({ mode, lang, onReady }) =>
+  mode === 'google' ? <GoogleMapEmbed className="size-full" lang={lang} zoom={17} /> : <HwangnidanMap mode={mode} showRoute lang={lang} className="size-full" onReady={onReady} />
 
 export default function Visit() {
-  const pick = usePick()
-  const { lang } = useLang()
+  const v = useV()
+  const lang = useLangValue()
+  usePageTitle(T.title)
+  const [mode, setMode] = useState('3d')
+  const [mapRef, mapSeen] = useNearView('240px 0px')
+  const [stop, setStop] = useState('alley')
   const [copy, setCopy] = useState('idle')
+  const ctrl = useRef(null)
   const timer = useRef(0)
-  usePageTitle(pick(T.title))
   useEffect(() => () => clearTimeout(timer.current), [])
+
+  const links = directionsLinks({ lang: 'en' }).items.filter((i) => i.kind === 'directions')
+  const at = Math.max(0, ROUTE_STOPS.findIndex((s) => s.id === stop))
+  const cur = ROUTE_STOPS[at]
+  const nextStop = ROUTE_STOPS[(at + 1) % ROUTE_STOPS.length]
+  const network = {
+    id: 'exit1-route',
+    title: v(T.routeAria),
+    lines: [
+      {
+        id: 'route',
+        color: 'yellow',
+        code: 'GY',
+        name: 'Exit 1 to print',
+        stations: ROUTE_STOPS.map((s, i) => ({
+          id: s.id,
+          kind: 'station',
+          label: s.label.en,
+          labelKo: s.label.ko,
+          x: i * 2,
+          y: i < 3 ? 0 : 1.6,
+          vx: i < 3 ? 0 : 1.6,
+          vy: i * 2,
+          labelDir: i % 2 ? 's' : 'n',
+          vLabelDir: 'e',
+        })),
+      },
+    ],
+  }
 
   const onCopy = async () => {
     clearTimeout(timer.current)
@@ -152,86 +150,159 @@ export default function Visit() {
     timer.current = setTimeout(() => setCopy('idle'), 2400)
   }
 
-  const mapBtn = (href, label, primary) => (
-    <Button as="a" href={href} target="_blank" rel="noopener noreferrer" variant={primary ? 'primary' : 'outline'} size="lg">
-      {label}
-      <ExternalLink size={18} aria-hidden="true" />
-      <span className="sr-only">({pick(T.newTab)})</span>
-    </Button>
+  const tab = (id, label) => (
+    <button key={id} type="button" aria-pressed={mode === id} onClick={() => setMode(id)} className={cx('ue-press rounded-pill px-16 py-8 font-ui text-bodySm font-semibold transition-colors duration-fast ease-out', mode === id ? 'bg-yellow text-text-onYellow' : 'text-text-pri hover:text-yellow')}>
+      <Tx inline {...label} />
+    </button>
   )
 
   return (
-    <div className="break-keep break-words">
-      <PageHero
-        index="03"
-        label={pick(T.label)}
-        title={pick(T.h1)}
-        desc={pick(T.desc)}
-        crumbs={[{ label: pick(T.title) }]}
+    <PageShell>
+      <PageTop
+        title={T.h1}
+        lead={T.lead}
+        aside={
+          <div className="hidden lg:block">
+            <ExitSign number={1} label={STATION.name} labelKo={STATION.nameKo} size="lg" />
+          </div>
+        }
       >
-        <div className="mt-40 flex flex-wrap gap-16">
-          {lang === 'ko' ? mapBtn(SITE.maps.naver, pick(T.naver), true) : mapBtn(SITE.maps.google, pick(T.google), true)}
-          {lang === 'ko' ? mapBtn(SITE.maps.google, pick(T.google), false) : mapBtn(SITE.maps.naver, pick(T.naver), false)}
-        </div>
-      </PageHero>
-
-      <Section id="visit-info" index={1} label={pick(T.infoLabel)} title={pick(T.infoTitle)}>
-        <dl className="grid border-t border-hairlineStrong md:grid-cols-2 md:gap-x-64">
-          <Info icon={MapPin} label={pick(T.addr)}>
-            <span className="block">{pick(SITE.address)}</span>
-            <span className="mt-16 flex flex-wrap items-center gap-12">
-              <button
-                type="button"
-                onClick={onCopy}
-                className="ue-press inline-flex min-h-48 items-center gap-8 rounded-md border border-hairlineStrong px-16 text-bodySm 4xl:text-body font-semibold text-text-pri transition-colors duration-fast ease-out hover:border-yellow hover:text-yellow"
-              >
-                {copy === 'done' ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
-                {pick(T.copy)}
-              </button>
-              <span role="status" aria-live="polite" className="text-bodySm 4xl:text-body font-normal text-text-sec">
-                {copy === 'done' && pick(T.copied)}
-                {copy === 'fail' && pick(T.copyFail)}
-              </span>
-            </span>
-          </Info>
-          <Info icon={Clock} label={pick(T.hours)}>
-            {pick(T.hoursV)}
-          </Info>
-          <Info icon={CreditCard} label={pick(T.fee)}>
-            {pick(T.feeV)}
-          </Info>
-          <Info icon={AtSign} label={pick(T.insta)}>
-            <a href={SITE.instagram.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-48 items-center gap-8 rounded-sm text-yellow hover:text-yellow-hover">
-              {SITE.instagram.handle}
-              <ExternalLink size={16} aria-hidden="true" />
-              <span className="sr-only">({pick(T.newTab)})</span>
-            </a>
-          </Info>
-        </dl>
-      </Section>
-
-      <Section id="visit-route" index={2} label={pick(T.routeLabel)} title={pick(T.routeTitle)} intro={pick(T.routeIntro)} tone="elev">
-        <RouteSteps steps={ROUTE} label={pick(T.routeAria)} />
-      </Section>
-
-      <Section id="visit-access" index={3} label={pick(T.accLabel)} title={pick(T.accTitle)} intro={pick(T.accIntro)}>
-        <ul className="grid gap-16 md:grid-cols-2 lg:gap-24 xl:grid-cols-4">
-          {ACCESS.map((a, i) => (
-            <Reveal as="li" key={i} delay={i * 70} className="rounded-lg border border-hairline bg-bg-panel p-24 lg:p-32">
-              <span className="grid size-48 place-items-center rounded-md border border-hairlineStrong text-yellow">
-                <a.icon size={24} aria-hidden="true" />
-              </span>
-              <h3 className="mt-24 text-h3 4xl:text-h2 font-black tracking-tightest text-text-pri">{pick(a.title)}</h3>
-              <p className="mt-12 text-body 4xl:text-lead text-text-sec text-pretty">{pick(a.body)}</p>
-            </Reveal>
-          ))}
-        </ul>
-        <div className="mt-40">
-          <Button as={Link} to="/guide" variant="outline">
-            {pick(T.cta)}
+        <div className="mt-32 flex flex-wrap items-center gap-x-24 gap-y-12">
+          <Button as="a" href={NAVER_PLACE} target="_blank" rel="noopener noreferrer" size="lg">
+            <Tx inline {...T.naverPlace} />
+            <ExternalLink size={18} aria-hidden="true" />
           </Button>
+          <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" className="t-strong inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
+            <Tx inline {...T.instagram} />
+            <ArrowUpRight size={18} aria-hidden="true" />
+          </a>
         </div>
-      </Section>
-    </div>
+      </PageTop>
+
+      <Tape items={T.tape} pause={T.pause} play={T.play} />
+
+      <section aria-labelledby="visit-map" className="section-y">
+        <Container className="4xl:max-w-screen-4xl">
+          <div className="flex flex-col justify-between gap-16 md:flex-row md:items-end">
+            <div>
+              <Tx {...T.mapTitle} as="h2" role="headline" className="text-text-pri" id="visit-map" />
+              <Tx {...T.mapSub} as="p" role="body" className="mt-12 max-w-read text-text-sec" />
+            </div>
+            <div role="group" aria-label={v(T.mapTabs)} className="flex w-fit gap-4 rounded-pill bg-bg-panel p-4">
+              {tab('3d', T.tab3d)}
+              {tab('2d', T.tab2d)}
+              {tab('google', T.tabG)}
+            </div>
+          </div>
+
+          <div ref={mapRef} className="relative mt-24 w-full overflow-hidden rounded-lg bg-bg-panel" style={{ height: 'clamp(380px, 64dvh, 640px)' }}>
+            {mapSeen && <MapPane key={mode === 'google' ? 'g' : 'm'} mode={mode} lang={lang} onReady={(c) => (ctrl.current = c)} />}
+          </div>
+          {mode !== 'google' && (
+            <div className="mt-16">
+              <button type="button" onClick={() => ctrl.current?.showRouteFromMe?.()} className="t-strong inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
+                <LocateFixed size={18} aria-hidden="true" />
+                <Tx inline {...T.locate} />
+              </button>
+              <Tx {...T.locateNote} as="p" role="caption" className="max-w-read text-text-meta" />
+            </div>
+          )}
+
+          <div className="mt-32 grid gap-x-64 gap-y-32 lg:grid-cols-12">
+            <div className="lg:col-span-6">
+              <Tx {...T.dirTitle} as="p" role="label" className="text-text-meta" />
+              <ul className="mt-12 flex flex-wrap gap-x-24 gap-y-4">
+                {links.map((k) => (
+                  <li key={k.id}>
+                    <a href={k.href} target="_blank" rel="noopener noreferrer" className="t-strong inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
+                      <Tx inline en={k.label} ko={k.labelKo} />
+                      <ArrowUpRight size={16} aria-hidden="true" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <Tx {...T.addr} as="p" role="label" className="mt-32 text-text-meta" />
+              <Tx {...SITE.address} as="p" role="subhead" className="mt-8 text-text-pri" />
+              <div className="mt-8 flex flex-wrap items-center gap-12">
+                <button type="button" onClick={onCopy} className="t-strong inline-flex min-h-48 items-center gap-8 text-text-sec hover:text-yellow">
+                  {copy === 'done' ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+                  <Tx inline {...T.copy} />
+                </button>
+                <span role="status" aria-live="polite">
+                  {copy === 'done' && <Tx inline {...T.copied} role="caption" className="text-text-sec" />}
+                  {copy === 'fail' && <Tx inline {...T.copyFail} role="caption" className="text-text-sec" />}
+                </span>
+              </div>
+            </div>
+            <div className="lg:col-span-6">
+              <OpenNow copy={T.hours} />
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      <section aria-labelledby="visit-route" className="overflow-hidden bg-bg-elev py-64 md:py-96">
+        <Container className="4xl:max-w-screen-4xl">
+          <Tx {...T.routeTitle} as="h2" role="headline" className="text-text-pri" id="visit-route" />
+          <Tx {...T.routeSub} as="p" role="body" className="mt-12 max-w-read text-text-sec" />
+          <div className="mx-auto mt-32 w-full max-w-wide md:mt-48">
+            <TransitMap network={network} orientation="auto" activeId={stop} onSelect={(id) => setStop(id)} animateTrain aria-label={v(T.routeAria)} />
+          </div>
+          <div key={cur.id} className="mt-40 grid animate-fade-in items-center gap-x-48 gap-y-24 lg:grid-cols-12">
+            <figure className="overflow-hidden rounded-lg bg-bg-panel lg:col-span-6">
+              <img src={cur.photo.thumb} srcSet={`${cur.photo.thumb} ${cur.photo.w}w, ${cur.photo.full} 1350w`} sizes="(min-width: 1024px) 46vw, 92vw" alt={v(cur.photo.alt)} width={cur.photo.w} height={cur.photo.h} loading="lazy" decoding="async" className="aspect-video w-full object-cover" />
+            </figure>
+            <div className="lg:col-span-6">
+              <p className="text-text-meta">
+                <Tx inline {...T.stop} role="label" /> <span className="t-label tabular-nums">{at + 1} / {ROUTE_STOPS.length}</span>
+              </p>
+              <Tx {...cur.label} as="h3" role="headline" className="mt-8 text-text-pri" />
+              <Tx {...STOP_COPY[cur.id]} as="p" role="body" className="mt-16 max-w-read text-text-sec" />
+              <button type="button" onClick={() => setStop(nextStop.id)} className="t-strong mt-24 inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
+                <Tx inline {...T.nextStop} />
+                <ArrowRight size={18} aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      <section aria-labelledby="visit-poster" className="section-y">
+        <Container className="grid items-center gap-x-64 gap-y-40 lg:grid-cols-12 4xl:max-w-screen-4xl">
+          <div className="lg:col-span-5">
+            <Tx {...T.posterTitle} as="h2" role="headline" className="text-text-pri" id="visit-poster" />
+            <Tx {...T.posterSub} as="p" role="body" className="mt-12 max-w-read text-text-sec" />
+            <Tx {...T.accTitle} as="h3" role="subhead" className="mt-40 text-text-pri" />
+            <Tx {...T.accBody} as="p" role="body" className="mt-12 max-w-read text-text-sec" />
+          </div>
+          <div className="lg:col-span-7">
+            <FindUsPoster />
+          </div>
+        </Container>
+      </section>
+
+      <section aria-labelledby="visit-strip" className="pb-64 md:pb-96">
+        <Container className="4xl:max-w-screen-4xl">
+          <div className="flex flex-wrap items-end justify-between gap-16">
+            <Tx {...T.stripTitle} as="h2" role="subhead" className="text-text-pri" id="visit-strip" />
+            <a href={NAVER_PLACE} target="_blank" rel="noopener noreferrer" className="t-strong inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
+              <Tx inline {...T.naverPlace} />
+              <ArrowUpRight size={16} aria-hidden="true" />
+            </a>
+          </div>
+          <ul className="mt-24 grid grid-cols-12 gap-8 md:gap-24">
+            {PLACE_STRIP.map((ph, i) => (
+              <li key={ph.id} className={cx(['col-span-7', 'col-span-5', 'col-span-12 md:col-span-5'][i], i === 1 && 'mt-24 md:mt-48')}>
+                <img src={ph.thumb} alt={v(ph.alt)} width={ph.w} height={ph.h} loading="lazy" decoding="async" className="w-full rounded-lg object-cover" style={{ aspectRatio: i === 1 ? '3 / 4' : i === 0 ? '4 / 3' : '16 / 9' }} />
+              </li>
+            ))}
+          </ul>
+          <Link to="/gallery" className="t-strong mt-32 inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
+            <Tx inline {...T.gallery} />
+            <ArrowRight size={18} aria-hidden="true" />
+          </Link>
+        </Container>
+      </section>
+    </PageShell>
   )
 }

@@ -1,0 +1,219 @@
+/* map.css: 지도 패키지 전용 스타일. 색은 전부 디자인 토큰 CSS 변수(--ue-*)에서 온다. 굵기는 400 이상, 움직임은 transform과 opacity만 쓴다.
+   Tailwind 유틸리티를 쓰지 않으므로 앱의 Tailwind content 설정과 무관하게 동작한다. */
+
+:where(.uemap) {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: 20rem;
+  border-radius: 1rem;
+}
+.uemap {
+  overflow: hidden;
+  isolation: isolate;
+  background: rgb(var(--ue-bg-panel));
+  color: rgb(var(--ue-text-pri));
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, 'Apple SD Gothic Neo', sans-serif;
+  font-size: clamp(0.8125rem, 0.45vw + 0.62rem, 1.0625rem);
+  line-height: 1.4;
+  -webkit-tap-highlight-color: transparent;
+}
+.uemap[data-theme='light'] { background: rgb(var(--ue-white)); }
+.uemap .uemap__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.uemap__canvas .maplibregl-canvas { outline: none; }
+.uemap__canvas .maplibregl-canvas:focus-visible { outline: 2px solid rgb(var(--ue-focus)); outline-offset: -4px; }
+
+/* 노선 배지: 노랑 원 안에 H */
+.uemap-badge {
+  display: inline-grid; place-items: center; flex: none;
+  width: 1.5rem; height: 1.5rem; border-radius: 50%;
+  background: rgb(var(--ue-line-yellow)); color: rgb(var(--ue-text-on-yellow));
+  font-family: 'Barlow Condensed', 'Pretendard Variable', sans-serif; font-weight: 700; font-size: 0.78em; letter-spacing: 0.04em; line-height: 1;
+}
+
+/* 포스터(지연 로딩 전과 로딩 중) */
+.uemap-poster {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; padding: 1.5rem; text-align: center;
+  background: rgb(var(--ue-bg-base));
+}
+.uemap-poster__art { width: min(70%, 22rem); height: auto; }
+.uemap-poster__line { fill: none; stroke: rgb(var(--ue-line-yellow)); stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+.uemap-poster__dot { fill: rgb(var(--ue-text-pri)); stroke: rgb(var(--ue-bg-base)); stroke-width: 4; }
+.uemap-poster__shop { fill: rgb(var(--ue-yellow)); stroke: rgb(var(--ue-bg-base)); stroke-width: 4; }
+.uemap-poster__title { display: inline-flex; align-items: center; gap: 0.5rem; margin: 0; font-weight: 700; font-size: 1.125em; letter-spacing: -0.01em; }
+.uemap-poster__text { margin: 0; color: rgb(var(--ue-text-sec)); font-weight: 450; }
+.uemap-poster__addr { margin: 0; color: rgb(var(--ue-text-meta)); font-size: 0.9em; }
+
+/* 컨트롤: 위 오른쪽 알약 */
+.uemap-pill {
+  position: absolute; top: 0.75rem; right: 0.75rem; z-index: 3;
+  display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem; border-radius: 999px;
+  background: rgb(var(--ue-bg-base) / 0.88); backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgb(var(--ue-black) / 0.4);
+}
+.uemap-seg { display: flex; gap: 0.125rem; }
+.uemap-sep { width: 1px; height: 1.5rem; background: rgb(var(--ue-text-pri) / 0.2); }
+.uemap-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem;
+  min-width: 2.75rem; min-height: 2.75rem; padding: 0 0.75rem; border: 0; border-radius: 999px;
+  background: transparent; color: rgb(var(--ue-text-sec));
+  font-family: 'SUIT Variable', 'Pretendard Variable', sans-serif; font-weight: 600; font-size: 0.9em; white-space: nowrap; cursor: pointer;
+}
+.uemap-btn[aria-pressed='true'] { background: rgb(var(--ue-yellow)); color: rgb(var(--ue-text-on-yellow)); }
+.uemap-btn:active, .uemap-fab:active, .uemap-pin:active { transform: scale(0.97); }
+.uemap-btn--icon { padding: 0; width: 2.75rem; }
+
+/* 컨트롤: 오른쪽 아래의 작은 확대 축소 */
+.uemap-zoom { position: absolute; right: 0.75rem; bottom: 4.25rem; z-index: 3; display: flex; flex-direction: column; gap: 0.25rem; }
+.uemap-fab {
+  display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border: 0; border-radius: 50%;
+  background: rgb(var(--ue-bg-base) / 0.9); color: rgb(var(--ue-text-pri)); cursor: pointer;
+  box-shadow: 0 6px 18px rgb(var(--ue-black) / 0.4);
+}
+.uemap-fab:disabled { opacity: 0.4; cursor: default; }
+.uemap-pill button:focus-visible, .uemap-zoom button:focus-visible, .uemap-link:focus-visible, .uemap-pin:focus-visible, .uemap-links a:focus-visible, .uemap-gembed a:focus-visible, .uemap-status a:focus-visible {
+  outline: 2px solid rgb(var(--ue-focus)); outline-offset: 3px;
+}
+
+/* 아래 왼쪽: 노선 요약과 조용한 글자 링크. 하단 바나 시트가 아니라 지도 안의 작은 캡션이다. 폭이 고정이라 한영 전환에도 위치가 변하지 않는다. */
+.uemap-foot { position: absolute; left: 0.75rem; bottom: 0.75rem; z-index: 3; display: flex; flex-direction: column; align-items: flex-start; gap: 0.125rem; width: min(21rem, calc(100% - 4.5rem)); }
+.uemap-foot p { margin: 0; }
+.uemap-cap { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem 0.25rem 0.375rem; border-radius: 999px; background: rgb(var(--ue-bg-base) / 0.88); color: rgb(var(--ue-text-pri)); box-shadow: 0 6px 18px rgb(var(--ue-black) / 0.35); max-width: 100%; }
+.uemap-cap__text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.uemap-cap__line { font-weight: 700; font-size: 0.875em; letter-spacing: -0.01em; }
+.uemap-cap__sub { color: rgb(var(--ue-text-sec)); font-size: 0.78em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.uemap-links-row { display: flex; flex-wrap: wrap; align-items: center; column-gap: 0.25rem; }
+.uemap-link {
+  min-height: 2.75rem; padding: 0 0.5rem; border: 0; background: none; cursor: pointer;
+  color: rgb(var(--ue-text-pri)); font: inherit; font-size: 0.8125em; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgb(var(--ue-text-pri) / 0.5);
+  text-shadow: 0 1px 6px rgb(var(--ue-bg-base)), 0 0 2px rgb(var(--ue-bg-base));
+}
+.uemap[data-theme='light'] .uemap-link { text-shadow: none; background: rgb(var(--ue-bg-base) / 0.72); border-radius: 0.375rem; }
+.uemap-link:disabled { opacity: 0.55; cursor: default; }
+.uemap-status { min-height: 0; max-width: 100%; padding: 0 0.5rem; color: rgb(var(--ue-text-pri)); font-size: 0.78em; line-height: 1.4; text-shadow: 0 1px 6px rgb(var(--ue-bg-base)), 0 0 2px rgb(var(--ue-bg-base)); }
+.uemap-status:empty { display: none; }
+.uemap-status a { color: rgb(var(--ue-yellow)); text-underline-offset: 3px; margin-right: 0.75em; white-space: nowrap; }
+.uemap-status__note { color: rgb(var(--ue-text-sec)); }
+.uemap[data-theme='light'] .uemap-status { background: rgb(var(--ue-bg-base) / 0.82); border-radius: 0.5rem; padding: 0.25rem 0.5rem; text-shadow: none; }
+.uemap-panel {
+  width: 100%; max-height: min(22rem, 50vh); overflow: auto; margin-bottom: 0.375rem; padding: 1rem 1.125rem; border-radius: 1rem;
+  background: rgb(var(--ue-bg-base) / 0.95); color: rgb(var(--ue-text-pri)); box-shadow: 0 12px 32px rgb(var(--ue-black) / 0.5);
+}
+.uemap-panel__title { display: flex; align-items: center; gap: 0.5rem; margin: 0; font-weight: 700; }
+.uemap-panel__sum { margin: 0.25rem 0 0.75rem; color: rgb(var(--ue-text-sec)); }
+.uemap-panel__sub { margin: 0.875rem 0 0.25rem; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgb(var(--ue-text-meta)); font-size: 0.85em; }
+.uemap-panel__note { margin: 0.75rem 0 0; color: rgb(var(--ue-text-meta)); font-size: 0.85em; }
+.uemap-steps { margin: 0; padding: 0 0 0 1.125rem; display: grid; gap: 0.375rem; color: rgb(var(--ue-text-sec)); }
+.uemap-steps__k { font-weight: 650; color: rgb(var(--ue-text-pri)); }
+.uemap-steps__m { color: rgb(var(--ue-text-meta)); white-space: nowrap; }
+.uemap-near { margin: 0; padding: 0 0 0 1.125rem; display: grid; gap: 0.25rem; color: rgb(var(--ue-text-sec)); }
+.uemap-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.uemap-hint { position: absolute; left: 0.75rem; top: 0.75rem; z-index: 3; max-width: calc(100% - 13rem); margin: 0; padding: 0.375rem 0.75rem; border-radius: 0.5rem; background: rgb(var(--ue-bg-base) / 0.9); color: rgb(var(--ue-text-sec)); font-size: 0.85em; }
+
+/* 핀: H01 UrbanEdge */
+.uemap-pin-wrap { z-index: 2; }
+.uemap-pin {
+  display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.75rem; padding: 0.25rem 0.875rem 0.25rem 0.25rem; border: 0; border-radius: 999px;
+  background: rgb(var(--ue-bg-base)); color: rgb(var(--ue-text-pri)); cursor: pointer; text-align: left;
+  box-shadow: 0 0 0 2px rgb(var(--ue-yellow)), 0 8px 22px rgb(var(--ue-black) / 0.5);
+}
+.uemap-pin__badge {
+  display: grid; place-items: center; width: 2.25rem; height: 2.25rem; flex: none; border-radius: 50%;
+  background: rgb(var(--ue-line-yellow)); color: rgb(var(--ue-text-on-yellow));
+  font-family: 'Barlow Condensed', 'Pretendard Variable', sans-serif; font-weight: 700; font-size: 1.0625rem; letter-spacing: 0.04em; line-height: 1;
+}
+.uemap-pin__text { display: flex; flex-direction: column; line-height: 1.1; }
+.uemap-pin__code { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.8125rem; letter-spacing: 0.14em; color: rgb(var(--ue-yellow)); }
+.uemap-pin__name { font-weight: 700; font-size: 0.9375rem; letter-spacing: -0.01em; white-space: nowrap; }
+
+/* 내 위치 점과 도착 섬광(transform과 opacity만) */
+.uemap-me { width: 1.25rem; height: 1.25rem; }
+.uemap-me__dot { position: absolute; inset: 0; border-radius: 50%; background: rgb(var(--ue-white)); box-shadow: 0 0 0 3px rgb(var(--ue-yellow)), 0 2px 10px rgb(var(--ue-black) / 0.5); }
+.uemap-me__dot::after { content: ''; position: absolute; inset: -3px; border-radius: 50%; border: 2px solid rgb(var(--ue-yellow)); animation: uemap-ping 1.6s cubic-bezier(0.16, 1, 0.3, 1) 3; opacity: 0; }
+.uemap-pin { position: relative; }
+.uemap-pin-wrap--lit .uemap-pin::after { content: ''; position: absolute; inset: -2px; border-radius: 999px; border: 2px solid rgb(var(--ue-yellow)); animation: uemap-ping 0.9s cubic-bezier(0.16, 1, 0.3, 1) 2; opacity: 0; pointer-events: none; }
+@keyframes uemap-ping { 0% { transform: scale(1); opacity: 0.9; } 100% { transform: scale(1.7); opacity: 0; } }
+
+/* MapLibre 기본 요소를 사이트 톤에 맞춘다(기본 CSS가 나중에 불려도 이기도록 선택자를 길게 쓴다) */
+.uemap .maplibregl-ctrl-bottom-right { z-index: 3; }
+.uemap .maplibregl-ctrl-bottom-right .maplibregl-ctrl.maplibregl-ctrl-attrib,
+.uemap .maplibregl-ctrl-bottom-right .maplibregl-ctrl.maplibregl-ctrl-attrib.maplibregl-compact,
+.uemap .maplibregl-ctrl-bottom-right .maplibregl-ctrl.maplibregl-ctrl-attrib.maplibregl-compact-show {
+  background: rgb(var(--ue-bg-base) / 0.88); color: rgb(var(--ue-text-sec)); font-size: 0.72rem; border-radius: 999px; margin: 0 0.5rem 0.5rem 0;
+}
+.uemap .maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib a { color: rgb(var(--ue-text-pri)); }
+.uemap .maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-button { background-color: transparent; filter: invert(1); }
+.uemap .maplibregl-ctrl-bottom-right .maplibregl-ctrl.maplibregl-ctrl-attrib.maplibregl-compact { min-height: 2.75rem; padding-right: 2.75rem; margin: 0 0.75rem 0.75rem 0; }
+.uemap .maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-button { width: 2.75rem; height: 2.75rem; background-position: center; background-repeat: no-repeat; }
+.uemap .maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib-inner { line-height: 2.75rem; padding-left: 0.875rem; }
+.uemap .maplibregl-cooperative-gesture-screen { font-family: inherit; }
+
+/* WebGL 대체 2D 래스터 지도 */
+.uemap-raster { position: absolute; inset: 0; }
+.uemap-raster__view { position: absolute; inset: 0; overflow: hidden; touch-action: none; cursor: grab; background: rgb(var(--ue-bg-elev)); }
+.uemap-raster__view:focus-visible { outline: 2px solid rgb(var(--ue-focus)); outline-offset: -4px; }
+.uemap-raster__tiles { position: absolute; inset: 0; }
+.uemap-raster__tile { position: absolute; left: 0; top: 0; width: 256px; height: 256px; max-width: none; user-select: none; }
+.uemap-raster[data-theme='dark'] .uemap-raster__tiles { filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.88) saturate(0.4); }
+.uemap-raster__svg { position: absolute; left: 0; top: 0; pointer-events: none; }
+.uemap-r-casing { fill: none; stroke: rgb(var(--ue-bg-base)); stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; }
+.uemap-r-line { fill: none; stroke: rgb(var(--ue-line-yellow)); stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; }
+.uemap-r-dot { fill: rgb(var(--ue-text-pri)); stroke: rgb(var(--ue-bg-base)); stroke-width: 3.5; }
+.uemap-r-poi { fill: rgb(var(--ue-bg-panel)); stroke: rgb(var(--ue-text-pri)); stroke-width: 2; }
+.uemap-r-me { fill: rgb(var(--ue-white)); stroke: rgb(var(--ue-yellow)); stroke-width: 3.5; }
+.uemap-r-shop { fill: rgb(var(--ue-yellow)); stroke: rgb(var(--ue-bg-base)); stroke-width: 3.5; }
+.uemap-r-label {
+  position: absolute; left: 0; top: 0; padding: 0.125rem 0.375rem; border-radius: 0.25rem; pointer-events: none; white-space: nowrap;
+  background: rgb(var(--ue-bg-base) / 0.82); color: rgb(var(--ue-text-pri)); font-size: 0.75rem; font-weight: 500;
+}
+.uemap-r-label--concept { color: rgb(var(--ue-text-sec)); background: rgb(var(--ue-bg-base) / 0.7); text-align: center; line-height: 1.25; }
+.uemap-r-label small { display: block; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgb(var(--ue-text-meta)); }
+.uemap-r-pin { position: absolute; left: 0; top: 0; }
+.uemap-r-attrib {
+  position: absolute; right: 0; bottom: 0; z-index: 3; padding: 0.125rem 0.5rem; background: rgb(var(--ue-bg-base) / 0.82); color: rgb(var(--ue-text-pri));
+  font-size: 0.7rem; text-decoration: none;
+}
+.uemap-r-attrib:hover { text-decoration: underline; }
+
+/* 구글 지도 임베드 틀 */
+.uemap-gembed { display: flex; flex-direction: column; overflow: hidden; border-radius: 1rem; background: rgb(var(--ue-bg-panel)); color: rgb(var(--ue-text-pri)); font-family: 'Pretendard Variable', Pretendard, sans-serif; }
+.uemap-gembed__bar { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.375rem 0.5rem 0.375rem 1rem; }
+.uemap-gembed__title { font-family: 'Barlow Condensed', sans-serif; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; font-size: 0.875rem; color: rgb(var(--ue-text-sec)); }
+.uemap-gembed__open {
+  display: inline-flex; align-items: center; gap: 0.375rem; min-height: 2.75rem; padding: 0 0.875rem; border-radius: 999px;
+  background: rgb(var(--ue-yellow)); color: rgb(var(--ue-text-on-yellow)); font-family: 'SUIT Variable', 'Pretendard Variable', sans-serif; font-weight: 600; font-size: 0.875rem; text-decoration: none; white-space: nowrap;
+}
+.uemap-gembed__open:active { transform: scale(0.97); }
+.uemap-gembed__frame { position: relative; flex: 1 1 auto; aspect-ratio: 4 / 3; min-height: 18rem; background: rgb(var(--ue-bg-elev)); }
+.uemap-gembed__frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+.uemap-gembed__wait { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; color: rgb(var(--ue-text-meta)); }
+
+/* 길 찾기 링크 줄 */
+.uemap-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.uemap-links a {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 2.75rem; padding: 0 1.125rem; border-radius: 0.5rem;
+  font-family: 'SUIT Variable', 'Pretendard Variable', sans-serif; font-weight: 600; font-size: 0.9375rem; text-decoration: none; white-space: nowrap;
+}
+.uemap-links a:active { transform: scale(0.97); }
+.uemap-links [data-tone='primary'] { background: rgb(var(--ue-yellow)); color: rgb(var(--ue-text-on-yellow)); }
+.uemap-links [data-tone='outline'] { background: transparent; color: rgb(var(--ue-yellow)); box-shadow: inset 0 0 0 1px rgb(var(--ue-yellow)); }
+.uemap-links [data-tone='ghost'] { background: rgb(var(--ue-bg-raised)); color: rgb(var(--ue-text-pri)); }
+.uemap-links[data-stack='true'] { flex-direction: column; }
+.uemap-links[data-stack='true'] a { width: 100%; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .uemap-pill { backdrop-filter: none; background: rgb(var(--ue-bg-base)); }
+  .uemap-cap, .uemap-fab { background: rgb(var(--ue-bg-base)); }
+  .uemap-panel { background: rgb(var(--ue-bg-base)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .uemap *, .uemap-gembed *, .uemap-links * { transition: none !important; animation: none !important; }
+  .uemap-btn:active, .uemap-fab:active, .uemap-pin:active, .uemap-links a:active, .uemap-gembed__open:active { transform: none; }
+}
+@media (prefers-contrast: more) {
+  .uemap-pill, .uemap-cap, .uemap-fab, .uemap-panel { box-shadow: 0 0 0 1px rgb(var(--ue-text-pri) / 0.6); }
+}
+@media (max-width: 479px) {
+  .uemap-hint { max-width: calc(100% - 1.5rem); top: 4rem; }
+}

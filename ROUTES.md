@@ -8,6 +8,7 @@
 | web | `/guide` | `pages/Guide.jsx` | W2 |
 | web | `/visit` | `pages/Visit.jsx` | W2 |
 | web | `/gallery` | `pages/Gallery.jsx` | W2 |
+| web | `/result/:sessionId` | `pages/Result.jsx` (Layout 밖 단독 모바일 화면, 키오스크 완료 QR 도착지) | 결과 페이지 |
 | web | `*` | `pages/NotFound.jsx` | W2 |
 | kiosk | `/` | `pages/Simulator.jsx` | K1 |
 | kiosk | `/screen` | `pages/ScreenOnly.jsx` | K1 |

@@ -1,0 +1,127 @@
+/* tour.css: 코치마크 투어. 색은 tokens의 --ue-* 채널 변수만 쓴다. 애니메이션은 transform과 opacity만. */
+
+.tour-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+
+.tour-dim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.tour-ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  border: 3px solid rgb(var(--ue-yellow));
+  box-shadow: 0 0 0 2px rgb(var(--ue-black) / 0.6), 0 0 28px rgb(var(--ue-yellow) / 0.5);
+}
+
+.tour-ring::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border: 3px solid rgb(var(--ue-yellow));
+  border-radius: inherit;
+  opacity: 0;
+  animation: tour-pulse 1.6s var(--ue-ease-out) infinite;
+}
+
+.tour-bubble {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: rgb(var(--ue-bg-raised));
+  color: rgb(var(--ue-text-pri));
+  box-shadow: 0 24px 64px rgb(var(--ue-black) / 0.55);
+}
+
+.tour-pointer {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: rgb(var(--ue-bg-raised));
+}
+
+.tour-edge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.tour-edge-glow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgb(var(--ue-yellow) / 0), rgb(var(--ue-yellow) / 0.5));
+  animation: tour-glow 1.6s var(--ue-ease-out) infinite;
+}
+
+.tour-arrow {
+  animation: tour-nudge 1.2s var(--ue-ease-out) infinite;
+}
+
+.tour-fade {
+  animation: tour-fade 240ms var(--ue-ease-out) both;
+}
+
+@keyframes tour-pulse {
+  0% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.16);
+  }
+}
+
+@keyframes tour-nudge {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, 14px, 0);
+  }
+}
+
+@keyframes tour-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes tour-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-ring::after,
+  .tour-arrow,
+  .tour-edge-glow {
+    animation: none;
+  }
+  .tour-edge-glow {
+    opacity: 0.7;
+  }
+  .tour-fade {
+    animation: none;
+  }
+}

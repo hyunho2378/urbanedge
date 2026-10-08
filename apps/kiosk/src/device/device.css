@@ -1,9 +1,10 @@
-/* device.css: 기기 외형 스타일. 색은 전부 tokens의 --ue-* 채널 변수에서 온다.
+/* device.css v2: 기기 외형 스타일. 색은 전부 tokens의 --ue-* 채널 변수에서 온다.
    치수는 .dv-root 폭 기준 컨테이너 단위(cqw). 1cqw = 본체 폭의 1%.
-   애니메이션은 transform과 opacity만 쓴다. */
+   애니메이션은 transform과 opacity만 쓴다. 글꼴 굵기는 400 이상만 쓴다. */
 
 .dv-root {
-  --dv-ratio: 1.7;
+  --dv-ratio: 1.3;
+  --dv-fade-rgb: var(--ue-bg-elev);
   position: relative;
   width: 100%;
   aspect-ratio: 1 / var(--dv-ratio);
@@ -13,45 +14,42 @@
   -webkit-user-select: none;
 }
 
-/* 하단 받침과 바닥 그림자 */
-.dv-floor {
-  position: absolute;
-  left: 3%;
-  right: 3%;
-  bottom: -1.2cqw;
-  height: 3cqw;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(var(--ue-black) / 0.55), rgb(var(--ue-black) / 0));
-  z-index: -1;
+.dv-root[data-bg='base'] {
+  --dv-fade-rgb: var(--ue-bg-base);
 }
 
-/* 본체: 흰색에 아주 옅은 음영. 좌우 가장자리는 안쪽으로 살짝 어둡다. */
+/* 본체: 흰색에 아주 옅은 음영. 좌우 가장자리는 안쪽으로 살짝 어둡고 윗선에 하이라이트가 있다. */
 .dv-body {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: calc(165 / (var(--dv-ratio) * 100) * 100%);
-  border-radius: 1.1cqw 1.1cqw 0.5cqw 0.5cqw;
+  inset: 0;
+  border-radius: 1.1cqw 1.1cqw 0 0;
   background:
-    linear-gradient(90deg, rgb(var(--ue-black) / 0.09), rgb(var(--ue-black) / 0) 5%, rgb(var(--ue-black) / 0) 95%, rgb(var(--ue-black) / 0.1)),
-    linear-gradient(180deg, rgb(var(--ue-black) / 0.06), rgb(var(--ue-black) / 0.09)),
+    linear-gradient(90deg, rgb(var(--ue-black) / 0.1), rgb(var(--ue-black) / 0) 5%, rgb(var(--ue-black) / 0) 95%, rgb(var(--ue-black) / 0.11)),
+    linear-gradient(180deg, rgb(var(--ue-black) / 0.045), rgb(var(--ue-black) / 0.085)),
     rgb(var(--ue-white));
   box-shadow:
-    inset 0 0.25cqw 0 rgb(var(--ue-white)),
+    inset 0 0.3cqw 0 rgb(var(--ue-white)),
     inset 0 0 0 1px rgb(var(--ue-black) / 0.16),
-    0 0 0 0.35cqw rgb(var(--ue-black) / 0.35),
-    0 40px 120px rgb(var(--ue-black) / 0.6);
+    0 0 0 0.35cqw rgb(var(--ue-black) / 0.4),
+    0 2.4cqw 6cqw rgb(var(--ue-black) / 0.5);
 }
 
-.dv-plinth {
+/* 모니터 둘레 홈: 사진처럼 면과 화면 사이에 아주 얇은 그림자가 진다 */
+.dv-recess {
+  border-radius: 0.5cqw;
+  box-shadow: inset 0 0 0 1px rgb(var(--ue-black) / 0.06), 0 0 0.9cqw rgb(var(--ue-black) / 0.1);
+}
+
+/* 잘린 아래쪽을 바탕색으로 흐린다 */
+.dv-fade {
   position: absolute;
-  left: 1.2%;
-  right: 1.2%;
-  bottom: 0;
-  height: calc(5 / (var(--dv-ratio) * 100) * 100%);
-  border-radius: 0 0 0.6cqw 0.6cqw;
-  background: linear-gradient(180deg, rgb(var(--ue-black) / 0.5), rgb(var(--ue-black) / 0.7));
+  left: -4cqw;
+  right: -4cqw;
+  bottom: -1px;
+  height: 8%;
+  pointer-events: none;
+  z-index: 5;
+  background: linear-gradient(180deg, rgb(var(--dv-fade-rgb) / 0), rgb(var(--dv-fade-rgb) / 0.82) 55%, rgb(var(--dv-fade-rgb) / 1));
 }
 
 .dv-part {
@@ -62,7 +60,7 @@
 .dv-monitor {
   background: rgb(var(--ue-black));
   box-shadow:
-    0 0 0 0.3cqw rgb(var(--ue-black) / 0.92),
+    0 0 0 0.3cqw rgb(var(--ue-black) / 0.94),
     0 0 0 0.45cqw rgb(var(--ue-white) / 0.5),
     0 0.6cqw 1.6cqw rgb(var(--ue-black) / 0.28);
   overflow: hidden;
@@ -77,7 +75,7 @@
   z-index: 3;
 }
 
-/* LED 조명바: 평상시 탁한 흰색 확산판, 촬영 순간 밝은 흰색과 노랑 번짐 */
+/* LED 조명바: 평상시 확산판, 촬영 순간 밝은 흰색과 노랑 번짐 */
 .dv-led {
   border-radius: 0.35cqw;
   background:
@@ -102,8 +100,8 @@
 
 /* 하단 캐비닛 문 */
 .dv-door {
-  border-radius: 0.5cqw 0.5cqw 0.3cqw 0.3cqw;
-  background: linear-gradient(180deg, rgb(var(--ue-black) / 0), rgb(var(--ue-black) / 0.03));
+  border-radius: 0.5cqw 0.5cqw 0 0;
+  background: linear-gradient(180deg, rgb(var(--ue-black) / 0), rgb(var(--ue-black) / 0.035));
   box-shadow:
     inset 0 0 0 1px rgb(var(--ue-black) / 0.14),
     inset 0 0.3cqw 0 rgb(var(--ue-white) / 0.9),
@@ -197,6 +195,10 @@
   animation: dv-ring-out 1.6s var(--ue-ease-out) infinite;
 }
 
+.dv-label {
+  box-shadow: 0 0 0 2px rgb(var(--ue-black) / 0.85), 0 3px 8px rgb(var(--ue-black) / 0.35);
+}
+
 @keyframes dv-ring-out {
   0% {
     opacity: 0.9;
@@ -214,20 +216,54 @@
     opacity: 1;
   }
   50% {
-    opacity: 0.35;
+    opacity: 0.3;
   }
 }
 
+/* 카드 단말기: hint가 card이면 초록 LED가 숨 쉬고 슬롯 창이 밝아지며 카드가 아래에서 올라와 들어간다 */
 .dv-card-led {
   transform-box: fill-box;
 }
 
-.dv-card-led[data-hint='true'] {
+.dv-card-window {
+  opacity: 0;
+}
+
+.dv-card-card {
+  opacity: 0;
+  transform: translate3d(0, 46px, 0);
+}
+
+.dv-reader[data-hint='true'] .dv-card-led {
   animation: dv-glow-pulse 1.2s var(--ue-ease-out) infinite;
 }
 
-.dv-label {
-  box-shadow: 0 0 0 2px rgb(var(--ue-black) / 0.85), 0 3px 8px rgb(var(--ue-black) / 0.35);
+.dv-reader[data-hint='true'] .dv-card-window {
+  animation: dv-glow-pulse 1.2s var(--ue-ease-out) infinite;
+  animation-delay: 0.3s;
+}
+
+.dv-reader[data-hint='true'] .dv-card-card {
+  animation: dv-card-in 2.2s var(--ue-ease-out) infinite;
+}
+
+@keyframes dv-card-in {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 46px, 0);
+  }
+  18% {
+    opacity: 1;
+  }
+  62% {
+    opacity: 1;
+    transform: translate3d(0, 6px, 0);
+  }
+  85%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
 }
 
 /* 부품 주석 마커 */
@@ -258,8 +294,15 @@
     animation: none;
     opacity: 0;
   }
-  .dv-card-led[data-hint='true'] {
+  .dv-reader[data-hint='true'] .dv-card-led,
+  .dv-reader[data-hint='true'] .dv-card-window {
     animation: none;
+    opacity: 1;
+  }
+  .dv-reader[data-hint='true'] .dv-card-card {
+    animation: none;
+    opacity: 1;
+    transform: translate3d(0, 6px, 0);
   }
   .dv-paper {
     transition: none;

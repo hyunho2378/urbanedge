@@ -1,43 +1,39 @@
-import { Globe } from 'lucide-react'
-import { useT } from '../../components/lang.jsx'
-import { COPY, tr } from '../copy.js'
+import { T } from '../../components/lang.jsx'
+import { COPY } from '../copy.js'
 
-// 2. language: 한국어, English 큰 버튼 두 개. 고르면 바로 안내 단계로 넘어간다.
-// 제목은 두 언어를 함께 보여 준다.
-function LangCard({ code, title, sub, onPick }) {
+// 2. language: 화면을 반으로 나눈 두 면. 노랑 면은 English, 검정 면은 한국어다. 면 전체가 버튼이고 고르면 바로 안내로 넘어간다.
+function Half({ code, word, sub, onPick, tone }) {
+  const yellow = tone === 'yellow'
   return (
     <button
       type="button"
       onClick={onPick}
       lang={code}
-      className="ue-press group flex min-h-touch flex-1 flex-col justify-between rounded-xl border border-yellow bg-bg-panel p-56 text-left transition-[transform,opacity,background-color] duration-fast ease-out hover:bg-tint"
+      className={`ue-press relative h-full flex-1 overflow-hidden text-left transition-[transform,opacity] duration-fast ease-out ${yellow ? 'bg-yellow text-text-onYellow' : 'bg-bg-base text-text-pri'}`}
     >
-      <span className="ue-label text-k-label text-yellow">{code === 'ko' ? 'KO' : 'EN'}</span>
-      <span className="font-display text-k-hero font-black leading-none tracking-tightest">{title}</span>
-      <span className="text-k-lead text-text-sec">{sub}</span>
+      <span className={`absolute select-none font-display font-extrabold leading-none ${yellow ? 'text-black/10' : 'text-text-pri/10'}`} style={{ right: -60, bottom: -120, fontSize: 760 }} aria-hidden="true">
+        {code === 'en' ? 'A' : '가'}
+      </span>
+      <span className="absolute kt-display" style={{ left: 96, top: 380 }}>
+        {word}
+      </span>
+      <span className="absolute kt-lead" style={{ left: 100, top: 590 }}>
+        {sub}
+      </span>
     </button>
   )
 }
 
 export default function Language({ ctrl }) {
-  const t = useT()
   const pick = (code) => {
     ctrl.setLang(code)
     ctrl.next()
   }
   return (
-    <div className="flex h-full flex-col gap-32 px-64 pb-24 pt-32">
-      <div className="flex items-end justify-between">
-        <h1 className="font-display text-k-h2 font-black leading-tight tracking-tightest">{tr(COPY.language.title, 'ko')}</h1>
-        <p className="flex items-center gap-16 font-display text-k-h3 font-bold leading-tight text-text-sec">
-          <Globe size={52} aria-hidden="true" className="text-yellow" />
-          {tr(COPY.language.title, 'en')}
-        </p>
-      </div>
-      <div className="flex min-h-0 flex-1 gap-32">
-        <LangCard code="ko" title={t(COPY.language.ko)} sub={tr(COPY.language.koSub, 'ko')} onPick={() => pick('ko')} />
-        <LangCard code="en" title={t(COPY.language.en)} sub={tr(COPY.language.enSub, 'en')} onPick={() => pick('en')} />
-      </div>
+    <div className="absolute inset-0 flex">
+      <Half code="en" word="English" sub="Guide in English" tone="yellow" onPick={() => pick('en')} />
+      <Half code="ko" word="한국어" sub="한국어로 안내합니다" tone="black" onPick={() => pick('ko')} />
+      <T n={COPY.language.title} as="h1" className="sr-only" />
     </div>
   )
 }

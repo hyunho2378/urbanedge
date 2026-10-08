@@ -1,208 +1,344 @@
-// content.js: W2 하위 페이지가 공유하는 사진 목록과 방별 상세 문구.
-// 사진은 apps/web/public/img 의 실제 파일이며, 방 배정은 사진을 직접 보고 정했다.
-// 수치와 사실은 docs/AGENT_CONTRACTS.md 의 현장 사실과 data/site.js 에 있는 것만 쓴다.
-import { ROOMS } from '../../data/site.js'
+// content.js: W2 하위 페이지가 공유하는 데이터와 문구.
+// 영문은 영어로 먼저 쓰고, 한국어는 따로 쓴다(docs/VOICE.md). 사실은 data/site.js와 현장 사진에서 확인된 것만 쓴다.
+// 시스템은 Gyeongju Metro(GY)이고 역은 GY-01 UrbanEdge 하나다. 방 네 곳이 승강장 1부터 4다. 가상의 관광 경험이며 공공 교통이 아니다.
 
-// public/img/lg 에 큰 원본이 있는 파일. 확대 보기에서 우선 사용한다.
+// 시스템은 Gyeongju Metro(코드 GY)이고, 실제 역은 GY-01 UrbanEdge(황리단길) 하나다. 방 네 곳이 역 안의 승강장 1부터 4다.
+// 가상의 관광 경험이며 실제 교통시설이나 공식 역이 아니다. 화면에는 항상 "Imaginary Metro · Travel Experience" 고지를 둔다.
+import { ROOM_NETWORK } from '@urbanedge/ds'
+
+export const METRO = { code: 'GY', name: 'Gyeongju Metro', nameKo: '경주 메트로' }
+export const STATION = { code: 'GY-01', name: 'UrbanEdge', nameKo: '어반엣지', area: { en: 'Hwangridan-gil', ko: '황리단길' } }
+export const NOTICE = { en: 'Imaginary Metro \u00b7 Travel Experience', ko: '가상의 지하철 관광 경험입니다' }
+// 승강장 포인트색: 노랑, 빨강, 파랑, 초록
+export const ACCENT = {
+  yellow: { bg: 'bg-yellow', fg: 'text-text-onYellow', text: 'text-yellow', stroke: 'stroke-yellow' },
+  red: { bg: 'bg-line-red', fg: 'text-text-pri', text: 'text-line-red', stroke: 'stroke-line-red' },
+  blue: { bg: 'bg-line-blue', fg: 'text-text-pri', text: 'text-line-blue', stroke: 'stroke-line-blue' },
+  green: { bg: 'bg-line-green', fg: 'text-text-onYellow', text: 'text-line-green', stroke: 'stroke-line-green' },
+  white: { bg: 'bg-white', fg: 'text-black', text: 'text-text-pri', stroke: 'stroke-white' },
+}
+
+// 사용자가 준 실제 링크
+export const NAVER_PLACE = 'https://m.place.naver.com/place/1432247982'
+export const INSTAGRAM = 'https://www.instagram.com/__urbanedge/'
+
+// ---------------------------------------------------------------------------
+// 사진
+// ---------------------------------------------------------------------------
+// public/img/lg 에 큰 원본이 있는 파일
 const LARGE = new Set([
   'o_01', 'o_02', 'o_04', 'o_05', 'o_17', 'o_18', 'o_19', 'o_20', 'o_21', 'o_22', 'o_23', 'o_24',
   'o_26', 'o_27', 'o_28', 'o_29', 'o_30', 'o_31', 'o_52', 'biz_00', 'biz_02', 'biz_07', 'biz_09',
 ])
 
-// [너비, 높이, 한국어 대체 텍스트, 영어 대체 텍스트]
+// [너비, 높이, 분류, 영문 대체 텍스트, 한국어 대체 텍스트]
 const RAW = {
-  o_21: [1100, 825, '검은 외관에 UrbanEdge 간판이 붙고 체커보드 바닥이 이어지는 매장 외관', 'The storefront with a black facade, the UrbanEdge sign and a checkerboard floor'],
-  o_34: [825, 1100, '골목에서 바라본 어반엣지 매장 입구와 체커보드 바닥', 'The UrbanEdge entrance and checkerboard floor seen from the alley'],
-  o_24: [825, 1100, '둥근 빨간 거울 아홉 개가 붙은 벽에 체커보드 바닥이 비친 모습', 'A wall of nine round red mirrors reflecting the checkerboard floor'],
-  o_43: [825, 1100, '빨간 테두리의 둥근 거울 벽과 체커보드 바닥', 'The red-rimmed round mirror wall above the checkerboard floor'],
-  o_18: [1100, 825, '파란 타일과 흰 타일 벽 앞에 노란 대기 의자가 놓인 안쪽 공간', 'The inner space with yellow seats in front of blue and white tiled walls'],
-  o_36: [825, 1100, '파란 타일 벽과 노란 포스터 앞의 노란 대기 의자', 'Yellow seats under a blue-tiled wall with yellow posters'],
-  o_35: [825, 1100, '체커보드 바닥 위 라바콘과 경고 테이프가 붙은 셔터', 'Traffic cones on a checkerboard floor in front of a shutter wrapped in caution tape'],
-  o_20: [825, 1100, '경고 테이프가 붙은 셔터와 라바콘, 체커보드 바닥', 'A shutter with caution tape, cones and a checkerboard floor'],
-  o_44: [825, 1100, '노선도 포스터와 손님 인화지가 빽빽하게 붙은 파란 타일 벽', 'A blue tiled wall covered with a route-map poster and guests prints'],
-  o_17: [825, 1100, '갈색 커튼 앞에 나무 의자 두 개와 나무 상자가 놓인 레트로 방', 'The Retro room with two wooden stools and a wooden box in front of a brown curtain'],
-  o_39: [825, 1100, '갈색 커튼과 나무 의자 두 개', 'A brown curtain and two wooden stools'],
-  o_29: [825, 1100, '손잡이가 달린 봉과 스테인리스 문, 양옆 벤치가 있는 지하철 방', 'The Subway room with a hand-strap rail, steel doors and benches on both sides'],
-  o_27: [825, 1100, '스테인리스 문틀 안쪽으로 지하철 객실 문이 보이는 방', 'A steel door frame opening onto the subway car doors'],
-  o_19: [825, 1100, '창이 달린 스테인리스 지하철 문과 문 위에 붙은 인화물', 'Steel subway doors with windows and prints taped above them'],
-  o_41: [825, 1100, '손잡이가 걸린 스테인리스 지하철 문', 'Steel subway doors with hand straps'],
-  o_37: [733, 1100, '지하철 문 앞에서 손잡이를 잡고 찍은 네 칸 인화물', 'A four-frame print shot at the subway doors holding the straps'],
-  o_28: [825, 1100, '갈색 타일 벽에 홀로그램 장식과 미러볼, 흰 벤치가 있는 노래방', 'The karaoke room with brown tiles, holographic decoration, a mirror ball and a white bench'],
-  o_10: [900, 506, 'KARAOKE SHOT 간판 옆에 놓인 흰색 키오스크', 'The white kiosk next to the KARAOKE SHOT sign'],
-  o_31: [825, 1100, '선반에 마이크와 탬버린이 놓인 흰 타공판', 'A white pegboard shelf with a microphone and tambourine'],
-  o_26: [825, 1100, '갈색 타일 벽 앞에서 두 손으로 들어 보이는 네 칸 인화물', 'Two four-frame prints held up against a brown tiled wall'],
-  o_40: [825, 1100, '갈색 타일 벽과 노래 목록판, 흰 벤치', 'Brown tiles, a song list board and a white bench'],
-  o_30: [825, 1100, 'PUBLIC PHONE 간판이 붙은 창구형 부스와 인화물로 덮인 타일 벽', 'A window booth under the PUBLIC PHONE sign on a tiled wall covered with prints'],
-  o_49: [900, 676, '스테인리스 문틀 위에 수신 화면 장식이 붙은 공중전화 방 입구', 'The Public Phone room doorway with an incoming-call decoration above the steel frame'],
-  o_32: [825, 1100, '스테인리스 문틀 위 수신 화면 장식과 거울에 비친 방문객', 'Visitors reflected in the mirror under the incoming-call decoration'],
-  o_23: [825, 1100, '바닥에 TOILET SHOT 글자와 검은 선이 이어지는 타일 복도', 'A tiled corridor with TOILET SHOT lettering and a black line on the floor'],
-  o_22: [825, 1100, '파란 타일과 흰 타일 사이로 거울 문이 보이는 화장실 방', 'The Toilet room with a mirrored doorway between blue and white tiles'],
-  o_15: [825, 1100, '양쪽 타일 벽 사이로 검은 선이 길게 이어지는 복도', 'A long corridor with a black line running between tiled walls'],
-  o_14: [875, 657, '인화물이 가득 붙은 파란 타일 벽', 'A blue tiled wall packed with prints'],
-  o_52: [880, 1100, '체커보드 바닥과 셔터 앞에서 들어 보이는 네 칸 인화물', 'A four-frame print held up in front of the shutter and checkerboard floor'],
-  o_25: [733, 1100, '갈색 타일 벽 앞에서 찍은 네 칸 인화물', 'A four-frame print shot in front of a brown tiled wall'],
-  o_04: [780, 1100, 'RETRO, TOILET, SUBWAY, PHOTOZONE이 노란 선으로 그려진 평면도 포스터', 'A floor-plan poster drawn in yellow lines with RETRO, TOILET, SUBWAY and PHOTOZONE'],
-  biz_02: [779, 1100, '횡단보도를 내려다본 사진 위에 UrbanEdge 로고가 올라간 포스터', 'A poster with the UrbanEdge logo over an aerial crosswalk photo'],
-  biz_07: [780, 1100, '노란 바탕에 UrbanEdge 로고를 올린 포스터', 'A yellow poster carrying the UrbanEdge logo'],
-  biz_09: [779, 1100, 'FLUSH OUT THE BOREDOM 문구와 화장실 사진이 겹쳐진 포스터', 'A poster pairing FLUSH OUT THE BOREDOM with restroom photos'],
+  o_21: [1100, 825, 'space', 'The storefront: black front, UrbanEdge sign, checkerboard step', '검은 외관과 UrbanEdge 간판, 체커보드 문턱이 보이는 매장 외관'],
+  o_34: [825, 1100, 'space', 'The alley view of the entrance with its checkerboard floor', '골목에서 본 입구와 체커보드 바닥'],
+  o_24: [825, 1100, 'space', 'A wall of round red mirrors reflecting the checkerboard floor', '체커보드 바닥이 비치는 둥근 빨간 거울 벽'],
+  o_43: [825, 1100, 'space', 'Round red-rimmed mirrors above the checkerboard floor', '체커보드 바닥 위에 걸린 빨간 테두리의 둥근 거울'],
+  o_18: [1100, 825, 'space', 'Yellow seats in front of blue and white tiled walls', '파란 타일과 하얀 타일 벽 앞의 노란 의자'],
+  o_36: [825, 1100, 'space', 'Three yellow seats under a blue tile band', '파란 타일 띠 아래 놓인 노란 의자 세 개'],
+  o_35: [825, 1100, 'space', 'Traffic cones on a checkerboard floor in front of a caution-taped shutter', '경고 테이프를 두른 셔터 앞 체커보드 바닥의 라바콘'],
+  o_20: [825, 1100, 'space', 'A caution-taped shutter with two cones and a checkerboard floor', '경고 테이프를 두른 셔터와 라바콘, 체커보드 바닥'],
+  o_44: [825, 1100, 'space', 'A blue tiled wall covered in a route-map poster and guest prints', '노선도 포스터와 손님 인화물이 가득 붙은 파란 타일 벽'],
+  o_17: [825, 1100, 'room', 'Retro room: brown curtain, two wooden stools and a crate', '갈색 커튼과 나무 의자 두 개, 나무 상자가 있는 레트로 방'],
+  o_39: [825, 1100, 'room', 'A brown curtain with two round wooden stools', '갈색 커튼과 둥근 나무 의자 두 개'],
+  o_29: [825, 1100, 'room', 'Subway room: hand-strap rail, steel doors, benches on both sides', '손잡이 봉과 스테인리스 문, 양옆 벤치가 있는 지하철 방'],
+  o_27: [825, 1100, 'room', 'A steel door frame opening onto the subway car doors', '스테인리스 문틀 너머로 지하철 문이 보이는 방'],
+  o_19: [825, 1100, 'room', 'Steel subway doors with windows and prints taped above', '창이 달린 스테인리스 지하철 문과 문 위에 붙은 인화물'],
+  o_41: [825, 1100, 'room', 'Steel subway doors with white hand straps', '하얀 손잡이가 걸린 스테인리스 지하철 문'],
+  o_28: [825, 1100, 'room', 'Karaoke room: brown tile, sequin curtain, mirror ball, white bench', '갈색 타일과 장식 커튼, 미러볼, 흰 벤치가 있는 노래방'],
+  o_10: [900, 506, 'room', 'The KARAOKE SHOT sign beside a white kiosk', 'KARAOKE SHOT 간판 옆의 흰색 키오스크'],
+  o_31: [825, 1100, 'room', 'A pegboard shelf with a gold mic, tambourine and heart props', '금색 마이크와 탬버린, 하트 소품이 놓인 타공판 선반'],
+  o_40: [825, 1100, 'room', 'Brown tile, a song list board and a white bench', '갈색 타일 벽과 노래 목록판, 흰 벤치'],
+  o_30: [825, 1100, 'room', 'A booth window under the PUBLIC PHONE sign, wall covered in prints', 'PUBLIC PHONE 간판 아래 창구와 인화물로 덮인 벽'],
+  o_49: [900, 676, 'room', 'The call-screen decoration above the steel door frame', '스테인리스 문틀 위에 떠 있는 수신 화면 장식'],
+  o_26: [825, 1100, 'print', 'Two four-cut prints held up against brown tile', '갈색 타일 벽 앞에서 들어 보인 네 칸 인화물 두 장'],
+  o_52: [880, 1100, 'print', 'A four-cut print held up in front of the taped shutter', '경고 테이프 셔터 앞에서 들어 보인 네 칸 인화물'],
+  o_37: [733, 1100, 'print', 'A four-cut print shot at the subway doors', '지하철 문 앞에서 찍은 네 칸 인화물'],
+  o_25: [733, 1100, 'print', 'A four-cut print shot against brown tile', '갈색 타일 벽 앞에서 찍은 네 칸 인화물'],
+  biz_02: [779, 1100, 'poster', 'Poster: UrbanEdge logo over an aerial crosswalk', '횡단보도 항공 사진 위에 UrbanEdge 로고를 올린 포스터'],
+  biz_07: [780, 1100, 'poster', 'Yellow poster with the UrbanEdge logo', '노란 바탕에 UrbanEdge 로고를 올린 포스터'],
 }
 
 const make = (id) => {
-  const [w, h, ko, en] = RAW[id]
+  const [w, h, kind, en, ko] = RAW[id]
   const thumb = `/img/${id}.jpg`
-  return { id, thumb, full: LARGE.has(id) ? `/img/lg/${id}.jpg` : thumb, w, h, alt: { ko, en } }
+  return { id, thumb, full: LARGE.has(id) ? `/img/lg/${id}.jpg` : thumb, w, h, kind, alt: { en, ko } }
 }
-
 export const photo = (id) => make(id)
 
-// 갤러리 분류: space(공간), rooms(포토 룸), prints(인화물), posters(포스터)
-export const GALLERY_FILTERS = [
-  { id: 'all', label: { ko: '전체', en: 'All' } },
-  { id: 'space', label: { ko: '공간', en: 'Space' } },
-  { id: 'rooms', label: { ko: '포토 룸', en: 'Rooms' } },
-  { id: 'prints', label: { ko: '인화물', en: 'Prints' } },
-  { id: 'posters', label: { ko: '포스터', en: 'Posters' } },
-]
-
-const G = (tag, ids) => ids.map((id) => ({ ...make(id), tag }))
-
-// 보여 주는 순서: 바깥에서 안쪽으로 들어가는 순서를 따른다.
-export const GALLERY = [
-  ...G('space', ['o_21', 'o_34', 'o_24']),
-  ...G('rooms', ['o_29']),
-  ...G('space', ['o_18']),
-  ...G('rooms', ['o_28']),
-  ...G('prints', ['o_26']),
-  ...G('space', ['o_35']),
-  ...G('rooms', ['o_17']),
-  ...G('posters', ['biz_02']),
-  ...G('rooms', ['o_23']),
-  ...G('space', ['o_44']),
-  ...G('rooms', ['o_30']),
-  ...G('prints', ['o_52']),
-  ...G('rooms', ['o_27', 'o_22']),
-  ...G('posters', ['o_04']),
-  ...G('rooms', ['o_31', 'o_19']),
-  ...G('space', ['o_36', 'o_43']),
-  ...G('prints', ['o_37']),
-  ...G('rooms', ['o_39', 'o_41', 'o_10']),
-  ...G('space', ['o_20']),
-  ...G('rooms', ['o_15', 'o_49']),
-  ...G('posters', ['biz_09', 'biz_07']),
-  ...G('prints', ['o_25']),
-  ...G('rooms', ['o_40', 'o_14']),
-]
-
-// 방별 상세. id, name, code, color, title 은 data/site.js 의 ROOMS 를 그대로 쓴다.
-// tagline 과 본문은 사진에서 확인되는 소품만 적는다.
-export const ROOM_EXTRA = {
-  subway: {
-    photos: ['o_29', 'o_27', 'o_19', 'o_41', 'o_37'],
-    tagline: { ko: '스테인리스 객실 문과 손잡이가 있는 지하철 칸', en: 'A subway car with steel doors and hand straps' },
-    lead: { ko: '스테인리스 문과 손잡이 앞에서 지하철 승객이 되어 찍는 방', en: 'A room where you shoot as a subway passenger in front of steel doors and hand straps' },
-    body: {
-      ko: '창이 달린 스테인리스 문과 손잡이를 건 봉, 양옆 벤치가 실제 객실처럼 놓여 있어 출퇴근길 장면을 그대로 연출할 수 있으며, 문 위에는 앞서 다녀간 손님의 인화물이 붙어 있다.',
-      en: 'Steel doors with windows, a rail of hand straps and benches on both sides are laid out like a real car, so a commute scene needs no extra props, and prints from earlier guests are taped above the doors.',
-    },
-    props: [
-      { ko: '스테인리스 객실 문', en: 'Steel car doors' },
-      { ko: '손잡이', en: 'Hand straps' },
-      { ko: '양옆 벤치', en: 'Side benches' },
-    ],
-    poses: [
-      { title: { ko: '손잡이 잡기', en: 'Hold the strap' }, desc: { ko: '한 손으로 손잡이를 잡고 시선을 창 쪽으로 돌리면 출근길 같은 장면이 된다.', en: 'Hold a strap with one hand and look toward the window for a morning-commute frame.' } },
-      { title: { ko: '문 앞에 나란히 서기', en: 'Line up at the doors' }, desc: { ko: '일행과 문 앞에 나란히 서서 문이 열리기를 기다리는 표정을 짓는다.', en: 'Stand shoulder to shoulder with your group and wait for the doors with a deadpan face.' } },
-      { title: { ko: '벤치에 앉기', en: 'Take a seat' }, desc: { ko: '벤치에 기대어 앉아 휴대폰을 보거나 졸고 있는 승객을 흉내 낸다.', en: 'Slump on the bench and play a passenger scrolling a phone or dozing off.' } },
-    ],
-  },
-  karaoke: {
-    photos: ['o_28', 'o_10', 'o_31', 'o_26', 'o_40'],
-    tagline: { ko: '마이크와 탬버린이 놓인 갈색 타일 노래방', en: 'A brown-tiled karaoke booth with a mic and tambourine' },
-    lead: { ko: '마이크와 탬버린을 들고 노래 한 곡을 통째로 찍는 방', en: 'A room for shooting a whole song with a mic and tambourine in hand' },
-    body: {
-      ko: '갈색 타일 벽에 노래 목록판과 홀로그램 장식, 미러볼이 걸려 있고 선반에는 마이크와 탬버린이 놓여 있어, 소품을 챙기지 않아도 노래방 무대를 바로 만들 수 있다.',
-      en: 'A song-list board, holographic decoration and a mirror ball hang on the brown tiled wall, and a shelf holds a microphone and tambourine, so a karaoke stage is ready without bringing anything.',
-    },
-    props: [
-      { ko: '마이크', en: 'Microphone' },
-      { ko: '탬버린', en: 'Tambourine' },
-      { ko: '노래 목록판', en: 'Song list board' },
-      { ko: '홀로그램 장식과 미러볼', en: 'Holographic decor and mirror ball' },
-    ],
-    poses: [
-      { title: { ko: '열창하기', en: 'Belt it out' }, desc: { ko: '마이크를 입 가까이 대고 눈을 질끈 감은 채 후렴을 부르는 모습을 만든다.', en: 'Hold the mic close, squeeze your eyes shut and sing the chorus.' } },
-      { title: { ko: '탬버린 흔들기', en: 'Shake the tambourine' }, desc: { ko: '탬버린을 얼굴 옆으로 들어 올리고 어깨를 들썩이면 파티 분위기가 난다.', en: 'Raise the tambourine beside your face and bounce your shoulders for a party mood.' } },
-      { title: { ko: '벤치에서 곡 고르기', en: 'Pick the next song' }, desc: { ko: '벤치에 나란히 앉아 노래 목록판을 가리키며 다음 곡을 고르는 장면을 연출한다.', en: 'Sit side by side on the bench and point at the song board as if choosing the next track.' } },
-    ],
-  },
-  phone: {
-    photos: ['o_30', 'o_49'],
-    tagline: { ko: '창구형 부스와 수신 화면 장식의 공중전화 방', en: 'A public-phone room with a booth window and an incoming-call decoration' },
-    lead: { ko: '공중전화 창구 앞에서 통화 장면을 찍는 방', en: 'A room for shooting a phone-call scene in front of the booth window' },
-    body: {
-      ko: 'PUBLIC PHONE 간판이 붙은 창구형 부스에 키오스크가 놓여 있고, 방 입구의 스테인리스 문틀 위에는 수신 화면을 닮은 장식이 붙어 있어 전화를 주고받는 순간을 포즈로 옮기기 좋다.',
-      en: 'A kiosk sits inside the booth window under the PUBLIC PHONE sign, and a decoration styled like an incoming-call screen hangs above the steel door frame at the entrance, which suits poses that act out a call.',
-    },
-    props: [
-      { ko: '창구형 공중전화 부스', en: 'Window-style phone booth' },
-      { ko: '수신 화면 장식', en: 'Incoming-call decoration' },
-      { ko: '스테인리스 문틀', en: 'Steel door frame' },
-    ],
-    poses: [
-      { title: { ko: '수화기 들기', en: 'Pick up the receiver' }, desc: { ko: '수화기를 귀에 대는 손짓을 하고 놀란 표정으로 카메라를 바라본다.', en: 'Raise a hand to your ear as if holding a receiver and look at the lens, surprised.' } },
-      { title: { ko: '창구 앞에서 마주 보기', en: 'Face each other at the window' }, desc: { ko: '둘이 서로를 마주 보며 각자 통화하는 척하면 대화가 오가는 장면이 된다.', en: 'Face a friend and each pretend to be on the line for a back-and-forth scene.' } },
-      { title: { ko: '기다리는 사람', en: 'The one waiting' }, desc: { ko: '벽에 기대 팔짱을 끼고 전화가 오기를 기다리는 사람처럼 선다.', en: 'Lean on the wall with arms crossed like someone waiting for a call to come in.' } },
-    ],
-  },
-  retro: {
-    photos: ['o_17', 'o_39'],
-    tagline: { ko: '갈색 커튼과 나무 의자가 있는 레트로 부스', en: 'A retro booth with a brown curtain and wooden stools' },
-    lead: { ko: '갈색 커튼과 나무 의자로 오래된 사진관을 닮게 꾸민 방', en: 'A room dressed like an old photo studio with a brown curtain and wooden stools' },
-    body: {
-      ko: '벽을 덮은 갈색 커튼 앞에 나무 의자 두 개와 나무 상자가 놓여 있어, 소품이 많지 않은 만큼 표정과 자세로 차분한 인물 사진을 만들기 좋다.',
-      en: 'Two wooden stools and a wooden box stand in front of a wall-length brown curtain, and with so few props the frame leans on expression and posture for a calm portrait.',
-    },
-    props: [
-      { ko: '갈색 커튼', en: 'Brown curtain' },
-      { ko: '나무 의자 두 개', en: 'Two wooden stools' },
-      { ko: '나무 상자', en: 'Wooden box' },
-    ],
-    poses: [
-      { title: { ko: '의자에 걸터앉기', en: 'Perch on a stool' }, desc: { ko: '의자 끝에 걸터앉아 무릎에 손을 올리고 정면을 바라보면 증명사진 같은 분위기가 난다.', en: 'Sit on the edge of a stool, hands on knees, and face the lens for a studio-portrait feel.' } },
-      { title: { ko: '커튼 사이로 내밀기', en: 'Peek through the curtain' }, desc: { ko: '커튼을 한쪽으로 젖히고 얼굴만 살짝 내밀어 장난스러운 컷을 만든다.', en: 'Pull the curtain aside and lean out just your face for a playful frame.' } },
-      { title: { ko: '상자에 기대기', en: 'Lean on the box' }, desc: { ko: '나무 상자에 팔을 얹고 비스듬히 서서 옆모습과 정면 사이의 각도를 잡는다.', en: 'Rest an arm on the wooden box and stand at a slant, halfway between profile and front.' } },
-    ],
-  },
-  toilet: {
-    photos: ['o_23', 'o_22', 'o_15', 'o_14'],
-    tagline: { ko: '흰 타일과 파란 타일, 바닥의 검은 선이 이어지는 화장실 세트', en: 'A restroom set of white and blue tiles with a black line on the floor' },
-    lead: { ko: '흰 타일과 파란 타일 사이로 검은 선이 이어지는 화장실 세트', en: 'A restroom set where a black line runs between white and blue tiles' },
-    body: {
-      ko: '복도처럼 길게 이어진 타일 벽과 거울 문, 바닥에 그려진 TOILET SHOT 글자와 검은 선이 공간의 깊이를 만들어, 먼 곳까지 시선이 이어지는 사진을 찍을 수 있다.',
-      en: 'A corridor of tiled walls, a mirrored doorway and the TOILET SHOT lettering with a black line on the floor build depth, so you can shoot frames where the eye runs far into the space.',
-    },
-    props: [
-      { ko: '흰 타일과 파란 타일 벽', en: 'White and blue tiled walls' },
-      { ko: '거울 문', en: 'Mirrored doorway' },
-      { ko: '바닥의 검은 선', en: 'Black line on the floor' },
-    ],
-    poses: [
-      { title: { ko: '타일 벽에 기대기', en: 'Lean on the tiles' }, desc: { ko: '벽에 어깨를 기대고 시선을 살짝 내려 무심한 표정을 지으면 화장실 세트와 어울린다.', en: 'Rest a shoulder on the wall and lower your gaze for a nonchalant look that suits the set.' } },
-      { title: { ko: '검은 선 따라 걷기', en: 'Walk the black line' }, desc: { ko: '바닥의 검은 선 위에 한 발씩 올리며 걷는 동작을 잡으면 길이 이어지는 느낌이 난다.', en: 'Step along the black line on the floor to give the frame a sense of a path.' } },
-      { title: { ko: '거울 앞에 서기', en: 'Face the mirror' }, desc: { ko: '거울 문 앞에 서서 거울 속 자신을 바라보는 옆모습을 만든다.', en: 'Stand in front of the mirrored doorway and look at yourself for a side-view frame.' } },
-    ],
-  },
+// 사용자 공개 인스타그램 사진(img/ig). 업주 본인 게시물이다. 640px 정사각 썸네일.
+const IG = {
+  'ig-04.jpg': ['SUBWAY SHOT strip: four cuts at the steel doors', 'SUBWAY SHOT 스트립, 스테인리스 문 앞에서 찍은 네 컷', 'DJBriMPJ4Kc'],
+  'ig-05.jpg': ['RETRO SHOT strip: four close cuts of two friends', 'RETRO SHOT 스트립, 두 친구의 네 컷', 'DH2oxm0pzS0'],
+  'ig-06.jpg': ['KARAOKE SHOT strip: four cuts in front of the brown tile', 'KARAOKE SHOT 스트립, 갈색 타일 앞 네 컷', 'DGmkVnlJheX'],
+  'ig-07.jpg': ['A blue eight-cut strip from the karaoke room', '노래방에서 찍은 파란 프레임의 여덟 컷 스트립', 'DFXhlE1PA5s'],
+  'ig-08.jpg': ['RETRO SHOT winter edition with a Santa hat on the title', '제목에 산타 모자를 얹은 RETRO SHOT 겨울 프레임', 'DDa7--hPePE'],
+  'ig-09.jpg': ['XMAS PARTY poster with the photo zone', '포토존이 담긴 XMAS PARTY 포스터', 'DC1PxS8vQzP'],
+  'ig-10.jpg': ['A black eight-cut strip, KARAOKE SHOT', '검은 프레임의 KARAOKE SHOT 여덟 컷 스트립', 'DA-AUxEPN-3'],
+  'ig-11.jpg': ['A white four-cut strip, KARAOKE SHOT', '하얀 프레임의 KARAOKE SHOT 네 컷 스트립', 'DA9-Rq6vHWj'],
+  'ig-12.jpg': ['A white four-cut strip, KARAOKE SHOT', '하얀 프레임의 KARAOKE SHOT 네 컷 스트립', 'DA9-Rq6vHWj'],
 }
-
-// ROOMS(site.js) 와 방별 상세를 합친 목록
-export const ROOM_LIST = ROOMS.map((r) => ({
-  ...r,
-  ...ROOM_EXTRA[r.id],
-  photoList: (ROOM_EXTRA[r.id]?.photos ?? []).map(make),
+export const IG_PHOTOS = Object.entries(IG).map(([file, [en, ko, code]]) => ({
+  id: file.replace('.jpg', ''),
+  thumb: `/img/ig/${file}`,
+  full: `/img/ig/${file}`,
+  w: 640,
+  h: 640,
+  kind: file === 'ig-09.jpg' ? 'poster' : 'print',
+  alt: { en, ko },
+  source: `https://www.instagram.com/__urbanedge/p/${code}/`,
 }))
 
-export const findRoom = (id) => ROOM_LIST.find((r) => r.id === id)
+// 팀 인화 사진(img/team). 키오스크 샘플로도 쓰는 실제 사진이다.
+export const TEAM_PHOTOS = [1, 2, 3, 4, 5].map((n) => ({
+  id: `shot-${n}`,
+  thumb: `/img/team/shot-${n}.jpg`,
+  full: `/img/team/shot-${n}.jpg`,
+  w: n === 5 ? 1070 : 510,
+  h: n === 5 ? 1420 : n >= 3 ? 676 : 678,
+  kind: 'team',
+  alt: {
+    en: 'The team in the karaoke room with heart props, a gold mic and tinted glasses',
+    ko: '하트 소품과 금색 마이크, 컬러 안경을 쓰고 노래방에서 찍은 팀 사진',
+  },
+}))
 
-// 노선 색 이름을 Tailwind 클래스로 바꾸는 표. 동적 클래스 조합은 purge 되므로 문자열로 모두 적는다.
-export const LINE_BG = { yellow: 'bg-line-yellow', red: 'bg-line-red', blue: 'bg-line-blue', green: 'bg-line-green' }
-export const LINE_BORDER = { yellow: 'border-line-yellow', red: 'border-line-red', blue: 'border-line-blue', green: 'border-line-green' }
+export const GALLERY_FILTERS = [
+  { id: 'all', label: { en: 'All', ko: '전체' } },
+  { id: 'rooms', label: { en: 'Rooms', ko: '포토 룸' } },
+  { id: 'prints', label: { en: 'Prints', ko: '인화물' } },
+  { id: 'space', label: { en: 'Space', ko: '공간' } },
+]
+
+// ---------------------------------------------------------------------------
+// 정거장(방) 데이터. 영문 먼저, 한국어는 따로 쓴 문장이다.
+// ---------------------------------------------------------------------------
+const ALL = [
+  {
+    id: 'entrance',
+    name: 'EXIT 1',
+    title: { en: 'Exit 1', ko: '1번 출구' },
+    vibe: { en: 'The checkerboard doorstep', ko: '체커보드 문턱' },
+    story: {
+      en: 'A black front with the UrbanEdge sign, and a checkerboard floor that works as a backdrop before you have paid for anything. Behind the glass, a wall packed with round red mirrors bends the alley into tiny fisheye copies of you. Walk straight in, the rooms are further back.',
+      ko: '검은 외관에 UrbanEdge 간판이 붙어 있고 바닥은 체커보드 무늬다. 유리 너머에는 둥근 빨간 거울이 벽을 가득 채우고 있어 골목과 내 모습이 작은 어안 렌즈 화면처럼 겹쳐 보인다. 방은 이 안쪽에 이어지므로 곧장 들어가면 된다.',
+    },
+    why: {
+      en: 'Black, white and red stay loud in any light, so even a quick phone snap here looks planned.',
+      ko: '검정과 하양, 빨강의 대비가 어떤 빛에서도 또렷해서 휴대폰으로 급하게 찍어도 연출한 사진처럼 나온다.',
+    },
+    props: [
+      { en: 'Checkerboard step', ko: '체커보드 문턱' },
+      { en: 'Round red mirrors', ko: '둥근 빨간 거울' },
+      { en: 'Caution-taped shutter', ko: '경고 테이프 셔터' },
+    ],
+    photos: ['o_21', 'o_24', 'o_34', 'o_43', 'o_35', 'o_20'],
+  },
+  {
+    id: 'subway',
+    no: 1,
+    accent: 'yellow',
+    name: 'SUBWAY SHOT',
+    title: { en: 'Subway Shot', ko: '지하철 샷' },
+    vibe: { en: 'Doors closing. Hold on.', ko: '닫히는 문 앞의 승객' },
+    story: {
+      en: 'Steel doors with small windows, a rail of white hand straps overhead and a steel bench on each side. It is a Seoul subway car with no train attached. Stand in the doorway, grab a strap and let the lens play the platform. Prints from earlier guests are taped above the doors, so you never ride alone.',
+      ko: '작은 창이 달린 스테인리스 문, 머리 위에 걸린 하얀 손잡이, 양옆으로 놓인 철제 벤치까지 서울 지하철 객실을 그대로 옮긴 방이다. 문 앞에서 손잡이를 잡으면 렌즈가 곧 승강장이 되고, 문 위에는 먼저 다녀간 손님의 인화물이 붙어 있어 혼자 타는 느낌이 들지 않는다.',
+    },
+    why: {
+      en: 'Brushed steel bounces light back onto your face, and the straight door frame lines you up like a poster.',
+      ko: '스테인리스가 빛을 얼굴 쪽으로 되돌려 주고, 문틀의 직선이 인물을 포스터처럼 가운데로 모아 준다.',
+    },
+    props: [
+      { en: 'Steel car doors', ko: '스테인리스 객실 문' },
+      { en: 'Hand straps', ko: '손잡이' },
+      { en: 'Side benches', ko: '양옆 벤치' },
+    ],
+    photos: ['o_29', 'o_27', 'o_19', 'o_41', 'o_37'],
+    poses: [
+      { id: 'strap-hang', title: { en: 'Strap hang', ko: '손잡이에 매달리기' }, desc: { en: 'One hand up on a strap, eyes on the lens as if it were the window.', ko: '한 손으로 손잡이를 잡고 렌즈를 창밖처럼 바라본다.' } },
+      { id: 'doors-closing', title: { en: 'Doors closing', ko: '문 사이로 뛰어들기' }, desc: { en: 'Squeeze in sideways between the doors and look startled.', ko: '문틈에 몸을 비스듬히 끼우고 놀란 표정을 짓는다.' } },
+      { id: 'bench-nap', title: { en: 'Bench nap', ko: '벤치에서 졸기' }, desc: { en: 'Slump on the bench, chin down, like you missed your stop.', ko: '벤치에 기대어 고개를 떨구고 정거장을 지나친 사람처럼 앉는다.' } },
+    ],
+  },
+  {
+    id: 'karaoke',
+    no: 2,
+    accent: 'red',
+    name: 'KARAOKE SHOT',
+    title: { en: 'Karaoke Shot', ko: '노래방 샷' },
+    vibe: { en: 'Brown tile, mirror ball, one more song', ko: '한 곡만 더 부르는 갈색 타일 방' },
+    story: {
+      en: 'Floor-to-ceiling brown tile, a curtain of glittering sequins and a pink mirror ball over a white bench. A song list hangs on the wall, and a shelf holds a gold mic and a tambourine, plus heart-shaped props. Grab the mic, hit the chorus and sing it straight at the lens.',
+      ko: '바닥부터 천장까지 갈색 타일이 이어지고, 반짝이는 장식 커튼과 분홍색 미러볼이 흰 벤치 위에 걸려 있다. 벽에는 노래 목록판이 붙어 있고 선반에는 금색 마이크와 탬버린, 하트 모양 소품이 놓여 있으니 마이크를 들고 후렴을 부르는 얼굴로 렌즈를 향하면 된다.',
+    },
+    why: {
+      en: 'The warm brown wall flatters skin, the sequins throw flecks of colour across faces, and one bench fits a whole group.',
+      ko: '따뜻한 갈색 벽이 피부색을 부드럽게 받쳐 주고, 장식 커튼이 얼굴 위에 작은 색 점을 흩뿌리며, 벤치 하나에 일행이 모두 들어온다.',
+    },
+    props: [
+      { en: 'Gold mic and tambourine', ko: '금색 마이크와 탬버린' },
+      { en: 'Sequin curtain', ko: '장식 커튼' },
+      { en: 'Mirror ball', ko: '미러볼' },
+    ],
+    photos: ['o_28', 'o_10', 'o_31', 'o_26', 'o_40'],
+    poses: [
+      { id: 'chorus-face', title: { en: 'Chorus face', ko: '후렴 부르기' }, desc: { en: 'Mic at your chin, eyes shut, give the last line everything.', ko: '마이크를 턱 가까이 대고 눈을 감은 채 마지막 소절을 온 힘으로 부른다.' } },
+      { id: 'tambourine-shake', title: { en: 'Tambourine shake', ko: '탬버린 흔들기' }, desc: { en: 'Tambourine beside your ear, shoulders bouncing.', ko: '탬버린을 귀 옆에 들고 어깨를 들썩인다.' } },
+      { id: 'song-queue', title: { en: 'Song queue', ko: '다음 곡 고르기' }, desc: { en: 'Sit shoulder to shoulder and point at the song list as if arguing over the next track.', ko: '벤치에 어깨를 맞대고 앉아 노래 목록판을 가리키며 다음 곡을 두고 다투는 시늉을 한다.' } },
+    ],
+  },
+  {
+    id: 'phone',
+    no: 3,
+    accent: 'blue',
+    name: 'PUBLIC PHONE SHOT',
+    title: { en: 'Public Phone Shot', ko: '공중전화 샷' },
+    vibe: { en: 'Pick up. It is for you.', ko: '수신음이 울리는 공중전화' },
+    story: {
+      en: 'A booth window with PUBLIC PHONE across the top, a steel door frame, and above it a call screen reading UrbanEdge with a red button and a green one. You are the one being called. Hold an imaginary receiver, lean on the tiled wall and look like you just pressed green.',
+      ko: '윗부분에 PUBLIC PHONE이라고 적힌 부스 창과 스테인리스 문틀이 있고, 문틀 위에는 빨간 버튼과 초록 버튼이 달린 UrbanEdge 수신 화면이 떠 있다. 전화를 받는 사람이 바로 나이므로 가상의 수화기를 귀에 대고 타일 벽에 기대어 방금 초록 버튼을 누른 얼굴을 하면 된다.',
+    },
+    why: {
+      en: 'Cool steel and white tile make a clean, almost film-still backdrop, and the call screen works as a caption for your pose.',
+      ko: '차가운 철과 하얀 타일이 깨끗한 영화 장면 같은 배경을 만들고, 수신 화면이 포즈에 붙는 자막 역할을 한다.',
+    },
+    props: [
+      { en: 'Booth window', ko: '부스 창' },
+      { en: 'Call-screen decoration', ko: '수신 화면 장식' },
+      { en: 'Steel door frame', ko: '스테인리스 문틀' },
+    ],
+    photos: ['o_30', 'o_49'],
+    poses: [
+      { id: 'answer-call', title: { en: 'Answer the call', ko: '전화 받기' }, desc: { en: 'Hand to ear, eyebrows up, like you pressed green a second ago.', ko: '손을 귀에 대고 눈썹을 올려 방금 전화를 받은 표정을 짓는다.' } },
+      { id: 'whisper', title: { en: 'Whisper', ko: '소곤거리기' }, desc: { en: 'Cup a hand around your mouth and glance sideways.', ko: '한 손으로 입을 가리고 옆을 힐끔 본다.' } },
+      { id: 'hold-line', title: { en: 'Hold the line', ko: '기다리는 사람' }, desc: { en: 'Lean on the wall with arms crossed, waiting for a callback.', ko: '벽에 기대 팔짱을 끼고 걸려 올 전화를 기다린다.' } },
+    ],
+  },
+  {
+    id: 'retro',
+    no: 4,
+    accent: 'green',
+    name: 'RETRO SHOT',
+    title: { en: 'Retro Shot', ko: '레트로 샷' },
+    vibe: { en: 'A photo studio from some other decade', ko: '다른 시대의 사진관' },
+    story: {
+      en: 'A heavy brown curtain, two round wooden stools and a wooden crate against a white wall, and nothing else. That is the whole idea. Sit down, tilt your head and let the plain backdrop keep your face as the subject.',
+      ko: '무거운 갈색 커튼과 둥근 나무 의자 두 개, 나무 상자 하나가 하얀 벽 앞에 놓여 있고 그게 전부다. 의자에 앉아 고개를 살짝 기울이면 단순한 배경이 얼굴을 주인공으로 남겨 준다.',
+    },
+    why: {
+      en: 'With no clutter behind you, expressions carry the shot, which makes this the room for a straight portrait.',
+      ko: '뒤에 어지러운 소품이 없어 표정이 사진을 이끌기 때문에 정직한 인물 사진을 남기기에 좋다.',
+    },
+    props: [
+      { en: 'Brown curtain', ko: '갈색 커튼' },
+      { en: 'Round wooden stools', ko: '둥근 나무 의자' },
+      { en: 'Wooden crate', ko: '나무 상자' },
+    ],
+    photos: ['o_17', 'o_39'],
+    poses: [
+      { id: 'stool-sit', title: { en: 'Stool sit', ko: '의자 끝에 앉기' }, desc: { en: 'Perch on the edge of a stool, hands on knees, look straight down the lens.', ko: '의자 끝에 걸터앉아 무릎에 손을 얹고 렌즈를 곧게 바라본다.' } },
+      { id: 'curtain-peek', title: { en: 'Curtain peek', ko: '커튼 사이로 내다보기' }, desc: { en: 'Pull the curtain aside and lean out with just your face.', ko: '커튼을 한쪽으로 젖히고 얼굴만 내민다.' } },
+      { id: 'crate-lean', title: { en: 'Crate lean', ko: '상자에 기대기' }, desc: { en: 'Rest an elbow on the crate and put your weight on one leg.', ko: '상자에 팔꿈치를 얹고 한쪽 다리에 체중을 싣는다.' } },
+    ],
+  },
+].map((s) => ({ ...s, photoList: s.photos.map(make) }))
+
+export const EXIT1 = ALL.find((s) => s.id === 'entrance')
+export const PLATFORMS = ALL.filter((s) => s.id !== 'entrance')
+export const STATIONS = PLATFORMS
+export const findStation = (id) => PLATFORMS.find((s) => s.id === id)
+
+// 방 노선도: 작업 M의 기본 네트워크(역 하나와 승강장 선로 네 개)에서 허브 코드와 노선 이름만 GY 체계로 바꾼다.
+export const NETWORK = {
+  ...ROOM_NETWORK,
+  lines: ROOM_NETWORK.lines.map((ln) => ({
+    ...ln,
+    stations: ln.stations.map((st) => {
+      if (st.id === 'urbanedge') return { ...st, code: STATION.code }
+      if (st.id === 'h-start') return { ...st, label: METRO.name, labelKo: METRO.nameKo, code: METRO.code }
+      return st
+    }),
+  })),
+}
+
+// 네이버 플레이스 공개 사진(img/place, index.json 참조). 고해상도 원본이라 확대 보기에도 쓴다.
+// [너비, 높이, 분류, 영문, 한국어]
+const PL = {
+  'naver-28': [900, 1200, 'space', 'The alley view: black front, checkerboard step and passers-by', '지나가는 사람들과 함께 보이는 골목 쪽 입구, 검은 외관과 체커보드 문턱'],
+  'naver-15': [1800, 1350, 'space', 'The storefront seen from the corner, round mirrors behind the glass', '모퉁이에서 본 매장 외관, 유리 너머로 둥근 거울이 보인다'],
+  'naver-18': [1350, 1800, 'space', 'Nine round red mirrors over the checkerboard floor', '체커보드 바닥 위에 걸린 빨간 둥근 거울 아홉 개'],
+  'naver-12': [1800, 1350, 'space', 'Yellow seats in front of the blue tile band', '파란 타일 띠 앞에 놓인 노란 의자'],
+  'naver-19': [900, 1350, 'print', 'A four-cut print on a black frame, shot against brown tile', '갈색 타일 앞에서 찍은 검은 프레임의 네 컷 인화물'],
+  'naver-20': [1350, 1800, 'print', 'Two four-cut prints held up in front of the song list', '노래 목록판 앞에서 들어 보인 네 컷 인화물 두 장'],
+  'naver-23': [1350, 1800, 'room', 'The subway room from the doorway, hand straps over the doors', '문 앞에서 본 지하철 방, 문 위에 손잡이가 걸려 있다'],
+  'naver-24': [1350, 1800, 'room', 'The public phone wall: booth window, prints and a mic stand', '부스 창과 인화물, 마이크 스탠드가 보이는 공중전화 벽'],
+  'naver-33': [900, 1200, 'room', 'The retro room: curtain, two stools and a crate', '커튼과 의자 두 개, 나무 상자가 있는 레트로 방'],
+  'naver-32': [900, 1200, 'room', 'The subway room bench and hand-strap rail seen from the side', '옆에서 본 지하철 방의 벤치와 손잡이 봉'],
+  'naver-22': [1350, 1800, 'room', 'The karaoke room from the doorway, sequin curtain on the right', '문 앞에서 본 노래방, 오른쪽에 장식 커튼이 걸려 있다'],
+  'naver-11': [1350, 1800, 'room', 'A brown curtain with two stools and a wooden crate', '갈색 커튼 앞의 나무 의자 두 개와 나무 상자'],
+  'naver-10': [900, 506, 'space', 'The UrbanEdge sign above the glass front', '유리 외관 위에 걸린 UrbanEdge 간판'],
+  'naver-21': [1350, 1800, 'space', 'A steel door frame in the hall, prints taped around it', '인화물이 붙은 복도의 스테인리스 문틀'],
+  'naver-09': [900, 506, 'room', 'The KARAOKE SHOT sign beside the kiosk', 'KARAOKE SHOT 간판 옆의 키오스크'],
+  'naver-34': [900, 1200, 'room', 'The karaoke room from the doorway', '문 앞에서 본 노래방'],
+  'poster-02': [1275, 1800, 'poster', 'Poster: UrbanEdge logo over an aerial crosswalk', '횡단보도 항공 사진 위에 UrbanEdge 로고를 올린 포스터'],
+}
+const makePlace = (id) => {
+  const [w, h, kind, en, ko] = PL[id]
+  const src = `/img/place/${id}.jpg`
+  return { id, thumb: src, full: src, w, h, kind, alt: { en, ko }, source: NAVER_PLACE }
+}
+export const placePhoto = makePlace
+
+// 입구에서 기기까지의 동선(Visit). 실제 위치를 만들지 않고, 확인된 순서만 노선으로 그린다.
+export const ROUTE_STOPS = [
+  { id: 'alley', code: 'EXIT 1', label: { en: 'Alley', ko: '골목' }, photo: makePlace('naver-28') },
+  { id: 'door', code: 'GATE', label: { en: 'Checkerboard step', ko: '체커보드 문턱' }, photo: makePlace('naver-15') },
+  { id: 'mirrors', code: 'CONCOURSE', label: { en: 'Red mirrors', ko: '빨간 거울 벽' }, photo: makePlace('naver-18') },
+  { id: 'hall', code: 'CONCOURSE', label: { en: 'Yellow seats', ko: '노란 의자 구간' }, photo: makePlace('naver-12') },
+  { id: 'room', code: 'PLATFORM', label: { en: 'Your platform', ko: '내 승강장' }, photo: makePlace('naver-34') },
+  { id: 'slot', code: 'PRINT', label: { en: 'Print slot', ko: '인화 출구' }, photo: makePlace('naver-20') },
+]
+
+// 오시는 길의 네이버 플레이스 사진 띠
+export const PLACE_STRIP = ['naver-10', 'naver-21', 'naver-09'].map(makePlace)
+
+// 갤러리 순서: 바깥에서 안쪽으로 들어가는 순서를 따르고, 분류를 섞어 리듬을 만든다.
+const G = (...list) => list
+export const GALLERY = G(
+  makePlace('naver-28'),
+  IG_PHOTOS[0],
+  make('o_29'),
+  makePlace('naver-18'),
+  TEAM_PHOTOS[4],
+  make('o_28'),
+  IG_PHOTOS[3],
+  makePlace('naver-15'),
+  make('o_17'),
+  IG_PHOTOS[5],
+  makePlace('naver-20'),
+  makePlace('naver-12'),
+  TEAM_PHOTOS[0],
+  make('o_30'),
+  IG_PHOTOS[6],
+  makePlace('naver-19'),
+  make('o_40'),
+  IG_PHOTOS[1],
+  make('o_27'),
+  IG_PHOTOS[7],
+  TEAM_PHOTOS[2],
+  make('o_52'),
+  IG_PHOTOS[2],
+  make('o_19'),
+  makePlace('poster-02'),
+  IG_PHOTOS[4],
+  make('o_37'),
+  TEAM_PHOTOS[3],
+  make('o_35'),
+  IG_PHOTOS[8],
+  make('o_31'),
+  make('o_49'),
+)

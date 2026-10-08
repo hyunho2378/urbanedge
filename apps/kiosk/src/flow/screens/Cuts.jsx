@@ -1,53 +1,42 @@
 import { Check } from 'lucide-react'
 import { cx } from '@urbanedge/ds'
-import { CutPreview } from '../../components/CutPreview.jsx'
-import { useT } from '../../components/lang.jsx'
+import { T, useT } from '../../components/lang.jsx'
 import { COPY } from '../copy.js'
-import { FLOW } from '../config.js'
 
-// 4. cuts: 4컷과 8컷을 나란히 크게 비교한다. 촬영 횟수와 1회 촬영 시간을 숫자로 적는다.
-// 4컷은 4장을 찍어 전부 쓰고, 8컷은 8장을 찍어 마음에 드는 4장을 고른다(select 단계).
-function CutCard({ n, selected, onPick }) {
-  const t = useT()
-  const c = n === 4 ? COPY.cuts.four : COPY.cuts.eight
+// 4. cuts: 컷 수를 고른다. 큰 면 두 개가 선택지의 전부다. 고르면 면이 노랑으로 바뀌고 다음 버튼이 켜진다.
+function Mini({ n }) {
+  return (
+    <span className="grid" style={{ gridTemplateColumns: 'repeat(4, 72px)', gap: 12 }} aria-hidden="true">
+      {Array.from({ length: n }, (_, i) => (
+        <span key={i} className="block rounded-md bg-current opacity-30" style={{ width: 72, height: 96 }} />
+      ))}
+    </span>
+  )
+}
+
+function Tile({ n, label, body, on, onPick, coach }) {
   return (
     <button
       type="button"
-      aria-pressed={selected}
+      role="radio"
+      aria-checked={on}
       onClick={onPick}
-      className={cx(
-        'ue-press relative flex min-h-touch flex-1 gap-32 rounded-xl border-2 p-40 text-left transition-[transform,opacity,background-color] duration-fast ease-out',
-        selected ? 'border-yellow bg-bg-panel shadow-glowYellow' : 'border-hairlineStrong bg-bg-elev',
-      )}
+      data-coach={coach}
+      className={cx('ue-press relative overflow-hidden rounded-xl text-left transition-[transform,opacity,background-color] duration-base ease-out', on ? 'bg-yellow text-text-onYellow' : 'bg-bg-raised text-text-pri')}
+      style={{ width: 880, height: 480 }}
     >
-      <span className="flex w-192 shrink-0 flex-col items-start justify-between">
-        <span className="ue-label text-k-label text-yellow">{n === 4 ? '01' : '02'}</span>
-        <span className="flex flex-col">
-          <span className="font-display text-k-hero font-black leading-none tracking-tightest">
-            {t(c.big)}
-          </span>
-          <span className="font-display text-k-h3 font-black leading-tight">{t(c.unit)}</span>
-        </span>
+      <div className="absolute" style={{ left: 64, top: 52 }}>
+        <T n={label} as="span" className="kt-title" />
+      </div>
+      <div className="absolute" style={{ right: 64, bottom: 56 }}>
+        <Mini n={n} />
+      </div>
+      <div className="absolute" style={{ left: 64, bottom: 48, width: 400 }}>
+        <T n={body} as="p" className="kt-body" />
+      </div>
+      <span className={cx('absolute grid place-items-center rounded-pill transition-[transform,opacity] duration-base ease-out', on ? 'scale-100 bg-bg-base text-yellow opacity-100' : 'scale-75 opacity-0')} style={{ right: 48, top: 48, width: 96, height: 96 }} aria-hidden="true">
+        <Check size={56} strokeWidth={3.2} />
       </span>
-      <span className="flex min-w-0 flex-1 flex-col justify-between gap-24">
-        <span className="flex items-start" style={{ minHeight: 176 }}>
-          <CutPreview cuts={n} className="w-full" />
-        </span>
-        <span className="text-k-body font-semibold leading-snug">{t(c.how)}</span>
-        <span className="flex flex-wrap gap-12">
-          {[t(c.count), t(COPY.cuts.per, { sec: FLOW.secondsPerShot }), t(c.pick)].map((x) => (
-            <span key={x} className="rounded-pill border border-hairlineStrong px-20 py-8 font-ui text-k-label font-bold text-text-pri">
-              {x}
-            </span>
-          ))}
-        </span>
-      </span>
-      {selected && (
-        <span className="absolute right-24 top-24 grid size-56 place-items-center rounded-pill bg-yellow text-text-onYellow">
-          <Check size={36} strokeWidth={4} aria-hidden="true" />
-          <span className="sr-only">{t(COPY.common.selected)}</span>
-        </span>
-      )}
     </button>
   )
 }
@@ -55,14 +44,14 @@ function CutCard({ n, selected, onPick }) {
 export default function Cuts({ ctrl }) {
   const t = useT()
   return (
-    <div className="flex h-full flex-col gap-24 px-64 pb-16 pt-24">
-      <div className="flex items-end justify-between gap-32">
-        <h1 className="font-display text-k-h2 font-black leading-tight tracking-tightest">{t(COPY.cuts.title)}</h1>
-        <p className="pb-8 font-ui text-k-label font-bold text-text-sec">{t(COPY.cuts.chosenFrame)}</p>
+    <div className="k-tiles absolute inset-0">
+      <div className="absolute" style={{ left: 64, top: 172, width: 1200 }}>
+        <T n={COPY.cuts.title} as="h1" className="kt-title" />
+        <T n={COPY.cuts.sub} v={{ sec: 5 }} as="p" className="kt-lead mt-12 text-text-sec" />
       </div>
-      <div role="group" aria-label={t(COPY.cuts.title)} className="flex min-h-0 flex-1 gap-32">
-        <CutCard n={4} selected={ctrl.cuts === 4} onPick={() => ctrl.setCuts(4)} />
-        <CutCard n={8} selected={ctrl.cuts === 8} onPick={() => ctrl.setCuts(8)} />
+      <div role="radiogroup" aria-label={t(COPY.cuts.title)} className="absolute flex gap-40" style={{ left: 80, top: 408 }}>
+        <Tile n={4} label={COPY.cuts.four} body={COPY.cuts.fourBody} on={ctrl.cuts === 4} onPick={() => ctrl.setCuts(4)} coach="cuts" />
+        <Tile n={8} label={COPY.cuts.eight} body={COPY.cuts.eightBody} on={ctrl.cuts === 8} onPick={() => ctrl.setCuts(8)} />
       </div>
     </div>
   )

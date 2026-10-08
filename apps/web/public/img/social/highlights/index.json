@@ -1,0 +1,70 @@
+{
+ "generated": "2026-10-09",
+ "note": "인스타그램 하이라이트 커버. 1:1, 검정 바탕 신호 노랑 아이콘, 원형으로 잘려도 중심 보존되도록 세이프존 안에 배치.",
+ "items": [
+  {
+   "file": "01-how-to.jpg",
+   "title": "HOW TO",
+   "caption": "이용 방법 하이라이트 커버",
+   "use": "사용 방법 캐러셀/핀 게시물 모음 하이라이트",
+   "w": 1080,
+   "h": 1080
+  },
+  {
+   "file": "02-platforms.jpg",
+   "title": "PLATFORMS",
+   "caption": "승강장(방) 소개 하이라이트 커버",
+   "use": "4개 승강장(Subway/Karaoke/Public Phone/Retro) 소개 모음",
+   "w": 1080,
+   "h": 1080
+  },
+  {
+   "file": "03-find-us.jpg",
+   "title": "FIND US",
+   "caption": "오시는 길 하이라이트 커버",
+   "use": "위치, 약도, 네이버 플레이스 링크 모음",
+   "w": 1080,
+   "h": 1080
+  },
+  {
+   "file": "04-coupon.jpg",
+   "title": "COUPON",
+   "caption": "스크래치 쿠폰 하이라이트 커버",
+   "use": "인스타그램 공유 후 스크래치 쿠폰 안내 모음",
+   "w": 1080,
+   "h": 1080
+  },
+  {
+   "file": "05-frames.jpg",
+   "title": "FRAMES",
+   "caption": "4컷/8컷 프레임 소개 하이라이트 커버",
+   "use": "프레임 종류와 샘플 사진 모음",
+   "w": 1080,
+   "h": 1080
+  },
+  {
+   "file": "06-qa.jpg",
+   "title": "Q&A",
+   "caption": "자주 묻는 질문 하이라이트 커버",
+   "use": "영업시간, 결제수단 등 자주 묻는 질문 모음",
+   "w": 1080,
+   "h": 1080
+  },
+  {
+   "file": "07-tickets.jpg",
+   "title": "TICKETS",
+   "caption": "가격/컷 구성 하이라이트 커버",
+   "use": "후기 수 대신 가격과 컷 구성 안내로 대체(실제 후기 수 미보유)",
+   "w": 1080,
+   "h": 1080
+  },
+  {
+   "file": "08-prints.jpg",
+   "title": "PRINTS",
+   "caption": "인화물 하이라이트 커버",
+   "use": "인화 결과물 샘플 모음",
+   "w": 1080,
+   "h": 1080
+  }
+ ]
+}

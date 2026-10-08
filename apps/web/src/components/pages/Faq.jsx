@@ -1,14 +1,13 @@
 import { useId, useRef, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { cx } from '@urbanedge/ds'
-import { usePick } from '../../i18n/index.jsx'
+import { Tx } from './Bilingual.jsx'
 
-// 자주 묻는 질문 아코디언. 버튼은 aria-expanded 와 aria-controls 를 갖고,
-// 위 아래 화살표, Home, End 로 질문 사이를 이동한다. 열린 항목은 서로 독립이다.
+// 자주 묻는 질문. 버튼은 aria-expanded와 aria-controls를 갖고, 위아래 화살표와 Home, End로 질문 사이를 오간다.
+// 열린 항목은 서로 독립이다. 구분은 헤어라인 한 줄이며 항목마다 박스를 두르지 않는다. items: [{ q: {en,ko}, a: {en,ko} }]
 export function Faq({ items }) {
-  const pick = usePick()
   const base = useId()
-  const [open, setOpen] = useState(() => new Set())
+  const [open, setOpen] = useState(() => new Set([0]))
   const refs = useRef([])
 
   const toggle = (i) =>
@@ -32,13 +31,13 @@ export function Faq({ items }) {
   }
 
   return (
-    <div className="border-t border-hairlineStrong">
+    <div className="divide-y divide-hairline border-y border-hairline">
       {items.map((it, i) => {
         const isOpen = open.has(i)
         const bid = `${base}-b${i}`
         const pid = `${base}-p${i}`
         return (
-          <div key={i} className="border-b border-hairline">
+          <div key={i}>
             <h3>
               <button
                 ref={(el) => (refs.current[i] = el)}
@@ -48,23 +47,19 @@ export function Faq({ items }) {
                 aria-controls={pid}
                 onClick={() => toggle(i)}
                 onKeyDown={(e) => onKeyDown(e, i)}
-                className="group flex min-h-56 w-full items-center gap-20 py-20 text-left transition-colors duration-fast ease-out lg:gap-32 lg:py-28"
+                className="group flex min-h-56 w-full items-center gap-16 py-16 text-left lg:gap-24 lg:py-24"
               >
-                <span className="ue-label w-36 shrink-0 text-label 4xl:text-bodySm text-yellow lg:w-48">{String(i + 1).padStart(2, '0')}</span>
-                <span className={cx('flex-1 text-h4 4xl:text-h3 font-bold group-hover:text-yellow', isOpen ? 'text-yellow' : 'text-text-pri')}>{pick(it.q)}</span>
+                <Tx {...it.q} role="subhead" className={cx('min-w-0 flex-1 transition-colors duration-fast ease-out group-hover:text-yellow', isOpen ? 'text-yellow' : 'text-text-pri')} />
                 <span
                   aria-hidden="true"
-                  className={cx(
-                    'grid size-40 shrink-0 place-items-center rounded-pill border border-hairlineStrong text-text-pri transition-[transform,opacity] duration-base ease-out group-hover:border-yellow',
-                    isOpen && 'rotate-45 border-yellow text-yellow',
-                  )}
+                  className={cx('grid size-40 shrink-0 place-items-center rounded-pill bg-bg-panel text-text-pri transition-transform duration-base ease-out', isOpen && 'rotate-45 bg-yellow text-text-onYellow')}
                 >
                   <Plus size={18} />
                 </span>
               </button>
             </h3>
             <div id={pid} role="region" aria-labelledby={bid} hidden={!isOpen}>
-              <p className="animate-fade-in pb-28 pl-56 pr-16 text-body 4xl:text-lead text-text-sec text-pretty max-w-read lg:pb-36 lg:pl-80 lg:pr-24">{pick(it.a)}</p>
+              <Tx {...it.a} as="p" role="body" className="max-w-read animate-fade-in pb-24 pr-56 text-text-sec lg:pb-32" />
             </div>
           </div>
         )

@@ -7,12 +7,15 @@ import Header from './Header.jsx'
 import RouteBoundary from './RouteBoundary.jsx'
 import ScrollToTop from './ScrollToTop.jsx'
 import SkipLink from './SkipLink.jsx'
+import SmoothScroll from './SmoothScroll.jsx'
+import { B } from './B.jsx'
+import './lang-stable.css'
 
 function PageFallback() {
   const pick = usePick()
   return (
     <div role="status" aria-live="polite" className="grid min-h-dvh place-items-center px-page">
-      <p className="ue-label animate-pulse-soft text-label text-text-meta">{pick({ ko: '불러오는 중', en: 'Loading' })}</p>
+      <p className="t-label animate-pulse-soft text-text-meta"><B v={{ en: 'Now boarding', ko: '탑승 중' }} inline /></p>
     </div>
   )
 }
@@ -25,10 +28,9 @@ function useRouteTitle() {
   useLayoutEffect(() => {
     const seg = '/' + (pathname.split('/')[1] || '')
     const item = NAV.find((n) => n.to === seg)
-    const area = pick(SITE.area)
     document.title =
       pathname === '/'
-        ? `${SITE.name} | ${pick({ ko: `${area} 무인 셀프 사진관`, en: `Self-service photo studio in ${area}` })}`
+        ? `${SITE.name} | ${pick({ en: 'No subway in Gyeongju. So we built one.', ko: '경주 황리단길 무인 셀프 사진관' })}`
         : `${item ? pick(item.label) : '404'} | ${SITE.name}`
   }, [pathname, lang, pick])
 }
@@ -39,13 +41,13 @@ export default function Layout() {
   const isHome = pathname === '/'
   useRouteTitle()
 
-  // 라우터 이동 뒤에도 선택한 언어가 주소에 남도록 한다.
   useEffect(() => {
     ensureLangParam()
   }, [pathname, ensureLangParam])
 
   return (
-    <div className="flex min-h-dvh flex-col break-words" style={{ wordBreak: 'keep-all' }}>
+    <div className="flex min-h-dvh flex-col break-words">
+      <SmoothScroll />
       <SkipLink />
       <ScrollToTop />
       <Header />

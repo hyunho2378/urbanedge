@@ -1,45 +1,42 @@
 import { useMemo } from 'react'
-import { FrameCard } from '../../components/FrameCard.jsx'
-import { FrameCanvas } from '../../components/FrameCanvas.jsx'
-import { useT } from '../../components/lang.jsx'
-import { useSamplePhotos } from '../camera.js'
+import { T, useT } from '../../components/lang.jsx'
+import { FrameCarousel } from '../../components/FrameCarousel.jsx'
+import { StripView } from '../../components/StripView.jsx'
 import { COPY } from '../copy.js'
-import { framesFor } from '../frames.js'
+import { framesFor, frameById } from '../prints.js'
 
-// 5. frame: 선택한 컷 수에 맞는 프레임(Signature Cut, Layer Cut). 카드는 실제 합성 미리보기이고, 선택하면 오른쪽에 큰 미리보기가 나온다.
-// 이 다음에 결제가 끝났다고 가정한다(결제 화면은 만들지 않는다).
+// 5. frame: 프레임을 옆으로 밀어 고른다. 가운데에 온 프레임이 선택되고 커지며, 이름과 설명이 위쪽에 바뀌어 나온다.
+// 프레임은 실제 인화 합성기로 그린 미리보기라 인화물과 같다.
 export default function Frame({ ctrl }) {
   const t = useT()
-  const samples = useSamplePhotos()
-  const photos = useMemo(() => samples.slice(0, 4), [samples.length])
-  const list = framesFor(ctrl.cuts)
-  const sel = ctrl.frame
+  const items = useMemo(() => framesFor(ctrl.cuts || 4), [ctrl.cuts])
+  const active = frameById(ctrl.frameId) || items[0]
   return (
-    <div className="flex h-full gap-48 px-64 pb-16 pt-24">
-      <div className="flex min-w-0 flex-1 flex-col gap-24">
-        <h1 className="font-display text-k-h2 font-black leading-tight tracking-tightest">{t(COPY.frame.title)}</h1>
-        <div role="group" aria-label={t(COPY.frame.title)} className="flex min-h-0 flex-1 gap-16 pb-8">
-          {list.map((f) => (
-            <div key={f.id} className="flex min-w-0 flex-1">
-              <FrameCard frame={f} photos={photos} room={ctrl.room} selected={sel?.id === f.id} onSelect={() => ctrl.setFrame(f.id)} />
-            </div>
-          ))}
-        </div>
+    <div className="k-tiles absolute inset-0">
+      <div className="absolute" style={{ left: 64, top: 172, width: 800 }}>
+        <T n={COPY.frame.title} as="h1" className="kt-title" />
+        <T n={COPY.frame.sub} as="p" className="kt-body mt-12 text-text-sec" />
       </div>
-      <aside className="flex w-2/5 shrink-0 flex-col items-center gap-16 rounded-xl border border-hairlineStrong bg-bg-elev px-32 pb-24 pt-24" aria-live="polite">
-        <p className="ue-label w-full text-k-label text-yellow">{t(COPY.frame.preview)}</p>
-        <div className="flex flex-1 items-center">
-          {sel && <FrameCanvas key={sel.id} frame={sel} photos={photos} room={ctrl.room} maxW={560} maxH={560} label={t(COPY.frame.preview)} className="animate-pop-in" />}
+      {active && (
+        <div className="absolute" style={{ left: 1000, top: 184, width: 856 }} aria-live="polite">
+          <T n={active.name} as="p" className="kt-subhead" />
+          <T n={active.blurb} as="p" className="kt-body mt-8 text-text-sec" />
+          <T n={COPY.frame.slots} v={{ n: active.slots }} as="p" className="kt-caption mt-8 text-yellow" />
         </div>
-        {sel && (
-          <div className="w-full">
-            <p className="font-display text-k-h3 font-black leading-tight tracking-tightest">
-              {t(COPY.frame.families[sel.family])} {t(COPY.frame.variants[sel.variant])}
-            </p>
-            <p className="mt-4 text-k-body text-text-sec">{t(COPY.frame.noteFamily[sel.family])}</p>
-          </div>
-        )}
-      </aside>
+      )}
+      <div className="absolute" style={{ left: 0, top: 380 }} data-coach="frame">
+        <FrameCarousel
+          items={items}
+          activeId={ctrl.frameId}
+          onActive={ctrl.setFrame}
+          label={t(COPY.frame.label)}
+          itemW={400}
+          gap={64}
+          height={620}
+          className="items-center"
+          renderItem={(f) => <StripView frame={f} date={ctrl.date} roomId={ctrl.room} width={400} className="k-lift" label={t(f.name)} />}
+        />
+      </div>
     </div>
   )
 }

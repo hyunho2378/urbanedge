@@ -1,0 +1,160 @@
+{
+  "note": "Instagram feed set for @__urbanedge. 4:5 (1080x1350), JPG quality 88. 01-07 is one carousel post (How to ride UrbanEdge, redone cover with 5 stops). 08-20 are single posts. Captions live in captions/<slug>.md (EN first, native; KO separate; hashtags last line). pin/gridOrder picks are explained in docs/INSTAGRAM_KIT.md.",
+  "posts": [
+    {
+      "postId": "howto",
+      "title": "How to ride UrbanEdge (carousel)",
+      "description": "7-slide carousel: cover (5 stops route), STOP1 Find, STOP2 Choose, STOP3 Pay, STOP4 Lens, STOP5 Print, Last stop Share.",
+      "type": "carousel",
+      "pin": true,
+      "pinOrder": 1,
+      "gridOrder": 1,
+      "captionFile": "captions/01-howto.md",
+      "slides": [
+        { "file": "01-howto-cover.jpg", "slide": 1, "title": "Cover: 5 stops, no ticket needed", "description": "Redone cover. Route of five labelled stops FIND / CHOOSE / PAY / POSE / PRINT, headline '5 stops. No ticket needed.'" },
+        { "file": "02-howto-find.jpg", "slide": 2, "title": "Stop 1: Find", "description": "Follow the checkerboard floor to the Hwangridan-gil entrance." },
+        { "file": "03-howto-choose.jpg", "slide": 3, "title": "Stop 2: Choose", "description": "Four platforms, pick your mood (Subway, Karaoke, Public Phone, Retro)." },
+        { "file": "04-howto-cuts.jpg", "slide": 4, "title": "Stop 3: Pay", "description": "4 cuts or 8 cuts, pay by card, cash, or coupon." },
+        { "file": "05-howto-lens.jpg", "slide": 5, "title": "Stop 4: Lens", "description": "The lens is below the screen, not at face height." },
+        { "file": "06-howto-print.jpg", "slide": 6, "title": "Stop 5: Print", "description": "Pose, pick your best cuts, collect the print at the slot." },
+        { "file": "07-howto-share.jpg", "slide": 7, "title": "Last stop: Share", "description": "Share it, scratch it. Tag @__urbanedge for a coupon." }
+      ]
+    },
+    {
+      "postId": "welcome",
+      "title": "Welcome / brand statement",
+      "description": "Gyeongju has no subway, so we built one stop. Text-led, black background.",
+      "type": "single",
+      "file": "08-welcome.jpg",
+      "pin": false,
+      "gridOrder": 4,
+      "captionFile": "captions/08-welcome.md"
+    },
+    {
+      "postId": "hours",
+      "title": "Opening hours",
+      "description": "First train 10:00, last train 24:00. Departure-board illustration, facts only.",
+      "type": "single",
+      "file": "09-hours.jpg",
+      "pin": false,
+      "gridOrder": 8,
+      "captionFile": "captions/09-hours.md"
+    },
+    {
+      "postId": "ticket",
+      "title": "Base ticket price",
+      "description": "7,000 KRW, two prints included. Illustrated ticket card on black.",
+      "type": "single",
+      "file": "10-ticket.jpg",
+      "pin": true,
+      "pinOrder": 3,
+      "gridOrder": 3,
+      "captionFile": "captions/10-ticket.md"
+    },
+    {
+      "postId": "pose-subway",
+      "title": "Platform 1 pose idea: Subway Shot",
+      "description": "Hand-strap pose, line-drawing figure, yellow platform color.",
+      "type": "single",
+      "file": "11-pose-subway.jpg",
+      "pin": false,
+      "gridOrder": 5,
+      "captionFile": "captions/11-pose-subway.md"
+    },
+    {
+      "postId": "pose-karaoke",
+      "title": "Platform 2 pose idea: Karaoke Shot",
+      "description": "Mic pose, line-drawing figure, red platform color.",
+      "type": "single",
+      "file": "12-pose-karaoke.jpg",
+      "pin": false,
+      "gridOrder": 7,
+      "captionFile": "captions/12-pose-karaoke.md"
+    },
+    {
+      "postId": "pose-phone",
+      "title": "Platform 3 pose idea: Public Phone Shot",
+      "description": "Incoming-call pose, line-drawing figure, blue platform color.",
+      "type": "single",
+      "file": "13-pose-phone.jpg",
+      "pin": false,
+      "gridOrder": 9,
+      "captionFile": "captions/13-pose-phone.md"
+    },
+    {
+      "postId": "pose-retro",
+      "title": "Platform 4 pose idea: Retro Shot",
+      "description": "Curtain stool pose, two line-drawing figures, green platform color.",
+      "type": "single",
+      "file": "14-pose-retro.jpg",
+      "pin": false,
+      "gridOrder": 11,
+      "captionFile": "captions/14-pose-retro.md"
+    },
+    {
+      "postId": "lens-tip",
+      "title": "Camera tip: lens below the screen",
+      "description": "Kiosk diagram showing the lens sits below the screen, not at face height.",
+      "type": "single",
+      "file": "15-lens-tip.jpg",
+      "pin": false,
+      "gridOrder": null,
+      "captionFile": "captions/15-lens-tip.md"
+    },
+    {
+      "postId": "frames",
+      "title": "Four cuts or eight? Pick your frame",
+      "description": "Real frame mockups (classic-white 4-cut, classic-blue 8-cut) composited onto a designed black/yellow background.",
+      "type": "single",
+      "file": "16-frames.jpg",
+      "pin": false,
+      "gridOrder": 12,
+      "captionFile": "captions/16-frames.md",
+      "sourceAssets": [
+        "apps/web/public/img/frames/classic-white.jpg",
+        "apps/web/public/img/frames/classic-blue.jpg"
+      ]
+    },
+    {
+      "postId": "metro-pass",
+      "title": "Metro Pass explainer",
+      "description": "Collect stations, stamp your pass. Open passport illustration with four platform stamps.",
+      "type": "single",
+      "file": "17-metro-pass.jpg",
+      "pin": false,
+      "gridOrder": 6,
+      "captionFile": "captions/17-metro-pass.md"
+    },
+    {
+      "postId": "faq",
+      "title": "FAQ: how do I pay",
+      "description": "Card, Samsung Pay at the terminal, cash, coupon. Facts only, no invented payment methods.",
+      "type": "single",
+      "file": "18-faq.jpg",
+      "pin": true,
+      "pinOrder": 2,
+      "gridOrder": 2,
+      "captionFile": "captions/18-faq.md"
+    },
+    {
+      "postId": "share-coupon",
+      "title": "Share it. Scratch it. (coupon reminder variant)",
+      "description": "Diagonal composition variant of the carousel's last slide, phone-to-coupon route line.",
+      "type": "single",
+      "file": "19-share-coupon.jpg",
+      "pin": false,
+      "gridOrder": null,
+      "captionFile": "captions/19-share-coupon.md"
+    },
+    {
+      "postId": "disclaimer",
+      "title": "Imaginary Metro disclaimer / brand post",
+      "description": "Station nameplate GY-01 UrbanEdge with the Imaginary Metro / Travel Experience disclaimer spelled out.",
+      "type": "single",
+      "file": "20-disclaimer.jpg",
+      "pin": false,
+      "gridOrder": 10,
+      "captionFile": "captions/20-disclaimer.md"
+    }
+  ]
+}

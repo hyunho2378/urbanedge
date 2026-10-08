@@ -1,176 +1,226 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { Expand } from 'lucide-react'
-import { Reveal, Tag, cx } from '@urbanedge/ds'
-import { usePick } from '../i18n/index.jsx'
+import { Link, useParams } from 'react-router-dom'
+import { ArrowLeft, ArrowRight, Expand } from 'lucide-react'
+import { Container, ShareButton, cx, useLangValue } from '@urbanedge/ds'
 import { SITE } from '../data/site.js'
-import { PageHero } from '../components/pages/PageHero.jsx'
-import { Section } from '../components/pages/Section.jsx'
-import { PhotoTile } from '../components/pages/PhotoTile.jsx'
 import { Lightbox } from '../components/pages/Lightbox.jsx'
-import { RoomNav } from '../components/pages/RoomNav.jsx'
-import { RouteMap } from '../components/pages/RouteMap.jsx'
-import { ROOM_LIST, LINE_BG, findRoom } from '../components/pages/content.js'
+import { PageShell, Tx, useV } from '../components/pages/Bilingual.jsx'
+import { PlatformBadge } from '../components/pages/PlatformBadge.jsx'
+import { PoseDrawing } from '../components/pages/Poses.jsx'
+import { Ticket } from '../components/pages/Ticket.jsx'
+import { ACCENT, NOTICE, PLATFORMS, STATION, findStation } from '../components/pages/content.js'
 import { usePageTitle } from '../components/pages/usePageTitle.js'
 import NotFound from './NotFound.jsx'
 
-const BADGE_TEXT = { yellow: 'text-text-onYellow', red: 'text-text-pri', blue: 'text-text-pri', green: 'text-text-onYellow' }
-
 const T = {
-  rooms: { ko: '포토 룸', en: 'Photo Rooms' },
-  aboutLabel: { ko: '방 소개', en: 'ABOUT THE ROOM' },
-  aboutTitle: { ko: '이 방에서 찍는 장면', en: 'The scene you shoot here' },
-  factLine: { ko: '노선', en: 'Line' },
-  factKiosk: { ko: '키오스크', en: 'Kiosk' },
-  factKioskV: { ko: '이 방에 따로 있음', en: 'One in this room' },
-  factHours: { ko: '운영 시간', en: 'Hours' },
-  factProps: { ko: '소품과 배경', en: 'Props and set' },
-  hoursV: { ko: `${SITE.hours.open}에서 ${SITE.hours.close}까지`, en: `${SITE.hours.open} to ${SITE.hours.close}` },
-  zoom: { ko: '크게 보기', en: 'View larger' },
-  poseLabel: { ko: '포즈 제안', en: 'POSE IDEAS' },
-  poseTitle: { ko: '이 방에서 해 볼 포즈 세 가지', en: 'Three poses to try in this room' },
-  poseIntro: {
-    ko: '방에 놓인 소품을 기준으로 정했으며, 컷마다 하나씩 바꿔 보면 서로 다른 사진이 나온다.',
-    en: 'Each idea is built on the props in the room. Swap to a new one every cut for a varied strip.',
+  platform: { en: 'Platform', ko: '승강장' },
+  station: { en: 'GY-01 UrbanEdge Station', ko: 'GY-01 어반엣지역' },
+  zoom: { en: 'Open photo', ko: '사진 열기' },
+  on: { en: 'On the platform', ko: '승강장에 있는 것' },
+  why: { en: 'Why it photographs well', ko: '잘 나오는 이유' },
+  posesTitle: { en: 'Poses that work here', ko: '이 승강장에서 해 볼 포즈' },
+  posesSub: {
+    en: 'Each one uses something that is really in the room. Change pose every shot and the strip reads like a short story.',
+    ko: '방에 실제로 놓인 소품을 기준으로 골랐으며, 컷마다 포즈를 바꾸면 인화물 한 장이 짧은 이야기처럼 읽힌다.',
   },
-  photoLabel: { ko: '방 사진', en: 'PHOTOS' },
-  photoTitle: { ko: '다른 각도에서 본 방', en: 'The room from other angles' },
-  navLabel: { ko: '다음 정거장', en: 'NEXT STOP' },
-  navTitle: { ko: '다른 방도 둘러보기', en: 'Keep exploring the line' },
-  navAria: { ko: '이전 방과 다음 방', en: 'Previous and next room' },
-  prev: { ko: '이전 방', en: 'PREVIOUS' },
-  next: { ko: '다음 방', en: 'NEXT' },
-  mapAria: { ko: '포토 룸 노선도', en: 'Photo room route map' },
-  lbDialog: { ko: '사진 확대 보기', en: 'Photo viewer' },
-  lbClose: { ko: '닫기', en: 'Close' },
-  lbPrev: { ko: '이전 사진', en: 'Previous photo' },
-  lbNext: { ko: '다음 사진', en: 'Next photo' },
+  morePhotos: { en: 'More from this platform', ko: '이 승강장의 다른 모습' },
+  ticketTitle: { en: 'Your Metro Ticket', ko: '메트로 승차권' },
+  ticketLine: { en: 'Gyeongju Metro, GY-01 UrbanEdge', ko: '경주 메트로, GY-01 어반엣지' },
+  ticketWink: {
+    en: 'Valid for one photo journey inside this building. Not valid on any real train, bus or taxi.',
+    ko: '이 건물 안의 촬영 여정 한 번에만 쓸 수 있으며, 실제 기차와 버스, 택시에서는 쓸 수 없다.',
+  },
+  admit: { en: 'ADMIT ONE', ko: '1회 탑승' },
+  share: { en: 'Share this platform', ko: '이 승강장 공유' },
+  prev: { en: 'Previous platform', ko: '이전 승강장' },
+  next: { en: 'Next platform', ko: '다음 승강장' },
+  all: { en: 'All platforms', ko: '모든 승강장' },
+  lb: {
+    dialog: { en: 'Photo viewer', ko: '사진 확대 보기' },
+    close: { en: 'Close', ko: '닫기' },
+    prev: { en: 'Previous photo', ko: '이전 사진' },
+    next: { en: 'Next photo', ko: '다음 사진' },
+    share: { en: 'Share', ko: '공유' },
+    source: { en: 'View the original post', ko: '원본 게시물 보기' },
+  },
 }
+
+// 비대칭 사진 배치: 12열 격자에서 큰 칸과 작은 칸, 아래로 내린 칸을 섞는다.
+const COLLAGE = [
+  { span: 'col-span-7', ratio: '4 / 5', shift: '' },
+  { span: 'col-span-5', ratio: '3 / 4', shift: 'mt-48 md:mt-96' },
+  { span: 'col-span-5', ratio: '3 / 4', shift: '' },
+  { span: 'col-span-7', ratio: '4 / 3', shift: 'mt-24 md:mt-48' },
+]
 
 export default function RoomDetail() {
   const { id } = useParams()
-  const room = findRoom(id)
-  if (!room) return <NotFound />
-  return <RoomView key={room.id} room={room} />
+  const st = findStation(id)
+  if (!st) return <NotFound />
+  return <PlatformView key={st.id} st={st} />
 }
 
-function RoomView({ room }) {
-  const pick = usePick()
+function PlatformView({ st }) {
+  const v = useV()
+  const lang = useLangValue()
   const [lb, setLb] = useState(null)
-  usePageTitle(`${room.name} ${pick(room.title)}`)
+  usePageTitle({ en: `${st.name}, Platform ${st.no}`, ko: `${st.name}, ${st.no}번 승강장` })
 
-  const at = ROOM_LIST.findIndex((r) => r.id === room.id)
-  const prev = ROOM_LIST[(at - 1 + ROOM_LIST.length) % ROOM_LIST.length]
-  const next = ROOM_LIST[(at + 1) % ROOM_LIST.length]
-  const [main, ...others] = room.photoList
+  const at = PLATFORMS.findIndex((p) => p.id === st.id)
+  const prev = PLATFORMS[(at - 1 + PLATFORMS.length) % PLATFORMS.length]
+  const next = PLATFORMS[(at + 1) % PLATFORMS.length]
+  const [hero, ...more] = st.photoList
+  const accent = ACCENT[st.accent]
+  const price = lang === 'ko' ? `${SITE.price.base.toLocaleString('ko-KR')}원` : `₩${SITE.price.base.toLocaleString('en-US')}`
+  const fare = { en: `Base price ${SITE.price.base.toLocaleString('en-US')} won, 2 prints included.`, ko: `기본 요금 ${SITE.price.base.toLocaleString('ko-KR')}원, 인화 2장 포함.` }
+  const d = new Date()
+  const date = `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
+  const origin = typeof window !== 'undefined' ? window.location.href : ''
+  const stationLine = { en: `Platform ${st.no}, ${st.title.en}`, ko: `${st.no}번 승강장, ${st.title.ko}` }
 
   return (
-    <div className="break-keep break-words">
-      <PageHero
-        index={room.code}
-        label={`${pick(room.title)} / ${room.name}`}
-        title={room.name}
-        desc={pick(room.lead)}
-        crumbs={[{ to: '/rooms', label: pick(T.rooms) }, { label: room.name }]}
-        aside={
-          <div className="flex items-center gap-20" aria-hidden="true">
-            <span className={cx('grid size-96 place-items-center rounded-pill font-label text-display-m font-bold tracking-tight lg:size-120', LINE_BG[room.color], BADGE_TEXT[room.color])}>
-              {room.code}
-            </span>
+    <PageShell>
+      {/* 전면 사진 위에 승강장 번호와 이름. 번호 배지는 승강장 색이다. */}
+      <header className="relative isolate overflow-hidden bg-bg-panel" style={{ height: 'min(82dvh, 880px)', minHeight: '440px' }}>
+        <button type="button" onClick={() => setLb(0)} aria-label={`${v(T.zoom)}: ${v(hero.alt)}`} className="absolute inset-0 block size-full">
+          <img src={hero.full} srcSet={`${hero.thumb} ${hero.w}w, ${hero.full} 1350w`} sizes="100vw" alt="" width={hero.w} height={hero.h} decoding="async" className="size-full object-cover" />
+        </button>
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-bg-base via-scrim to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0">
+          <Container className="pb-32 md:pb-48 4xl:max-w-screen-4xl">
+            <div className="flex items-end gap-16 md:gap-24">
+              <PlatformBadge no={st.no} accent={st.accent} size="xl" className="md:size-120 md:text-display-m" />
+              <div className="min-w-0">
+                <p className="text-text-sec">
+                  <Tx inline {...T.platform} role="caption" /> <span className="t-caption">{st.no},</span> <Tx inline {...T.station} role="caption" />
+                </p>
+                <h1 className="t-display mt-8 text-display-m text-text-pri md:text-display-l">{st.name}</h1>
+              </div>
+            </div>
+            <Tx {...st.vibe} as="p" role="lead" className="mt-16 max-w-read text-text-pri" />
+          </Container>
+        </div>
+        <span className="pointer-events-none absolute right-16 top-16 inline-flex items-center gap-8 rounded-pill bg-scrim px-14 py-8 text-text-pri">
+          <Expand size={14} aria-hidden="true" />
+          <Tx inline {...T.zoom} role="caption" />
+        </span>
+      </header>
+
+      <section className="section-y">
+        <Container className="grid gap-x-64 gap-y-32 lg:grid-cols-12 4xl:max-w-screen-4xl">
+          <div className="lg:col-span-7">
+            <Tx {...st.story} as="p" role="lead" className="text-text-pri" />
+            <p className="mt-24 max-w-read text-text-sec">
+              <Tx inline {...T.why} role="strong" className="mr-8 text-text-pri" />
+              <Tx inline {...st.why} role="body" />
+            </p>
           </div>
-        }
-      />
+          <div className="lg:col-span-5 lg:pt-8">
+            <Tx {...T.on} as="h2" role="label" className="text-text-meta" />
+            <ul className="mt-16 flex flex-wrap items-center gap-x-16 gap-y-8">
+              {st.props.map((p, i) => (
+                <li key={i} className="flex items-center gap-16 text-text-pri">
+                  {i > 0 && (
+                    <span aria-hidden="true" className={accent.text}>
+                      ‡
+                    </span>
+                  )}
+                  <Tx inline {...p} role="subhead" />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Container>
+      </section>
 
-      <Section id="room-about" index={1} label={pick(T.aboutLabel)} title={pick(T.aboutTitle)}>
-        <div className="grid gap-x-64 gap-y-40 lg:grid-cols-12">
-          <Reveal className="lg:col-span-5 4xl:col-span-4">
-            <button
-              type="button"
-              onClick={() => setLb(0)}
-              aria-label={`${pick(T.zoom)}: ${pick(main.alt)}`}
-              className="group ue-press relative block w-full overflow-hidden rounded-lg border border-hairline bg-bg-panel"
-              style={{ aspectRatio: '3 / 4' }}
-            >
-              <img src={main.full} alt="" width={main.w} height={main.h} className="size-full object-cover" decoding="async" />
-              <span aria-hidden="true" className="absolute bottom-16 right-16 inline-flex items-center gap-8 rounded-pill bg-scrim px-14 py-8 text-caption 4xl:text-bodySm text-text-pri">
-                <Expand size={16} />
-                {pick(T.zoom)}
-              </span>
-            </button>
-          </Reveal>
-
-          <Reveal delay={80} className="lg:col-span-7 4xl:col-span-8">
-            <p className="max-w-read text-lead text-text-pri text-pretty 4xl:text-h3">{pick(room.body)}</p>
-            <dl className="mt-40 grid border-t border-hairlineStrong md:grid-cols-2">
-              <div className="border-b border-hairline py-20 md:pr-24">
-                <dt className="ue-label text-label 4xl:text-bodySm text-text-meta">{pick(T.factLine)}</dt>
-                <dd className="mt-8 flex items-center gap-12 text-body 4xl:text-lead font-semibold text-text-pri">
-                  <span className={cx('inline-grid size-32 place-items-center rounded-pill font-label text-bodySm 4xl:text-body font-bold', LINE_BG[room.color], BADGE_TEXT[room.color])}>{room.code}</span>
-                  {room.name}
-                </dd>
+      <section aria-labelledby="poses" className="bg-bg-elev py-64 md:py-96">
+        <Container className="4xl:max-w-screen-4xl">
+          <Tx {...T.posesTitle} as="h2" role="headline" className="text-text-pri" id="poses" />
+          <Tx {...T.posesSub} as="p" role="body" className="mt-12 max-w-read text-text-sec" />
+        </Container>
+        <ul
+          className="mt-32 flex snap-x snap-mandatory gap-12 overflow-x-auto px-page pb-16 md:mx-auto md:grid md:max-w-wide md:grid-cols-3 md:gap-24 md:overflow-visible md:pb-0 4xl:max-w-screen-4xl"
+          style={{ scrollbarWidth: 'none' }}
+          tabIndex={0}
+          aria-label={v(T.posesTitle)}
+        >
+          {st.poses.map((p, i) => (
+            <li key={p.id} className={cx('w-4/5 shrink-0 snap-start md:w-auto', i === 1 && 'md:mt-48')}>
+              <div className="rounded-lg bg-bg-panel px-24 pb-8 pt-32 text-text-pri">
+                <PoseDrawing id={p.id} label={v(p.title)} className="mx-auto max-w-240" />
               </div>
-              <div className="border-b border-hairline py-20">
-                <dt className="ue-label text-label 4xl:text-bodySm text-text-meta">{pick(T.factKiosk)}</dt>
-                <dd className="mt-8 text-body 4xl:text-lead font-semibold text-text-pri">{pick(T.factKioskV)}</dd>
-              </div>
-              <div className="border-b border-hairline py-20 md:pr-24">
-                <dt className="ue-label text-label 4xl:text-bodySm text-text-meta">{pick(T.factHours)}</dt>
-                <dd className="mt-8 text-body 4xl:text-lead font-semibold text-text-pri">{pick(T.hoursV)}</dd>
-              </div>
-              <div className="border-b border-hairline py-20 md:col-span-2">
-                <dt className="ue-label text-label 4xl:text-bodySm text-text-meta">{pick(T.factProps)}</dt>
-                <dd className="mt-12 flex flex-wrap gap-8">
-                  {room.props.map((p, i) => (
-                    <Tag key={i}>{pick(p)}</Tag>
-                  ))}
-                </dd>
-              </div>
-            </dl>
-          </Reveal>
-        </div>
-      </Section>
-
-      <Section id="room-poses" index={2} label={pick(T.poseLabel)} title={pick(T.poseTitle)} intro={pick(T.poseIntro)} tone="elev">
-        <ol className="grid gap-16 md:grid-cols-3 lg:gap-24">
-          {room.poses.map((p, i) => (
-            <Reveal as="li" key={i} delay={i * 80} className="relative overflow-hidden rounded-lg border border-hairline bg-bg-panel p-24 lg:p-32">
-              <span aria-hidden="true" className={cx('absolute inset-x-0 top-0 h-4', LINE_BG[room.color])} />
-              <p className="ue-label text-display-m font-bold leading-none text-yellow">{String(i + 1).padStart(2, '0')}</p>
-              <h3 className="mt-24 text-h3 4xl:text-h2 font-black tracking-tightest text-text-pri">{pick(p.title)}</h3>
-              <p className="mt-12 text-body 4xl:text-lead text-text-sec text-pretty">{pick(p.desc)}</p>
-            </Reveal>
+              <Tx {...p.title} as="h3" role="subhead" className="mt-16 text-text-pri" />
+              <Tx {...p.desc} as="p" role="body" className="mt-8 text-text-sec" />
+            </li>
           ))}
-        </ol>
-      </Section>
+        </ul>
+      </section>
 
-      {others.length > 0 && (
-        <Section id="room-photos" index={3} label={pick(T.photoLabel)} title={pick(T.photoTitle)}>
-          <ul className="columns-2 gap-12 md:columns-3 lg:gap-16 xl:columns-4">
-            {others.map((ph, i) => (
-              <li key={ph.id} className="mb-12 break-inside-avoid lg:mb-16">
-                <PhotoTile photo={ph} label={pick(T.zoom)} onOpen={() => setLb(i + 1)} />
-              </li>
-            ))}
-          </ul>
-        </Section>
+      {more.length > 0 && (
+        <section aria-labelledby="more" className="section-y overflow-hidden">
+          <Container className="4xl:max-w-screen-4xl">
+            <Tx {...T.morePhotos} as="h2" role="headline" className="text-text-pri" id="more" />
+            <ul className="mt-32 grid grid-cols-12 gap-x-12 gap-y-12 md:gap-x-24 md:gap-y-24">
+              {more.map((ph, i) => {
+                const c = COLLAGE[i % COLLAGE.length]
+                return (
+                  <li key={ph.id} className={cx(c.span, c.shift)}>
+                    <button type="button" onClick={() => setLb(i + 1)} aria-label={`${v(T.zoom)}: ${v(ph.alt)}`} className="ue-press group relative block w-full overflow-hidden rounded-lg bg-bg-panel" style={{ aspectRatio: c.ratio }}>
+                      <img src={ph.thumb} alt="" width={ph.w} height={ph.h} loading="lazy" decoding="async" className="size-full object-cover transition-opacity duration-base ease-out group-hover:opacity-85" />
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </Container>
+        </section>
       )}
 
-      <Section id="room-next" index={others.length > 0 ? 4 : 3} label={pick(T.navLabel)} title={pick(T.navTitle)} tone="elev">
-        <RoomNav prev={prev} next={next} labels={{ nav: pick(T.navAria), prev: pick(T.prev), next: pick(T.next) }} />
-        <div className="mt-56 lg:mt-80">
-          <RouteMap rooms={ROOM_LIST} activeId={room.id} label={pick(T.mapAria)} compact />
-        </div>
-      </Section>
+      <section aria-labelledby="ticket" className="bg-bg-elev py-64 md:py-96">
+        <Container className="grid items-center gap-x-64 gap-y-32 lg:grid-cols-12 4xl:max-w-screen-4xl">
+          <div className="lg:col-span-5">
+            <Tx {...T.ticketTitle} as="h2" role="headline" className="text-text-pri" id="ticket" />
+            <Tx {...NOTICE} as="p" role="caption" className="mt-12 text-text-meta" />
+          </div>
+          <div className="lg:col-span-7">
+            <Ticket platform={st} line={T.ticketLine} station={stationLine} fare={fare} wink={T.ticketWink} date={date} admit={T.admit}>
+              <ShareButton url={origin} title={`${st.name} | UrbanEdge`} text={v(st.vibe)} variant="ghost" lang={lang}>
+                <Tx inline {...T.share} />
+              </ShareButton>
+            </Ticket>
+          </div>
+        </Container>
+      </section>
 
-      {lb != null && (
-        <Lightbox
-          items={room.photoList}
-          index={lb}
-          onIndex={setLb}
-          onClose={() => setLb(null)}
-          label={{ dialog: pick(T.lbDialog), close: pick(T.lbClose), prev: pick(T.lbPrev), next: pick(T.lbNext) }}
-        />
-      )}
-    </div>
+      <nav aria-label={v(T.all)} className="section-y">
+        <Container className="grid gap-12 md:grid-cols-2 md:gap-24 4xl:max-w-screen-4xl">
+          {[
+            { p: prev, dir: 'prev', label: T.prev },
+            { p: next, dir: 'next', label: T.next },
+          ].map(({ p, dir, label }) => (
+            <Link key={dir} to={`/rooms/${p.id}`} rel={dir} className={cx('group flex items-center gap-16 rounded-pill bg-bg-panel p-12 transition-colors duration-base ease-out hover:bg-bg-raised', dir === 'next' && 'md:flex-row-reverse md:text-right')}>
+              <PlatformBadge no={p.no} accent={p.accent} size="lg" />
+              <span className="min-w-0 flex-1">
+                <Tx {...label} as="span" role="caption" className="block text-text-meta" />
+                <span className="t-subhead mt-4 block truncate text-text-pri">{p.name}</span>
+              </span>
+              {dir === 'prev' ? (
+                <ArrowLeft size={22} aria-hidden="true" className="mr-12 shrink-0 text-yellow transition-transform duration-base ease-out group-hover:-translate-x-4" />
+              ) : (
+                <ArrowRight size={22} aria-hidden="true" className="mr-12 shrink-0 text-yellow transition-transform duration-base ease-out group-hover:translate-x-4 md:ml-12 md:mr-0" />
+              )}
+            </Link>
+          ))}
+        </Container>
+        <Container className="mt-24 4xl:max-w-screen-4xl">
+          <Link to="/rooms" className="t-strong inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
+            <Tx inline {...T.all} />
+            <ArrowRight size={18} aria-hidden="true" />
+          </Link>
+        </Container>
+      </nav>
+
+      {lb != null && <Lightbox items={st.photoList} index={lb} onIndex={setLb} onClose={() => setLb(null)} shareTitle={`${st.name} | UrbanEdge`} label={T.lb} />}
+    </PageShell>
   )
 }

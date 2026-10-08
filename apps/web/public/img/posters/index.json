@@ -1,0 +1,54 @@
+{
+ "generated": "2026-10-09",
+ "note": "GPT 이미지로 생성한 승강장 포스터. 2:3, 오른쪽 아래 흰 둥근 사각형은 QR 자리(배포 주소 확정 후 합성).",
+ "items": [
+  {
+   "file": "01-platform-1-subway-yellow.jpg",
+   "title": "Platform 1 · Subway Shot (yellow)",
+   "caption": "1번 승강장 지하철 샷 기본 노랑 포스터",
+   "use": "매장 벽/인스타그램 피드용 기본 컬러웨이 포스터",
+   "w": 1600,
+   "h": 2400
+  },
+  {
+   "file": "02-platform-2-karaoke-red.jpg",
+   "title": "Platform 2 · Karaoke Shot (red)",
+   "caption": "2번 승강장 노래방 샷 빨강 포스터",
+   "use": "매장 벽/인스타그램 피드용 포스터",
+   "w": 1600,
+   "h": 2400
+  },
+  {
+   "file": "03-platform-3-public-phone-blue.jpg",
+   "title": "Platform 3 · Public Phone Shot (blue)",
+   "caption": "3번 승강장 공중전화 샷 파랑 포스터",
+   "use": "매장 벽/인스타그램 피드용 포스터",
+   "w": 1600,
+   "h": 2400
+  },
+  {
+   "file": "04-platform-4-retro-green.jpg",
+   "title": "Platform 4 · Retro Shot (green)",
+   "caption": "4번 승강장 레트로 샷 초록 포스터",
+   "use": "매장 벽/인스타그램 피드용 포스터",
+   "w": 1600,
+   "h": 2400
+  },
+  {
+   "file": "05-platform-1-subway-black.jpg",
+   "title": "Platform 1 · Subway Shot (black colorway)",
+   "caption": "1번 승강장 포스터 검정 인쇄용 컬러웨이",
+   "use": "검정/흰색/노랑 3가지 인쇄 컬러웨이 중 검정 버전",
+   "w": 1600,
+   "h": 2400
+  },
+  {
+   "file": "06-platform-1-subway-white.jpg",
+   "title": "Platform 1 · Subway Shot (white colorway)",
+   "caption": "1번 승강장 포스터 흰색 인쇄용 컬러웨이",
+   "use": "검정/흰색/노랑 3가지 인쇄 컬러웨이 중 흰색 버전",
+   "w": 1600,
+   "h": 2400
+  }
+ ]
+}

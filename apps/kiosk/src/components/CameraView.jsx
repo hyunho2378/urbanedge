@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react'
 import { cx } from '@urbanedge/ds'
-import { useT } from './lang.jsx'
+import { T, useT } from './lang.jsx'
 import { COPY } from '../flow/copy.js'
 
-// 카메라 미리보기: 웹캠 또는 샘플 장면을 canvas에 그리고 보정을 실시간으로 적용한다(약 30fps).
-// 영상은 이 canvas 밖으로 나가지 않는다.
-export function CameraView({ camera, retouch, className, badge = true, children }) {
+// 카메라 미리보기: 웹캠 또는 샘플(팀 인화 사진)을 세로 3:4 canvas에 그리고 보정을 실시간으로 적용한다(약 30fps).
+// 인화 칸과 같은 비율이라 보이는 대로 인화된다. 영상은 이 canvas 밖으로 나가지 않는다.
+export function CameraView({ camera, retouch, className, badge = true, children, style }) {
   const ref = useRef(null)
   const t = useT()
   const live = useRef({})
@@ -27,12 +27,13 @@ export function CameraView({ camera, retouch, className, badge = true, children 
     return () => cancelAnimationFrame(raf)
   }, [])
 
+  const label = t(camera.isLive ? COPY.common.cameraLive : COPY.common.cameraSample)
   return (
-    <div className={cx('relative overflow-hidden rounded-lg bg-bg-elev', className)}>
-      <canvas ref={ref} width={960} height={540} className="k-canvas h-full w-full" aria-label={t(camera.isLive ? COPY.common.live : COPY.common.sample)} role="img" />
+    <div className={cx('relative overflow-hidden rounded-xl bg-bg-elev', className)} style={style}>
+      <canvas ref={ref} width={540} height={720} className="k-canvas h-full w-full" role="img" aria-label={label} />
       {badge && (
-        <span className="ue-label absolute left-24 top-24 rounded-md bg-scrim px-16 py-8 text-k-label text-text-pri">
-          {camera.isLive ? t(COPY.common.live) : t(COPY.common.sample)}
+        <span className="kt-caption absolute left-20 top-20 rounded-pill bg-scrim px-20 py-6 text-text-pri">
+          <T n={camera.isLive ? COPY.common.cameraLive : COPY.common.cameraSample} inline />
         </span>
       )}
       {children}

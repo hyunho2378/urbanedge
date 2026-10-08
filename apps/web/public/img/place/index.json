@@ -1,0 +1,313 @@
+{
+ "place": "https://m.place.naver.com/place/1432247982",
+ "fetched": "2026-10-09",
+ "note": "네이버 플레이스 사진 탭에서 가져온 공개 사진. 얼굴이 보이는 방문자 사진은 상업 사용 전 허락이 필요하다.",
+ "items": [
+  {
+   "file": "poster-01.jpg",
+   "source": "https://ldb-phinf.pstatic.net/20240524_139/1716529545803anBw4_JPEG/KakaoTalk_20240524_135946142_06.jpg",
+   "orig": [
+    4016,
+    5678
+   ],
+   "kind": "brand-poster"
+  },
+  {
+   "file": "poster-02.jpg",
+   "source": "https://ldb-phinf.pstatic.net/20240524_144/1716529545311vuFx6_JPEG/KakaoTalk_20240524_135946142_02.jpg",
+   "orig": [
+    3132,
+    4420
+   ],
+   "kind": "brand-poster"
+  },
+  {
+   "file": "poster-03.jpg",
+   "source": "https://ldb-phinf.pstatic.net/20240524_57/1716529545073K9MNa_JPEG/KakaoTalk_20240524_135946142_03.jpg",
+   "orig": [
+    2355,
+    3323
+   ],
+   "kind": "brand-poster"
+  },
+  {
+   "file": "poster-04.jpg",
+   "source": "https://ldb-phinf.pstatic.net/20240524_85/17165295450624alPS_JPEG/KakaoTalk_20240524_135946142.jpg",
+   "orig": [
+    2355,
+    3323
+   ],
+   "kind": "brand-poster"
+  },
+  {
+   "file": "naver-05.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA5MzBfNTAg/MDAxNzkwNzQzODg0NzU3.3L2EUqDTCLmuKHwlZHH_VZdtlwG8Dic8Yh8KNsZKYb8g.DVHE2tvFWcP84Sv_hKSAjYFHIxZCT5JHMtaevD0hIHwg.JPEG/IMG%EF%BC%BF0367.jpg/900x506",
+   "orig": [
+    900,
+    506
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-06.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA5MzBfMjM5/MDAxNzkwNzQzODg1MDA3.Sg4_7n8lgd-N4ueLHfWt13km_dVxxtWDnltCTe2ts7gg.3jw-vRf-ssg0MEet-NN6JlW4i_d3x-AYT2_T6uLH-Cog.JPEG/IMG%EF%BC%BF0357.jpg/900x506",
+   "orig": [
+    900,
+    506
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-07.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA5MzBfMTIw/MDAxNzkwNzQzODg1MDA1.mSs5RWMHkhK276iW0ragUOFaZ_pdVcPKJ023TRaSCHgg.iYBOh0tgbMgjeVcWU5shsHQfS_fVcjuqSK-g8ECYWJwg.JPEG/IMG%EF%BC%BF0363.jpg/900x1600",
+   "orig": [
+    900,
+    1600
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-08.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjEwMDFfMjM2/MDAxNzkwODI1NjIzNTA2.-pffMOowMbE-xkr9a53TUNEvXhp2XYO2BQRn6SeQDwIg.wiUycWdbtqzojijoTrSDNtiAv3klHX20OatW9XrQ-LQg.JPEG/IMG%EF%BC%BF0345.jpg/900x1600",
+   "orig": [
+    900,
+    1600
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-09.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA5MzBfMTk4/MDAxNzkwNzQzODg1MTgw.C4-3M86ztbgB4NDrbw3mRhhxNELpgdpzy_LV_O9izWog.SuGInrcVAvGa5kc99O4QAgsON7LsExjrA-1QxLUXG6Ug.JPEG/IMG%EF%BC%BF0360.jpg/900x506",
+   "orig": [
+    900,
+    506
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-10.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA5MzBfNTAg/MDAxNzkwNzQzODg0NzU3.3L2EUqDTCLmuKHwlZHH_VZdtlwG8Dic8Yh8KNsZKYb8g.DVHE2tvFWcP84Sv_hKSAjYFHIxZCT5JHMtaevD0hIHwg.JPEG/IMG＿0367.jpg/900x506",
+   "orig": [
+    900,
+    506
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-11.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfMjQ4/MDAxNzgzNDA0OTE2MjQz.ozQP_2PVyNb6FvWU0QGJLQeEWVpN-vaq0xxCnQiINWMg.dw86-JmgBzZGU5CXeujHfdjoJKAGitAkAyeKbd10T0Eg.JPEG/20260705_152906.jpg",
+   "orig": [
+    3000,
+    4000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-12.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfOTAg/MDAxNzgzNDA0NzI2MjU1.QuTOrWrP5zPe3R3pOhZPZ8GB8vNSqMatYQR8zFdR8Fcg.8G-TJUTX4aRzkQDOAu_DURNBnVy8GoSbagMmAYe2CVAg.JPEG/20260705_152813.jpg",
+   "orig": [
+    4000,
+    3000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-13.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfMTc5/MDAxNzgzNDA0Nzk5MjEx.2V4WBCpm1eUKnBc3S2AVrVnz0R6NrTTxLHrP1BzxuKcg.jfylD3rV9DxzIM1SmnXdUJqIBCbXmEWi1c2vQg4QDjUg.JPEG/20260705_152844.jpg",
+   "orig": [
+    3000,
+    4000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-14.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfMTUy/MDAxNzgzNDA0NjgyMzMy.Etlp96AhMyvZBY5mlPI-gkejeQDO9fpcfwNuzqC3Il0g.y3zmupqlLBI8N_6iOOiTyjtucvcWtJNlGk_cOgHTAdQg.JPEG/20260705_152759.jpg",
+   "orig": [
+    3000,
+    4000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-15.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfMTU3/MDAxNzgzNDA0NTk0NTIy.6_-EHNYhupdQUJcEjSmelNnoCdqFP0cZrmMri-ZQsKIg.B5ZbEUerDm8BJSynBTVPX9CjD4Jjt82NKyxLWnh_K_4g.JPEG/20260705_153024.jpg",
+   "orig": [
+    4000,
+    3000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-16.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfMjI2/MDAxNzgzNDA0ODg3NDU0.DOCfDQUJIXfJ7X96eO3mLe_fYFHUR9vrU9vdcciABE8g.U2-OGrLPn3OT4jv_nMc8IRL1r73mGG-orNtQ3C0ZgRIg.JPEG/20260705_152900.jpg",
+   "orig": [
+    3000,
+    4000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-17.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfMjYw/MDAxNzgzNDA0NzgwNTQy.3UMQKpvBoZ9jpO1o6OZG6g4iALqh8DL36XME6A5lnIUg.BLVS_EumT3qYQ6HO1Dfh2ujZZtHGAHlJ7DlZ_G8GJNkg.JPEG/20260705_152817.jpg",
+   "orig": [
+    3000,
+    4000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-18.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfMjA5/MDAxNzgzNDA0NjgyMzE4.aY-jZUSNjWTAOMYu87A_6NsBLMZf2NJyT3HoBAM7o9Qg.-BrXVSfagLBbnImCKJDcHXC1igClCilzvd2g1SnKKQcg.JPEG/20260705_152805.jpg",
+   "orig": [
+    3000,
+    4000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-19.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfNjMg/MDAxNzgzNDA1MDYwMTU3.aDmQCd5plwYmiCKv3tBqmTaTUuj54p_5H0dsRstKCVwg.DmDiiMsZJ0AYFadAUh12RnqwFOz2l7K2_PAPc3iNGnog.JPEG/900_2026-07-05-3530074181_alVKyPwT_89b9655646d701c3313dd3206e9cff7ea903c57f.jpg",
+   "orig": [
+    900,
+    1350
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-20.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfMzMg/MDAxNzgzNDA1MTEzNzg3.SUCtjZQi0ZZctE9qQcGR0GAxPi5XKnIFWrwlsFBXe3gg.nohbJ7TwczCDjNyg9kaKCndVTW0Usf_n7VZqvNHv55Eg.JPEG/20260705_152648.jpg",
+   "orig": [
+    2250,
+    3000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-21.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfMTIy/MDAxNzgzNDA0Nzk5Nzcx.Sfv4SJhqcoHCwQdlEYhUm9o7R7wOpwN3cUiNLTYxpOsg.uluVacr-Qi25zauUxeis9c91Qxgu_Si5SyKLLMycJKAg.JPEG/20260705_152830.jpg",
+   "orig": [
+    3000,
+    4000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-22.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfMTE5/MDAxNzgzNDA0OTQ4MjM0.CX2eYXKBan5EVg7lTLX6R_uptSnE7VqeWs4lp6OF35wg.Amrjt_a4qIKUqBbkNFKv-s2NrYle-1WIHGaWeSVdslQg.JPEG/20260705_152914.jpg",
+   "orig": [
+    3000,
+    4000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-23.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfMTkx/MDAxNzgzNDA0ODAzODAz.Fa4XqWHo3TaVL3H8lYbb5sa2eDMFWh6JWEpCjkaPLIMg.W36VV5ISdctuG-o5LsSa0yJyJXJYkGdoV758ATJFue8g.JPEG/20260705_152834.jpg",
+   "orig": [
+    3000,
+    4000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-24.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfMjU3/MDAxNzgzNDA0NzMzNzM1.VvRVixmwhZR-PEqqh2fGDIV5JxSYRkaRf0XTF9AfD74g.S2RmXGCZW537o1m_Y7fQmOXYmcMbUUGRrBDIpAWgfqgg.JPEG/20260705_152854.jpg",
+   "orig": [
+    3000,
+    4000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-25.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA3MDdfMTYy/MDAxNzgzNDA0OTU5NTky.ij1qm6m79FkczrkTzfdU7wzZadlvVJCnIF8JTM7Ir_Ag.XJUD47YI_lVv3VUuF6_vrtsXIzOEsIt6d29uQinInc0g.JPEG/20260705_152917.jpg",
+   "orig": [
+    3000,
+    4000
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-26.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA2MTdfMjM3/MDAxNzgxNjY0MzE4OTc1.x9YXFMPCbPRf-gBkcgM6G23c4zEOXQAhtEB0Hi9LvrQg.3Q6bSmC-_woQXmeLHDEyezl0Vx1rG83AqKl8-MjaR50g.JPEG/IMG＿0640.jpg",
+   "orig": [
+    900,
+    1200
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-27.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA2MTZfMjMw/MDAxNzgxNTgxNzc4NTg4.mwOR2DeHAwoBxUU4OvmwUIVJvUthibKpsXEMim1y0wAg.BO8_CWVp3A-E0kasRuogLNB8G962jdgnwjst2FCElzgg.JPEG/IMG＿0643.jpg",
+   "orig": [
+    900,
+    1200
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-28.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA2MTdfMjIg/MDAxNzgxNjY0MzIwMDc3.8gzXcVt7E2J8gsXpANRjVbgB4jBBJu5gB0Ds2PhMctUg.cxBUKof6nOUR0U0QMLD7xYopm4eneeBXLfDzKcsMhoUg.JPEG/IMG＿0626.jpg",
+   "orig": [
+    900,
+    1200
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-29.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA2MTZfMjQy/MDAxNzgxNTgxNzc3OTE4.ODkoyHLAeao2w5WTPofw617m4zTfZj5wJeDvYdMzlqYg.YGh1rx3-6BJChI9Q8DkiZdZhyu_l1-dWDsLQ2EFWvdEg.JPEG/IMG＿0627.jpg",
+   "orig": [
+    900,
+    1200
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-30.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA2MTdfMTcw/MDAxNzgxNjY0MDMyMzg3.xykfLaKwpO-BLTdJ1IRF97cvtzjm1DUv474eGh3ZfYcg.VeQIEMw3XA_y5Qda81qplUrKMCTtHDIRClg6MQtDur8g.JPEG/IMG竊�0635.jpg",
+   "orig": [
+    900,
+    1200
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-31.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA2MTdfMTQw/MDAxNzgxNjY0MzIxOTQ2._Z0pLz2xXkdywHKba5-hl_8sCV8XvnWMmYf3DApToekg.jVLdeY67Zxuiy6cdQD6DbkLZyWwYQNNWvCfjShAeC3cg.PNG/IMG＿0634.PNG",
+   "orig": [
+    900,
+    1350
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-32.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA2MTZfMjg0/MDAxNzgxNTgxNzc4Njkz.7tPS7Ny_3lLAE8BKoA7K39Md001Rt0k_GmuKdUna2dAg.kNc1nnRRwfYVP2MmsD9GjqlLRxaTKZXY5EXh0jZDSwkg.JPEG/IMG＿0630.jpg",
+   "orig": [
+    900,
+    1200
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-33.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA2MTZfMTg0/MDAxNzgxNTgxNzc4NDI0.QcmQZBX8Mnx8hIY8hEgJNXYF5sBSalHibRVI0sCElN8g.0ExzU2FiIKCsWVS8GO1l_xSMeJX7DkWm8sYwxN2_zcsg.JPEG/IMG＿0641.jpg",
+   "orig": [
+    900,
+    1200
+   ],
+   "kind": "naver-place-photo"
+  },
+  {
+   "file": "naver-34.jpg",
+   "source": "https://blogfiles.pstatic.net/MjAyNjA2MTZfMTI4/MDAxNzgxNTgxNzc4NDY5.ZSqjXH1VwArujG5RTiVgb0GZIePp7MwMid4FufF-qf4g.FBnbSv27J7XQivvuF1E3wnIU1zZ0VSc9DM5EGY0s4Rog.JPEG/IMG＿0642.jpg",
+   "orig": [
+    900,
+    1200
+   ],
+   "kind": "naver-place-photo"
+  }
+ ]
+}

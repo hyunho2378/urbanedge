@@ -1,8 +1,9 @@
+import { LangContext as DsLangContext } from '@urbanedge/ds'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
 // 언어 상태. 브라우저 저장소를 쓰지 않고 URL 쿼리(?lang=en)와 브라우저 언어로 초기값을 정한다.
 // 언어 전환은 텍스트만 교체하고 컴포넌트를 리마운트하지 않는다.
-export const LANGS = ['ko', 'en']
+export const LANGS = ['en', 'ko']
 
 const queryLang = () => {
   if (typeof window === 'undefined') return null
@@ -48,7 +49,11 @@ export function LangProvider({ children }) {
 
   // 라우터가 경로를 바꾸면 쿼리가 사라지므로 Layout이 경로 변경 뒤에 호출해 언어를 다시 싣는다.
   const value = useMemo(() => ({ lang, setLang, ensureLangParam: writeUrl }), [lang, setLang, writeUrl])
-  return <LangContext.Provider value={value}>{children}</LangContext.Provider>
+  return (
+    <LangContext.Provider value={value}>
+      <DsLangContext.Provider value={lang}>{children}</DsLangContext.Provider>
+    </LangContext.Provider>
+  )
 }
 
 export const useLang = () => useContext(LangContext)

@@ -1,17 +1,24 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { RotateCcw } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Volume2 } from 'lucide-react'
+import { cx } from '@urbanedge/ds'
 import '../components/kiosk.css'
 import { LangContext } from '../components/lang.jsx'
-import { TopBar } from '../components/TopBar.jsx'
-import { BottomBar } from '../components/BottomBar.jsx'
+import { StageContext } from '../components/stage.js'
+import { Island } from '../components/Island.jsx'
+import { PlatformEdge } from '../components/PlatformEdge.jsx'
+import { KButton } from '../components/KButton.jsx'
 import { IdleDialog } from '../components/IdleDialog.jsx'
+import { CoachMark } from '../components/CoachMark.jsx'
 import { COPY, tr } from './copy.js'
+import { T } from '../components/lang.jsx'
 import { FLOW, IDLE_OFF_STEPS } from './config.js'
+import { roomById } from './rooms.js'
 import Attract from './screens/Attract.jsx'
 import Language from './screens/Language.jsx'
 import Intro from './screens/Intro.jsx'
 import Cuts from './screens/Cuts.jsx'
 import Frame from './screens/Frame.jsx'
+import Pay from './screens/Pay.jsx'
 import Guide from './screens/Guide.jsx'
 import Retouch from './screens/Retouch.jsx'
 import Ready from './screens/Ready.jsx'
@@ -22,59 +29,53 @@ import Finish from './screens/Finish.jsx'
 
 // KioskScreen.jsx: 1920x1080 캔버스 안에 들어가는 화면 전체.
 // 부모(Stage)가 이 컴포넌트를 1920x1080 크기 박스에 넣고 scale로 맞춘다. 이 컴포넌트는 w-full h-full로 채운다.
-// 구성: 상단 브랜드 바, 단계별 화면(전환 애니메이션), 하단 공통 바(뒤로, 노선형 레일, 다음), 셔터 플래시, 무입력 대화상자.
-const SCREENS = { attract: Attract, language: Language, intro: Intro, cuts: Cuts, frame: Frame, guide: Guide, retouch: Retouch, ready: Ready, shoot: Shoot, select: Select, print: Print, finish: Finish }
+// 구성: 단계별 전면 화면(전환 애니메이션), 위에 늘 떠 있는 라이브 액티비티(황리단선), 아래 가장자리의 승강장 신호(카메라 위치),
+// 모서리의 뒤로와 다음 버튼, 화면 안 코치마크, 셔터 플래시, 무입력 대화상자.
+const SCREENS = { attract: Attract, language: Language, intro: Intro, cuts: Cuts, frame: Frame, pay: Pay, guide: Guide, retouch: Retouch, ready: Ready, shoot: Shoot, select: Select, print: Print, finish: Finish }
+const COACH_STEPS = ['cuts', 'frame', 'pay', 'retouch', 'ready', 'select', 'print']
 
-// 단계별 하단 바 구성
-function barConfig(ctrl, t) {
-  const { step, introPage, canNext, canBack } = ctrl
-  const back = { label: t(COPY.common.back), onClick: ctrl.back, disabled: !canBack, hidden: !canBack }
-  const next = { label: t(COPY.common.next), onClick: ctrl.next, disabled: !canNext }
-  let lens = false
+// 단계별 하단 버튼 구성(문구는 노드로 두고 화면에서 <T />로 그린다)
+function barConfig(ctrl) {
+  const { step, canNext, canBack, pay } = ctrl
+  const back = { node: COPY.common.back, onClick: ctrl.back, hidden: !canBack }
+  const next = { node: COPY.common.next, onClick: ctrl.next, disabled: !canNext }
   switch (step) {
+    case 'attract':
+    case 'shoot':
+      back.hidden = true
+      next.hidden = true
+      break
     case 'language':
       next.hidden = true
       break
-    case 'intro':
-      lens = introPage === 1
-      break
     case 'frame':
+      next.node = COPY.frame.use
       break
-    case 'guide':
-      lens = true
-      break
-    case 'retouch':
+    case 'pay':
+      next.node = COPY.pay.continue
+      next.hidden = pay.status !== 'success'
+      back.hidden = pay.status === 'processing' || pay.status === 'success'
       break
     case 'ready':
-      lens = true
-      next.label = t(COPY.ready.start)
-      next.icon = null
-      break
-    case 'shoot':
-      lens = true
-      back.hidden = true
-      next.hidden = true
+      next.node = COPY.ready.start
       break
     case 'select':
-      back.label = t(COPY.select.retake)
-      back.icon = RotateCcw
+      back.node = COPY.select.retake
       back.hidden = false
-      back.disabled = false
-      next.label = t(COPY.select.print)
-      next.icon = null
+      next.node = COPY.select.print
       break
     case 'print':
-      next.label = t(COPY.print.toFinish)
+      back.hidden = true
+      next.node = COPY.print.toFinish
       break
     case 'finish':
       back.hidden = true
-      next.label = t(COPY.finish.toStart)
-      next.icon = RotateCcw
+      next.node = COPY.finish.toStart
       break
     default:
       break
   }
-  return { back, next, lens }
+  return { back, next }
 }
 
 export default function KioskScreen({ ctrl, idleMs = FLOW.idleMs, idleGraceMs = FLOW.idleGraceMs }) {
@@ -82,7 +83,8 @@ export default function KioskScreen({ ctrl, idleMs = FLOW.idleMs, idleGraceMs = 
   const t = useCallback((node, vars) => tr(node, lang, vars), [lang])
   const rootRef = useRef(null)
   const Screen = SCREENS[step]
-  const bar = barConfig(ctrl, t)
+  const bar = barConfig(ctrl)
+  const room = roomById(ctrl.room)
 
   // ----- 무입력 감지: idleMs 뒤 대화상자, idleGraceMs 뒤 대기 화면 -----
   const lastRef = useRef(Date.now())
@@ -118,9 +120,19 @@ export default function KioskScreen({ ctrl, idleMs = FLOW.idleMs, idleGraceMs = 
     bump()
   }, [step, bump])
 
+  // ----- 코치마크: 단계마다 처음 한 번, 화면이 자리를 잡은 뒤에 -----
+  const [coachReady, setCoachReady] = useState(false)
+  useEffect(() => {
+    setCoachReady(false)
+    const id = setTimeout(() => setCoachReady(true), 900)
+    return () => clearTimeout(id)
+  }, [step])
+  const coachOn = coachReady && COACH_STEPS.includes(step) && !ctrl.coachOff && !ctrl.coach.seen[step] && warnLeft == null && !(step === 'pay' && ctrl.pay.method)
+  const doneCoach = useCallback(() => ctrl.markCoach(step), [ctrl, step])
+
   const onKeyDown = (e) => {
     bump()
-    if (e.target.closest('[role="radiogroup"], [role="group"], input, textarea')) return
+    if (e.target.closest('[role="radiogroup"], [role="group"], [role="slider"], [role="listbox"], input, textarea')) return
     if (e.key === 'ArrowRight' && bar.next && !bar.next.hidden && !bar.next.disabled) {
       e.stopPropagation()
       bar.next.onClick()
@@ -132,35 +144,64 @@ export default function KioskScreen({ ctrl, idleMs = FLOW.idleMs, idleGraceMs = 
 
   const shooting = step === 'shoot'
   const flashOn = shooting && ['shutter', 'rest', 'done'].includes(ctrl.shoot.phase)
-  const full = step === 'attract'
+  const edge = step === 'attract' || step === 'guide' || step === 'ready' || step === 'shoot' || (step === 'intro' && ctrl.introPage === 1) || (step === 'pay' && ctrl.pay.method === 'coupon' && ctrl.pay.view === 'scan')
+  const edgeTone = step === 'intro' && ctrl.introPage === 1 ? 'ink' : 'yellow'
+  const onYellow = step === 'language' || step === 'finish' || (step === 'intro' && (ctrl.introPage === 1 || ctrl.introPage === 4))
+  const announceVars = { n: room.n, platform: room.title }
+  const announceNode = COPY.island.announce[step]
 
   return (
     <LangContext.Provider value={lang}>
-      <div
-        ref={rootRef}
-        lang={lang}
-        tabIndex={-1}
-        onPointerDownCapture={bump}
-        onKeyDownCapture={onKeyDown}
-        className="relative flex h-full w-full select-none flex-col overflow-hidden break-keep bg-bg-base font-sans text-text-pri outline-none"
-      >
-        {!full && <TopBar steps={ctrl.steps} step={step} room={ctrl.room} lang={lang} />}
-        <main key={step} className={`relative min-h-0 flex-1 ${ctrl.dir === 'back' ? 'k-enter-back' : 'k-enter'}`}>
-          <Screen ctrl={ctrl} />
-        </main>
-        {!full && <BottomBar steps={ctrl.steps} step={step} room={ctrl.room} lang={lang} lens={bar.lens} back={bar.back} next={bar.next} />}
-        {flashOn && <div key={`flash-${ctrl.shoot.index}`} className="pointer-events-none absolute inset-0 z-overlay animate-flash bg-white" aria-hidden="true" />}
-        {warnLeft != null && (
-          <IdleDialog
-            secondsLeft={warnLeft}
-            onKeep={bump}
-            onHome={() => {
-              setWarnLeft(null)
-              ctrl.reset()
-            }}
-          />
-        )}
-      </div>
+      <StageContext.Provider value={rootRef}>
+        <div
+          ref={rootRef}
+          lang="en"
+          tabIndex={-1}
+          onPointerDownCapture={bump}
+          onKeyDownCapture={onKeyDown}
+          className="relative h-full w-full select-none overflow-hidden break-keep bg-bg-base font-sans text-text-pri outline-none"
+        >
+          <main key={step} className={cx('absolute inset-0', ctrl.dir === 'back' ? 'k-enter-back' : 'k-enter')}>
+            <Screen ctrl={ctrl} />
+          </main>
+
+          <Island step={step} steps={ctrl.steps} lang={lang} announce={tr(announceNode, lang, announceVars)} />
+          <p className={cx('kt-caption absolute z-header flex items-center gap-12', onYellow ? 'text-text-onYellow' : 'text-text-meta')} style={{ left: 64, top: 52 }} aria-live="polite">
+            <Volume2 size={32} aria-hidden="true" />
+            <T n={announceNode} v={announceVars} inline />
+          </p>
+
+          {edge && <PlatformEdge tone={edgeTone} coachId={step === 'ready' ? 'ready' : undefined} />}
+
+          {bar.back && !bar.back.hidden && (
+            <div className="absolute z-header" style={{ left: 40, bottom: edge ? 72 : 48 }}>
+              <KButton tone={onYellow ? 'ghostInk' : 'ghost'} icon={ArrowLeft} onClick={bar.back.onClick}>
+                <T n={bar.back.node} inline />
+              </KButton>
+            </div>
+          )}
+          {bar.next && !bar.next.hidden && (
+            <div className="absolute z-header" style={{ right: 64, bottom: edge ? 72 : 48 }}>
+              <KButton tone={onYellow ? 'ink' : 'primary'} iconRight={ArrowRight} onClick={bar.next.onClick} disabled={bar.next.disabled}>
+                <T n={bar.next.node} inline />
+              </KButton>
+            </div>
+          )}
+
+          {coachOn && <CoachMark key={step} id={step} node={COPY.coach[step]} rootRef={rootRef} onDone={doneCoach} onSkip={ctrl.skipCoach} />}
+          {flashOn && <div key={`flash-${ctrl.shoot.index}`} className="pointer-events-none absolute inset-0 z-overlay animate-flash bg-white" aria-hidden="true" />}
+          {warnLeft != null && (
+            <IdleDialog
+              secondsLeft={warnLeft}
+              onKeep={bump}
+              onHome={() => {
+                setWarnLeft(null)
+                ctrl.reset()
+              }}
+            />
+          )}
+        </div>
+      </StageContext.Provider>
     </LangContext.Provider>
   )
 }

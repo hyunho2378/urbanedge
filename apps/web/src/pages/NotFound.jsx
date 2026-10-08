@@ -1,71 +1,81 @@
 import { Link, useLocation } from 'react-router-dom'
-import { ArrowRight, Home } from 'lucide-react'
-import { Button, Container, RouteRibbon } from '@urbanedge/ds'
-import { usePick } from '../i18n/index.jsx'
-import { ROOM_LIST } from '../components/pages/content.js'
-import { RouteMap } from '../components/pages/RouteMap.jsx'
+import { ArrowRight } from 'lucide-react'
+import { Button, Container, StationSign } from '@urbanedge/ds'
+import { PageShell, Tx } from '../components/pages/Bilingual.jsx'
+import { STATION } from '../components/pages/content.js'
 import { usePageTitle } from '../components/pages/usePageTitle.js'
 
 const T = {
-  title: { ko: '페이지를 찾을 수 없음', en: 'Page not found' },
-  label: { ko: '지도에 없는 주소', en: 'OFF THE MAP' },
-  h1: { ko: '이 역은 노선도에 없다', en: 'This stop is not on the map' },
-  desc: {
-    ko: '주소가 바뀌었거나 잘못 입력되었을 수 있으며, 아래 정거장에서 다시 출발할 수 있다.',
-    en: 'The address may have changed or been mistyped. You can restart from any of the stations below.',
+  title: { en: 'Page not found', ko: '페이지를 찾을 수 없음' },
+  h1: { en: 'This train does not stop here.', ko: '이 열차는 이 역에 서지 않는다' },
+  lead: {
+    en: 'The address may have changed or been mistyped. Gyeongju Metro has exactly one station, so the way back is short.',
+    ko: '주소가 바뀌었거나 잘못 입력되었을 수 있으며, 경주 메트로의 역은 하나뿐이라 돌아가는 길도 짧다.',
   },
-  asked: { ko: '요청한 경로', en: 'Requested path' },
-  home: { ko: '홈으로', en: 'Back to home' },
-  rooms: { ko: '포토 룸 보기', en: 'Browse rooms' },
-  map: { ko: '노선도', en: 'Route map' },
-  tailName: { ko: '404', en: '404' },
-  tailTitle: { ko: '이 주소', en: 'This address' },
-  tailBody: { ko: '노선이 닿지 않는 곳', en: 'No line reaches here' },
+  asked: { en: 'You asked for', ko: '요청한 경로' },
+  home: { en: 'Back to GY-01 UrbanEdge', ko: 'GY-01 어반엣지로 돌아가기' },
+  rooms: { en: 'Browse the platforms', ko: '승강장 둘러보기' },
+}
+
+// 승강장 끝에서 선로가 끊긴 장면을 그린 SVG. 노란 점자 블록 띠와 "서지 않음" 전광판이 들어 있다.
+function Platform() {
+  return (
+    <svg viewBox="0 0 480 220" role="img" aria-label="" aria-hidden="true" className="block h-auto w-full">
+      <rect x="0" y="0" width="480" height="220" className="fill-bg-panel" />
+      {Array.from({ length: 8 }).map((_, i) => (
+        <rect key={i} x={i * 60} y="0" width="58" height="110" className="fill-bg-elev" />
+      ))}
+      <rect x="0" y="110" width="480" height="14" className="fill-yellow" />
+      {Array.from({ length: 24 }).map((_, i) => (
+        <circle key={i} cx={10 + i * 20} cy="117" r="3" className="fill-bg-base" />
+      ))}
+      <rect x="0" y="124" width="480" height="96" className="fill-bg-base" />
+      <path d="M0 160 H480 M0 196 H480" className="stroke-text-meta" strokeWidth="3" fill="none" />
+      {Array.from({ length: 12 }).map((_, i) => (
+        <rect key={i} x={20 + i * 40} y="150" width="10" height="56" className="fill-bg-raised" />
+      ))}
+      <rect x="150" y="26" width="180" height="46" rx="6" className="fill-bg-base stroke-text-meta" strokeWidth="2" />
+      <text x="240" y="56" textAnchor="middle" fontSize="22" fontWeight="800" letterSpacing="2" className="fill-yellow font-label">
+        NOT IN SERVICE
+      </text>
+    </svg>
+  )
 }
 
 export default function NotFound() {
-  const pick = usePick()
   const { pathname } = useLocation()
-  usePageTitle(pick(T.title))
+  usePageTitle(T.title)
   return (
-    <section aria-labelledby="page-title" className="relative overflow-hidden break-keep break-words">
-      <Container className="pb-72 lg:pb-120 4xl:max-w-screen-4xl" style={{ paddingTop: 'clamp(48px, 8vw, 144px)' }}>
-        <p className="ue-label flex items-baseline gap-16 text-label 4xl:text-bodySm text-text-sec">
-          <span className="text-yellow">404</span>
-          <span>{pick(T.label)}</span>
-        </p>
-        <div className="mt-16 h-px w-full max-w-read bg-hairline" />
-
-        <h1 id="page-title" className="mt-32 font-display text-display-l font-black leading-tight tracking-tightest text-text-pri text-balance">
-          {pick(T.h1)}
-        </h1>
-        <p className="mt-24 max-w-read text-lead text-text-sec text-pretty 4xl:text-h3">{pick(T.desc)}</p>
-        <p className="mt-24 flex flex-wrap items-center gap-12 text-bodySm 4xl:text-body text-text-meta">
-          <span>{pick(T.asked)}</span>
-          <code className="max-w-full break-all rounded-sm border border-hairlineStrong bg-bg-panel px-10 py-4 font-ui text-text-pri">{pathname}</code>
-        </p>
-
-        <div className="mt-56 lg:mt-80">
-          <RouteMap
-            rooms={ROOM_LIST}
-            label={pick(T.map)}
-            compact
-            tail={{ name: pick(T.tailName), title: pick(T.tailTitle), body: pick(T.tailBody) }}
-          />
-        </div>
-
-        <div className="mt-56 flex flex-wrap gap-16 lg:mt-72">
-          <Button as={Link} to="/" size="lg">
-            <Home size={20} aria-hidden="true" />
-            {pick(T.home)}
-          </Button>
-          <Button as={Link} to="/rooms" variant="outline" size="lg">
-            {pick(T.rooms)}
-            <ArrowRight size={20} aria-hidden="true" />
-          </Button>
-        </div>
-      </Container>
-      <RouteRibbon />
-    </section>
+    <PageShell>
+      <section aria-labelledby="page-title" className="pb-72 pt-40 md:pt-64 lg:pb-120 lg:pt-96">
+        <Container className="grid items-center gap-x-64 gap-y-40 lg:grid-cols-12 4xl:max-w-screen-4xl">
+          <div className="lg:col-span-7">
+            <Tx {...T.h1} as="h1" role="title" inner="text-display-m" className="text-text-pri" id="page-title" />
+            <Tx {...T.lead} as="p" role="lead" className="mt-24 max-w-read text-text-sec" />
+            <p className="mt-24 flex flex-wrap items-center gap-12 text-text-meta">
+              <Tx inline {...T.asked} role="caption" />
+              <code className="max-w-full break-all rounded-sm bg-bg-panel px-10 py-4 font-ui text-bodySm text-text-pri">{pathname}</code>
+            </p>
+            <div className="mt-32 flex flex-wrap items-center gap-x-24 gap-y-12">
+              <Button as={Link} to="/" size="lg">
+                <Tx inline {...T.home} />
+              </Button>
+              <Link to="/rooms" className="t-strong inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
+                <Tx inline {...T.rooms} />
+                <ArrowRight size={18} aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+          <div className="lg:col-span-5">
+            <div className="overflow-hidden rounded-lg">
+              <Platform />
+            </div>
+            <div className="mt-24">
+              <StationSign station={{ code: STATION.code, name: STATION.name, nameKo: STATION.nameKo }} line={{ code: 'GY', color: 'yellow' }} size="sm" />
+            </div>
+          </div>
+        </Container>
+      </section>
+    </PageShell>
   )
 }

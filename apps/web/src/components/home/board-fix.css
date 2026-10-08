@@ -1,0 +1,10 @@
+/* ds DepartureBoard의 탑승 버튼은 button이라 white-space가 nowrap으로 상속된다.
+   긴 승강장 이름(Public Phone Shot)이 번호 배지 밑으로 들어가므로 줄바꿈을 허용한다.
+   선택자는 aria-label이 언어마다 달라지므로 구조로 잡는다(캐러셀 첫 div 안의 button이 탑승 버튼이다). */
+.ue-hero-board [aria-roledescription='carousel'] > div:first-of-type button { white-space: normal; }
+.ue-hero-board [aria-roledescription='carousel'] > div:first-of-type button > span:first-child { overflow-wrap: anywhere; }
+
+/* 좁은 화면에서는 Public Phone Shot이 두 줄이 된다. 다른 승강장으로 넘어가도 카드 높이가 변하지 않게 두 줄 높이를 미리 잡는다. */
+@media (max-width: 559px) {
+  .ue-hero-board [aria-roledescription='carousel'] > div:first-of-type button > span:first-child { min-height: calc(var(--u) * 9); }
+}

@@ -1,0 +1,293 @@
+{
+  "note": "Team sample photos (apps/*/public/img/team/shot-1..5.jpg) composed with composeStrip. Sheet 1200x1800 (4x6 inch at 300 dpi). Twin layouts print the same 2x6 inch strip twice. Date 2026.10.09, Platform 2 Karaoke Shot at GY-01 UrbanEdge.",
+  "frames": [
+    {
+      "id": "classic-white",
+      "name": {
+        "en": "Classic White",
+        "ko": "클래식 화이트"
+      },
+      "cuts": 4,
+      "slots": 4,
+      "tone": "white",
+      "layout": "full",
+      "blurb": {
+        "en": "The machine standard. Four cuts, wordmark underneath.",
+        "ko": "기기 기본 인화물과 같은 4컷 흰색 프레임"
+      },
+      "file": "classic-white.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "classic-black",
+      "name": {
+        "en": "Classic Black",
+        "ko": "클래식 블랙"
+      },
+      "cuts": 4,
+      "slots": 4,
+      "tone": "black",
+      "layout": "full",
+      "blurb": {
+        "en": "Black paper, yellow station tag.",
+        "ko": "검정 바탕에 노란 정거장 태그가 붙은 4컷 프레임"
+      },
+      "file": "classic-black.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "classic-blue",
+      "name": {
+        "en": "Classic Blue",
+        "ko": "클래식 블루"
+      },
+      "cuts": 8,
+      "slots": 8,
+      "tone": "blue",
+      "layout": "twin",
+      "blurb": {
+        "en": "Eight cuts on royal blue, two copies per sheet.",
+        "ko": "파랑 바탕 8컷 스트립, 한 장에 두 부"
+      },
+      "file": "classic-blue.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "signature",
+      "name": {
+        "en": "Signature Cut",
+        "ko": "시그니처 컷"
+      },
+      "cuts": 8,
+      "slots": 5,
+      "tone": "white",
+      "layout": "twin",
+      "blurb": {
+        "en": "Four small cuts, one big one. The print the machine shipped with.",
+        "ko": "작은 4컷과 큰 1컷, 기기 샘플 인화물 구성"
+      },
+      "file": "signature.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "ticket",
+      "name": {
+        "en": "Transit Ticket",
+        "ko": "승차권"
+      },
+      "cuts": 4,
+      "slots": 4,
+      "tone": "white",
+      "layout": "twin",
+      "blurb": {
+        "en": "GY-01 UrbanEdge, your platform, the visit date and a barcode. A Metro Ticket for a city with no subway.",
+        "ko": "GY-01 어반엣지역, 승강장 번호, 방문 날짜, 바코드가 찍힌 승차권 프레임"
+      },
+      "file": "ticket.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "ticket-night",
+      "name": {
+        "en": "Night Ticket",
+        "ko": "야간 승차권"
+      },
+      "cuts": 4,
+      "slots": 4,
+      "tone": "black",
+      "layout": "twin",
+      "blurb": {
+        "en": "The same ticket after dark: black stock, yellow line.",
+        "ko": "검정 바탕에 노란 노선이 흐르는 승차권"
+      },
+      "file": "ticket-night.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "pill",
+      "name": {
+        "en": "Line Pill",
+        "ko": "노선 알약"
+      },
+      "cuts": 4,
+      "slots": 4,
+      "tone": "white",
+      "layout": "full",
+      "blurb": {
+        "en": "A yellow line pill on top, four platforms along the bottom.",
+        "ko": "노란 노선 알약과 아래쪽 승강장 4곳 노선도"
+      },
+      "file": "pill.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "poster",
+      "name": {
+        "en": "Poster Cut",
+        "ko": "포스터 컷"
+      },
+      "cuts": 4,
+      "slots": 4,
+      "tone": "white",
+      "layout": "full",
+      "blurb": {
+        "en": "One big cut, three small ones, checker floor.",
+        "ko": "큰 사진 1컷과 작은 3컷, 체커 바닥"
+      },
+      "file": "poster.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "route",
+      "name": {
+        "en": "Route Cut",
+        "ko": "노선 컷"
+      },
+      "cuts": 4,
+      "slots": 4,
+      "tone": "black",
+      "layout": "twin",
+      "blurb": {
+        "en": "Four stops on a yellow line, station name set sideways.",
+        "ko": "노란 노선 위 4정거장과 세로로 쓴 정거장 이름"
+      },
+      "file": "route.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "crosswalk",
+      "name": {
+        "en": "Crosswalk Cut",
+        "ko": "횡단보도 컷"
+      },
+      "cuts": 4,
+      "slots": 4,
+      "tone": "black",
+      "layout": "full",
+      "blurb": {
+        "en": "Black asphalt, white bars, four cuts across.",
+        "ko": "검정 아스팔트와 흰 횡단보도 줄무늬 위의 4컷"
+      },
+      "file": "crosswalk.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "reel",
+      "name": {
+        "en": "Reel Cut",
+        "ko": "릴 컷"
+      },
+      "cuts": 8,
+      "slots": 6,
+      "tone": "black",
+      "layout": "twin",
+      "blurb": {
+        "en": "Six cuts between checker rails, station code in yellow.",
+        "ko": "체커 레일 사이 6컷과 노란 정거장 코드"
+      },
+      "file": "reel.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "layer",
+      "name": {
+        "en": "Layer Cut",
+        "ko": "레이어 컷"
+      },
+      "cuts": 8,
+      "slots": 4,
+      "tone": "black",
+      "layout": "full",
+      "blurb": {
+        "en": "Four prints pinned to a black wall with yellow tape.",
+        "ko": "검정 벽에 노란 테이프로 붙인 겹침 4컷"
+      },
+      "file": "layer.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "train",
+      "name": {
+        "en": "Train Cut",
+        "ko": "열차 컷"
+      },
+      "cuts": 4,
+      "slots": 4,
+      "tone": "black",
+      "layout": "twin",
+      "blurb": {
+        "en": "A Gyeongju Metro car: four windows and a door.",
+        "ko": "경주 메트로 객차 한 칸, 창문 4개와 문 하나"
+      },
+      "file": "train.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "tape",
+      "name": {
+        "en": "Tape Cut",
+        "ko": "테이프 컷"
+      },
+      "cuts": 4,
+      "slots": 4,
+      "tone": "yellow",
+      "layout": "twin",
+      "blurb": {
+        "en": "Caution tape on yellow, four cuts staggered like stairs.",
+        "ko": "경고 테이프 띠와 계단처럼 엇갈린 4컷"
+      },
+      "file": "tape.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "crossroad",
+      "name": {
+        "en": "Crossroad Cut",
+        "ko": "교차로 컷"
+      },
+      "cuts": 8,
+      "slots": 6,
+      "tone": "yellow",
+      "layout": "full",
+      "blurb": {
+        "en": "Six cuts around a crosswalk, a UE tile and a checker tile.",
+        "ko": "횡단보도, UE, 체커 타일을 가운데 두고 양옆 6컷"
+      },
+      "file": "crossroad.jpg",
+      "width": 1200,
+      "height": 1800
+    },
+    {
+      "id": "stack",
+      "name": {
+        "en": "Stack Cut",
+        "ko": "스택 컷"
+      },
+      "cuts": 4,
+      "slots": 4,
+      "tone": "yellow",
+      "layout": "full",
+      "blurb": {
+        "en": "Yellow poster stock with a row of UE marks.",
+        "ko": "노란 포스터 바탕과 UE 심볼 세 개 구성"
+      },
+      "file": "stack.jpg",
+      "width": 1200,
+      "height": 1800
+    }
+  ]
+}

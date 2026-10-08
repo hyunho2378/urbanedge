@@ -1,10 +1,11 @@
-// print/index.js: 인화 프레임과 공유 카드 계약. 작업 B(A2)가 실제 구현으로 교체한다.
+// print/index.js: 인화 프레임과 공유 카드. 작업 B가 구현했다. 시그니처는 계약을 유지한다.
 //
-// FRAMES: [{ id, name:{ko,en}, cuts: 4|8, slots: number, ... }]   프레임 정의(검정과 옐로우, UE 심볼, 워드마크, 날짜 인쇄)
-// composeStrip({ frameId, photos, date, roomId, stamp, message }) => Promise<HTMLCanvasElement>   photos: HTMLImageElement|ImageBitmap|HTMLCanvasElement 배열
-// StripPreview({ frameId, photos, date, roomId, className })   composeStrip 결과를 보여주는 컴포넌트
-// makeShareCard({ strip, format }) => Promise<Blob>             format: 'story'(1080x1920) | 'feed'(1080x1350)
-export const FRAMES = []
-export async function composeStrip() { return document.createElement('canvas') }
-export function StripPreview() { return null }
-export async function makeShareCard() { return new Blob() }
+// FRAMES: [{ id, name:{ko,en}, cuts: 4|8, slots, tone, layout, paper, mockup, blurb }]
+// composeStrip({ frameId, photos, date, roomId, stamp, message, mode, scale }) => Promise<HTMLCanvasElement>
+// StripPreview({ frameId, photos, date, roomId, className })
+// makeShareCard({ strip, format, roomId, date, visited, platforms }) => Promise<Blob>   format: 'story'(1080x1920) | 'feed'(1080x1350) | 'journey'(1080x1920, Journey Complete)
+export { FRAMES, FRAME_IDS, getFrame } from './frames/index.js'
+export { composeStrip, canvasToBlob, loadImage, ensureFrameFonts, SAMPLE_PHOTO_URLS, PAPER_SHEET } from './compose.js'
+export { StripPreview } from './StripPreview.jsx'
+export { makeShareCard, SHARE_FORMATS } from './shareCard.js'
+export { STATIONS, STATION, SYSTEM, LINE, METRO_STOPS, getStation, formatShotDate } from './stations.js'

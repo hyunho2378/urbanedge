@@ -11,13 +11,13 @@ export default function LangToggle({ className }) {
     <div
       role="group"
       aria-label={lang === 'ko' ? '언어 선택' : 'Language'}
-      className={cx('relative inline-grid grid-cols-2 rounded-pill border border-hairlineStrong bg-bg-base/60', className)}
+      className={cx('relative inline-grid shrink-0 grid-cols-[48px_48px] rounded-pill border border-hairlineStrong bg-bg-base/60', className)}
     >
       <span
         aria-hidden="true"
         className={cx(
           'absolute inset-y-0 left-0 w-1/2 rounded-pill bg-yellow transition-transform duration-base ease-out',
-          lang === 'en' && 'translate-x-full',
+          lang === 'ko' && 'translate-x-full',
         )}
       />
       {LANGS.map((l) => (
@@ -29,7 +29,7 @@ export default function LangToggle({ className }) {
           aria-label={NAME[l]}
           onClick={() => setLang(l)}
           className={cx(
-            'ue-label relative z-10 h-40 w-48 rounded-pill text-body-sm tracking-wide transition-colors duration-fast ease-out',
+            'ue-label relative z-10 grid h-40 w-48 place-items-center rounded-pill text-body-sm tracking-wide transition-colors duration-fast ease-out',
             lang === l ? 'text-text-onYellow' : 'text-text-sec hover:text-text-pri',
           )}
         >

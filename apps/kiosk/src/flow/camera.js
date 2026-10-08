@@ -1,27 +1,26 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { paintRetouched, DEFAULT_RETOUCH } from './retouch.js'
 
-// camera.js: 카메라 소스. live이면 getUserMedia 웹캠, 실패하거나 sample이면 public/img 포스터와 패턴 크롭.
+// camera.js: 카메라 소스. live이면 getUserMedia 웹캠, 실패하거나 sample이면 팀 인화 사진(public/img/team).
+// 미리보기와 촬영은 세로 3:4다. 인화 칸에 들어가는 비율과 같아서 보이는 대로 인화된다.
 // 얼굴 영상은 서버로 보내지 않는다. 프레임은 canvas와 메모리에만 존재한다.
 
-// 샘플 화면 후보: 사람이 없는 포스터와 패턴 이미지
-const SAMPLE_FILES = ['cr_crosswalk', 'biz_07', 'biz_00', 'cr_tape', 'biz_02', 'biz_04', 'cr_pattern', 'biz_06']
-// 프레임 미리보기용 크롭 초점
-const FOCUS = [
-  [0.5, 0.45], [0.5, 0.2], [0.5, 0.55], [0.4, 0.5], [0.5, 0.35], [0.5, 0.6], [0.3, 0.5], [0.5, 0.5],
-]
+const TEAM = [1, 2, 3, 4, 5].map((n) => `/img/team/shot-${n}.jpg`)
+export const CAPTURE = { w: 960, h: 1280 }
+
 let imgCache = null
 export function loadSamples() {
   if (!imgCache) {
-    imgCache = SAMPLE_FILES.map((n) => {
+    imgCache = TEAM.map((src) => {
       const img = new Image()
       img.decoding = 'async'
-      img.src = `/img/${n}.jpg`
+      img.src = src
       return img
     })
   }
   return imgCache
 }
+
 let readyPromise = null
 export function samplesReady() {
   if (!readyPromise) {
@@ -40,38 +39,45 @@ export function samplesReady() {
   return readyPromise
 }
 
-// 로딩이 끝난 샘플을 { src, fx, fy } 배열로 돌려준다. 로딩 중에는 빈 배열에서 시작해 채워진다.
+// 로딩이 끝난 팀 사진 배열(프레임 미리보기용). 로딩 중에는 빈 배열에서 시작해 채워진다.
 export function useSamplePhotos() {
   const [, tick] = useState(0)
   useEffect(() => {
     let live = true
     samplesReady().then(() => live && tick((n) => n + 1))
-    return () => { live = false }
+    return () => {
+      live = false
+    }
   }, [])
-  const imgs = loadSamples()
-  return imgs.map((img, i) => (img.complete && img.naturalWidth ? { src: img, fx: FOCUS[i][0], fy: FOCUS[i][1] } : null)).filter(Boolean)
+  return loadSamples().filter((i) => i.complete && i.naturalWidth)
 }
 
-// 샘플 장면 하나를 w x h에 그린다. 천천히 움직이는 크롭으로 카메라 영상처럼 보이게 한다.
-function drawScene(ctx, w, h, t, idx, alpha = 1) {
+// 슬롯 수만큼 팀 사진을 돌려 채운다.
+export const fillPhotos = (imgs, n) => (imgs.length ? Array.from({ length: n }, (_, i) => imgs[i % imgs.length]) : [])
+
+const SCENE_MS = 5200
+
+function drawScene(ctx, w, h, t, idx, alpha = 1, mirror = false) {
   const imgs = loadSamples()
   const img = imgs[((idx % imgs.length) + imgs.length) % imgs.length]
   if (!img.complete || !img.naturalWidth) return
   const sw = img.naturalWidth
   const sh = img.naturalHeight
-  const z = 1.12 + 0.05 * Math.sin(t / 2600 + idx)
+  const z = 1.05 + 0.04 * Math.sin(t / 2600 + idx) + (idx >= imgs.length ? 0.12 : 0)
   const k = Math.max(w / sw, h / sh) * z
   const cw = w / k
   const ch = h / k
-  const fx = 0.5 + 0.3 * Math.sin(t / 4200 + idx * 1.7)
-  const fy = 0.5 + 0.3 * Math.cos(t / 5100 + idx)
+  const fx = 0.5 + 0.2 * Math.sin(t / 4200 + idx * 1.7)
+  const fy = 0.4 + 0.15 * Math.cos(t / 5100 + idx)
   ctx.save()
   ctx.globalAlpha = alpha
+  if (mirror) {
+    ctx.translate(w, 0)
+    ctx.scale(-1, 1)
+  }
   ctx.drawImage(img, (sw - cw) * fx, (sh - ch) * fy, cw, ch, 0, 0, w, h)
   ctx.restore()
 }
-
-const SCENE_MS = 5200
 
 export function useCamera({ wanted, mode }) {
   const [status, setStatus] = useState('off') // off | starting | live | sample | fallback
@@ -103,10 +109,10 @@ export function useCamera({ wanted, mode }) {
       setStatus('fallback')
       return undefined
     }
-    // 권한 창이 열린 채 응답이 없으면 샘플로 먼저 보여준다. 이후 허용되면 웹캠으로 바뀐다.
+    // 권한 창이 열린 채 응답이 없으면 2초 뒤 샘플로 먼저 보여준다. 이후 허용되면 웹캠으로 바뀐다.
     const timer = setTimeout(() => {
       if (!dead) setStatus((s) => (s === 'starting' ? 'fallback' : s))
-    }, 5000)
+    }, 2000)
     md.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false })
       .then(async (stream) => {
         if (dead) {
@@ -118,7 +124,11 @@ export function useCamera({ wanted, mode }) {
         v.muted = true
         v.playsInline = true
         v.srcObject = stream
-        try { await v.play() } catch { /* 자동 재생이 막혀도 프레임은 읽힌다 */ }
+        try {
+          await v.play()
+        } catch {
+          /* 자동 재생이 막혀도 프레임은 읽힌다 */
+        }
         if (dead) {
           stream.getTracks().forEach((t) => t.stop())
           return
@@ -139,7 +149,7 @@ export function useCamera({ wanted, mode }) {
     }
   }, [wanted, mode, stop])
 
-  // 현재 소스를 그린다. 웹캠은 거울처럼 좌우 반전한다.
+  // 현재 소스를 w x h에 가득 채워 그린다. 웹캠은 거울처럼 좌우 반전한다.
   const drawSource = useCallback((ctx, w, h, t, idx) => {
     const v = videoRef.current
     if (v && v.readyState >= 2 && v.videoWidth) {
@@ -154,7 +164,8 @@ export function useCamera({ wanted, mode }) {
       return
     }
     if (idx != null) {
-      drawScene(ctx, w, h, 0, idx)
+      const n = loadSamples().length
+      drawScene(ctx, w, h, 0, idx, 1, idx >= n)
       return
     }
     const n = Math.floor(t / SCENE_MS)
@@ -163,7 +174,6 @@ export function useCamera({ wanted, mode }) {
     if (frac > 0.88) drawScene(ctx, w, h, t, n + 1, (frac - 0.88) / 0.12)
   }, [])
 
-  // 미리보기 한 프레임(보정 적용)
   const draw = useCallback(
     (ctx, w, h, t, retouch) => {
       paintRetouched(ctx, () => drawSource(ctx, w, h, t, null), w, h, retouch || DEFAULT_RETOUCH)
@@ -171,14 +181,14 @@ export function useCamera({ wanted, mode }) {
     [drawSource],
   )
 
-  // 촬영: 보정이 적용된 1280x720 캔버스와 미리보기 URL을 돌려준다.
+  // 촬영: 보정이 적용된 960x1280 캔버스와 미리보기 URL을 돌려준다.
   const capture = useCallback(
     (idx, retouch) => {
       const c = document.createElement('canvas')
-      c.width = 1280
-      c.height = 720
+      c.width = CAPTURE.w
+      c.height = CAPTURE.h
       const ctx = c.getContext('2d')
-      paintRetouched(ctx, () => drawSource(ctx, 1280, 720, 0, idx), 1280, 720, retouch || DEFAULT_RETOUCH)
+      paintRetouched(ctx, () => drawSource(ctx, CAPTURE.w, CAPTURE.h, 0, idx), CAPTURE.w, CAPTURE.h, retouch || DEFAULT_RETOUCH)
       return { canvas: c, url: c.toDataURL('image/jpeg', 0.86), live: !!videoRef.current }
     },
     [drawSource],

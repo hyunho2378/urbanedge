@@ -58,11 +58,12 @@ export function LensPart({ active }) {
   )
 }
 
-// 카드 단말기: 검은 본체, 초록 LED 바, 카드 슬릿, 파란 점, 아래 받침판
+// 카드 단말기: 검은 본체, 초록 LED 바, 카드 슬릿, 파란 점, 아래 받침판.
+// hint가 켜지면 LED와 슬롯 창이 숨 쉬고, 카드가 아래에서 올라와 본체 뒤로 들어가는 동작이 반복된다.
 export function CardReaderPart({ hint }) {
   const u = useId().replace(/:/g, '')
   return (
-    <svg viewBox="0 0 185 84" className="dv-svg" aria-hidden="true" focusable="false">
+    <svg viewBox="0 0 185 84" className="dv-svg dv-reader" data-hint={hint ? 'true' : 'false'} aria-hidden="true" focusable="false">
       <defs>
         <linearGradient id={`${u}-top`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" style={stop('white', 0.2)} />
@@ -73,6 +74,12 @@ export function CardReaderPart({ hint }) {
           <feGaussianBlur stdDeviation="3" />
         </filter>
       </defs>
+      <g className="dv-card-card">
+        <rect x="64" y="62" width="58" height="36" rx="4" style={fill('white')} />
+        <rect x="64.5" y="62.5" width="57" height="35" rx="3.6" style={stroke('black', 0.3, 1)} />
+        <rect x="70" y="70" width="12" height="9" rx="1.6" style={fill('yellow')} />
+        <rect x="70" y="86" width="40" height="3" rx="1.5" style={fill('black', 0.4)} />
+      </g>
       <path d="M30 70 H168 L173 79 Q173 82 169 82 H34 Q30 82 30 79 Z" style={fill('black', 0.82)} />
       <path d="M6 14 Q6 4 16 4 H172 Q181 4 181 13 V64 Q181 74 172 74 H15 Q6 74 6 65 Z" style={fill('bg-base')} />
       <path d="M6 14 Q6 4 16 4 H172 Q181 4 181 13 V64 Q181 74 172 74 H15 Q6 74 6 65 Z" fill={`url(#${u}-top)`} />
@@ -80,8 +87,9 @@ export function CardReaderPart({ hint }) {
       <rect x="20" y="13" width="26" height="2.6" rx="1" style={fill('white', 0.32)} />
       <rect x="20" y="18" width="14" height="2" rx="1" style={fill('white', 0.18)} />
       <rect x="26" y="26" width="132" height="26" rx="3" style={fill('black', 0.7)} />
+      <rect className="dv-card-window" x="26" y="26" width="132" height="26" rx="3" style={fill('state-success', 0.22)} />
       <rect x="26.5" y="26.5" width="131" height="25" rx="2.6" style={stroke('white', 0.1, 0.8)} />
-      <g className="dv-card-led" data-hint={hint ? 'true' : 'false'}>
+      <g className="dv-card-led">
         <rect x="50" y="31" width="82" height="6" rx="3" style={fill('state-success', 0.9)} filter={`url(#${u}-blur)`} />
         <rect x="50" y="31" width="82" height="5" rx="2.5" style={fill('state-success')} />
       </g>

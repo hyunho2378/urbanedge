@@ -1,0 +1,18 @@
+/* 결과 페이지 전용 스타일. 색은 토큰 변수만 쓴다. */
+.rs-scroll {
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.rs-scroll::-webkit-scrollbar {
+  display: none;
+}
+/* 한국어 어절 단위 줄바꿈과 좁은 폭에서 넘침 방지 */
+.rs-page {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+/* 인라인 텍스트 링크의 터치 영역 */
+.rs-hit {
+  min-height: 2.75rem;
+}

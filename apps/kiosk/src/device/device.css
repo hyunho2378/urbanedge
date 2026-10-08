@@ -150,7 +150,7 @@
 .dv-paper {
   position: absolute;
   transform: translate3d(0, -104%, 0);
-  transition: transform 1500ms var(--ue-ease-out);
+  transition: transform 500ms var(--ue-ease-out);
   background: rgb(var(--ue-white));
   box-shadow: 0 0 0 1px rgb(var(--ue-black) / 0.18), 0 0.8cqw 1.2cqw rgb(var(--ue-black) / 0.35);
 }

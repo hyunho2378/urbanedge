@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { ArrowDownRight, Banknote, Check, CreditCard, Keyboard, ScanLine, Smartphone, Ticket, X } from 'lucide-react'
+import { Banknote, Check, CreditCard, Keyboard, ScanLine, Smartphone, Ticket, X } from 'lucide-react'
 import { cx } from '@urbanedge/ds'
 import { T, useT } from '../../components/lang.jsx'
 import { KButton } from '../../components/KButton.jsx'
-import { Tip } from '../../components/Tip.jsx'
+import { CardReader } from '../../components/CardReader.jsx'
 import { StripView } from '../../components/StripView.jsx'
 import { CodeKeypad } from '../../components/OnScreenKeyboard.jsx'
 import { COPY } from '../copy.js'
@@ -70,19 +70,15 @@ function Choose({ ctrl }) {
 }
 
 function Reader({ ctrl }) {
-  const seen = ctrl.coach.seen.card
-  const samsung = ctrl.pay.method === 'samsung'
+  const { pay } = ctrl
+  const samsung = pay.method === 'samsung'
+  const title = pay.status === 'success' ? COPY.pay.paidTitle : pay.status === 'processing' ? COPY.pay.processing : samsung ? COPY.pay.samsungTitle : COPY.pay.cardTitle
   return (
     <div>
-      <T n={samsung ? COPY.pay.samsungTitle : COPY.pay.cardTitle} as="h1" className="kt-headline" />
-      {seen ? (
-        <div className="k-rise mt-48 flex items-center gap-24 text-yellow">
-          <ArrowDownRight size={96} strokeWidth={2} className="k-nudge-dr" aria-hidden="true" />
-          <T n={COPY.pay.readerHint} as="p" className="kt-subhead" />
-        </div>
-      ) : (
-        <Tip focus="card" title={COPY.tip.cardTitle} body={COPY.tip.cardBody} onDone={() => ctrl.markCoach('card')} style={{ marginTop: 48 }} />
-      )}
+      <T n={title} as="h1" className="kt-headline" />
+      <div className="mt-24">
+        <CardReader ctrl={ctrl} />
+      </div>
     </div>
   )
 }
@@ -161,7 +157,9 @@ export default function Pay({ ctrl }) {
   const couponUsed = pay.method === 'coupon' && pay.status === 'success'
   const typing = pay.status === 'waiting' && pay.method === 'coupon' && pay.view !== 'scan'
   let right
+  const reader = pay.method === 'card' || pay.method === 'samsung'
   if (pay.status === 'choose') right = <Choose ctrl={ctrl} />
+  else if (reader && ['waiting', 'processing', 'success'].includes(pay.status)) right = <Reader ctrl={ctrl} />
   else if (pay.status === 'processing') {
     right = (
       <div className="flex flex-col items-start">
@@ -181,8 +179,7 @@ export default function Pay({ ctrl }) {
         </KButton>
       </Result>
     )
-  } else if (pay.method === 'card' || pay.method === 'samsung') right = <Reader ctrl={ctrl} />
-  else if (pay.method === 'cash') right = <Cash ctrl={ctrl} />
+  } else if (pay.method === 'cash') right = <Cash ctrl={ctrl} />
   else right = <Coupon ctrl={ctrl} />
 
   return (

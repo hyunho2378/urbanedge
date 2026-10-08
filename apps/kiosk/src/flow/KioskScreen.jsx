@@ -47,10 +47,10 @@ function barConfig(ctrl) {
     case 'pay': {
       const waiting = pay.status === 'waiting'
       back.node = pay.method ? COPY.pay.change : COPY.common.back
-      back.hidden = pay.status === 'processing' || pay.status === 'success'
+      back.hidden = pay.status === 'processing' || pay.status === 'success' || !!pay.reader
       next.disabled = false
       if (pay.status === 'success') next.node = COPY.pay.continue
-      else if (waiting && (pay.method === 'card' || pay.method === 'samsung')) Object.assign(next, { node: COPY.pay.simTap, onClick: () => ctrl.payTap(true) })
+      else if (waiting && !pay.reader && (pay.method === 'card' || pay.method === 'samsung')) Object.assign(next, { node: pay.method === 'card' ? COPY.pay.simInsert : COPY.pay.simPhone, onClick: () => ctrl.payTap(true) })
       else if (waiting && pay.method === 'cash') Object.assign(next, { node: COPY.pay.simBill, onClick: ctrl.payCash })
       else if (waiting && pay.method === 'coupon' && pay.view === 'scan') Object.assign(next, { node: COPY.pay.simScan, onClick: () => ctrl.applyCoupon(ctrl.demoCoupon) })
       else next.hidden = true

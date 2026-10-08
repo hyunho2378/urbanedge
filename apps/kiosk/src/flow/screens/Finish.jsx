@@ -1,6 +1,7 @@
 import { T, useT } from '../../components/lang.jsx'
 import { QrCode } from '../../components/QrCode.jsx'
 import { StripView } from '../../components/StripView.jsx'
+import { Zoomable } from '../../components/Zoomable.jsx'
 import { COPY } from '../copy.js'
 import { resultUrl } from '../config.js'
 import { defaultFrameFor, photosFromArrangement } from '../prints.js'
@@ -14,7 +15,7 @@ export default function Finish({ ctrl }) {
   return (
     <div className="absolute inset-0 bg-bg-base">
       <div className="absolute" style={{ left: 120, top: 220 }}>
-        {frame && <StripView frame={frame} photos={photos} date={ctrl.date} roomId={ctrl.room} message={ctrl.message} height={760} scale={1} className="k-lift" label={t(frame.name)} />}
+        {frame && <Zoomable height={760} label={t(COPY.common.zoomOpen)} render={(h) => <StripView frame={frame} photos={photos} date={ctrl.date} roomId={ctrl.room} message={ctrl.message} height={h} scale={1} className="k-lift" label={t(frame.name)} />} />}
       </div>
       <div className="absolute" style={{ left: 840, top: 236, width: 960 }}>
         <T n={COPY.finish.title} as="h1" className="kt-title" />

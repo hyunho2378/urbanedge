@@ -4,6 +4,7 @@ import { cx } from '@urbanedge/ds'
 import { T, useT } from '../../components/lang.jsx'
 import { StripView } from '../../components/StripView.jsx'
 import { StampMark } from '../../components/StampMark.jsx'
+import { Zoomable } from '../../components/Zoomable.jsx'
 import { OnScreenKeyboard } from '../../components/OnScreenKeyboard.jsx'
 import { DragLayer, useDrag } from '../../components/useDrag.jsx'
 import { useStageRef } from '../../components/stage.js'
@@ -82,6 +83,9 @@ export default function Print({ ctrl }) {
   return (
     <div className="absolute inset-0 bg-bg-base">
       <div className="absolute" style={{ left: 120, top: 210 }}>
+        {done && ctrl.printUrl ? (
+          <Zoomable height={H} label={t(COPY.common.zoomOpen)} render={(h) => <img src={ctrl.printUrl} alt="" draggable="false" className="k-lift block" style={{ height: h, width: 'auto' }} />} />
+        ) : (
         <div ref={winRef} className={cx('relative', !done && 'k-print-bob')} style={{ width: sheetW, height: H }}>
           {frame && <StripView frame={frame} photos={photos} date={ctrl.date} roomId={ctrl.room} message={message} height={H} scale={1} className="k-lift" label={t(frame.name)} />}
           {Array.from({ length: copies }, (_, c) =>
@@ -92,6 +96,7 @@ export default function Print({ ctrl }) {
             )),
           )}
         </div>
+        )}
       </div>
 
       <div className="absolute" style={{ left: 840, top: 236, width: 1016 }}>

@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { cx } from '@urbanedge/ds'
 import { T } from '../../components/lang.jsx'
 import { StripView } from '../../components/StripView.jsx'
+import { Zoomable } from '../../components/Zoomable.jsx'
+import { useT } from '../../components/lang.jsx'
 import { DragLayer, useDrag } from '../../components/useDrag.jsx'
 import { useStageRef } from '../../components/stage.js'
 import { COPY } from '../copy.js'
@@ -10,6 +12,7 @@ import { defaultFrameFor } from '../prints.js'
 // 11. select: 찍은 컷을 인화 칸에 끌어 놓는다. 위 줄은 찍은 컷, 아래 줄은 인화 순서 칸이고 오른쪽 미리보기가 바로 바뀐다.
 // 끌기가 어려운 사람을 위해 컷을 한 번 누르면 첫 빈 칸에 들어가고, 칸을 누르면 비워진다.
 export default function Select({ ctrl }) {
+  const t = useT()
   const stageRef = useStageRef()
   const { drag, begin } = useDrag(stageRef)
   const [over, setOver] = useState(null)
@@ -70,7 +73,7 @@ export default function Select({ ctrl }) {
   return (
     <div className="absolute inset-0 bg-bg-base">
       <div className="absolute" style={{ left: 120, top: 212 }}>
-        {frame && <StripView frame={frame} photos={photos} date={ctrl.date} roomId={ctrl.room} message={ctrl.message} height={680} scale={1} className="k-lift" label={COPY.select.tray.en} />}
+        {frame && <Zoomable height={680} label={t(COPY.common.zoomOpen)} render={(h) => <StripView frame={frame} photos={photos} date={ctrl.date} roomId={ctrl.room} message={ctrl.message} height={h} scale={1} className="k-lift" label={COPY.select.tray.en} />} />}
       </div>
 
       <div className="absolute" style={{ left: 760, top: 236, width: 1096 }}>

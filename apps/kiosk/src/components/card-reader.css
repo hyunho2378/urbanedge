@@ -1,0 +1,52 @@
+/* CardReader: 카드 투입과 휴대폰 태그 장면 */
+.cr { position: relative; touch-action: none; }
+.cr > * { position: absolute; }
+
+.cr-body {
+  border-radius: 20px;
+  background: linear-gradient(180deg, #2b2b29 0%, #1a1a19 100%);
+  box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.08), 0 24px 60px rgb(0 0 0 / 0.45);
+}
+.cr-led {
+  position: absolute; right: 40px; top: 50px; width: 20px; height: 20px; border-radius: 999px;
+  background: rgb(var(--ue-yellow)); box-shadow: 0 0 0 6px rgb(var(--ue-yellow) / 0.18);
+}
+.cr--idle .cr-led { animation: cr-led-idle 1.6s ease-in-out infinite; }
+.cr--reading .cr-led { animation: cr-led-blink 0.32s steps(1, end) infinite; }
+.cr--ok .cr-led { background: #3ddc84; box-shadow: 0 0 0 6px rgb(61 220 132 / 0.25), 0 0 24px rgb(61 220 132 / 0.6); }
+.cr-label { position: absolute; left: 40px; top: 46px; color: rgb(var(--ue-text-meta)); }
+.cr-pad { position: absolute; left: 50%; top: 22px; width: 96px; height: 96px; margin-left: -48px; border-radius: 16px; display: grid; place-items: center; background: #111110; color: rgb(var(--ue-yellow)); }
+.cr--ok .cr-pad { color: #3ddc84; }
+.cr-wave { position: absolute; left: 50%; top: 70px; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 999px; border: 4px solid rgb(var(--ue-yellow)); animation: cr-wave 0.9s ease-out infinite; pointer-events: none; }
+
+.cr-mask { overflow: hidden; pointer-events: none; }
+.cr--phone .cr-mask { overflow: visible; }
+.cr-item {
+  position: absolute; padding: 0; border: 0; background: none; cursor: grab; pointer-events: auto; touch-action: none;
+  border-radius: 14px; filter: drop-shadow(0 22px 30px rgb(0 0 0 / 0.5));
+  transition: transform 560ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.cr-item:disabled { cursor: default; }
+.cr-item:focus-visible { outline: 4px solid rgb(var(--ue-yellow)); outline-offset: 8px; }
+.cr-item--drag { transition: none; cursor: grabbing; }
+.cr-item--hint { animation: cr-hint 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+
+.cr-slot {
+  border-radius: 999px; background: #000;
+  box-shadow: inset 0 3px 6px rgb(0 0 0 / 0.9), 0 -1px 0 rgb(255 255 255 / 0.12), 0 2px 0 rgb(255 255 255 / 0.06);
+}
+.cr--reading .cr-slot { box-shadow: inset 0 3px 6px rgb(0 0 0 / 0.9), 0 0 18px rgb(var(--ue-yellow) / 0.55); }
+.cr-status { left: 0; color: rgb(var(--ue-text-sec)); }
+.cr--reading .cr-status { color: rgb(var(--ue-yellow)); }
+.cr--ok .cr-status { color: rgb(var(--ue-text-pri)); }
+
+@keyframes cr-led-idle { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+@keyframes cr-led-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.15; } }
+@keyframes cr-wave { from { opacity: 0.9; transform: scale(0.6); } to { opacity: 0; transform: scale(1.9); } }
+/* 기다릴 때 카드가 투입구 쪽으로 살짝 내려갔다 돌아온다(transform은 인라인 값과 겹치지 않게 translate 속성을 쓴다) */
+@keyframes cr-hint { 0%, 100% { translate: 0 0; } 50% { translate: 0 18px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cr-item, .cr-item--hint { transition: none; animation: none; }
+  .cr--idle .cr-led, .cr--reading .cr-led, .cr-wave { animation: none; }
+}

@@ -33,7 +33,8 @@ import { DEMO_COUPON, validateCoupon } from './coupon.js'
 // 옵션: useKioskController({ speed, step, lang, room, cameraMode }). speed가 1보다 작으면 촬영과 인화 연출이 빨라진다(개발 확인용).
 
 const INITIAL_SHOOT = { index: 0, phase: 'idle', count: 0 }
-const INITIAL_PAY = { method: null, status: 'choose', coupon: null, couponError: false, cash: 0, view: 'type' }
+// reader: null | 'in'(카드가 투입구에 들어감 / 휴대폰이 단말기에 닿음) | 'out'(승인 뒤 카드를 빼는 중)
+const INITIAL_PAY = { method: null, status: 'choose', coupon: null, couponError: false, cash: 0, view: 'type', reader: null }
 const idx = (id) => STEP_IDS.indexOf(id)
 
 function zoneFor(step, introPage, pay) {
@@ -204,23 +205,29 @@ export function useKioskController(options = {}) {
     setPay(next)
   }, [])
 
-  const setPayMethod = useCallback((m) => patchPay({ method: m, status: 'waiting', couponError: false, cash: 0, view: 'type', coupon: null }), [patchPay])
+  const setPayMethod = useCallback((m) => patchPay({ method: m, status: 'waiting', couponError: false, cash: 0, view: 'type', coupon: null, reader: null }), [patchPay])
   const payBack = useCallback(() => patchPay({ ...INITIAL_PAY }), [patchPay])
-  const payRetry = useCallback(() => patchPay({ status: 'waiting', couponError: false, cash: 0 }), [patchPay])
+  const payRetry = useCallback(() => patchPay({ status: 'waiting', couponError: false, cash: 0, reader: null }), [patchPay])
   const setCouponView = useCallback((v) => patchPay({ view: v }), [patchPay])
 
   const finishPay = useCallback(
     (ok) => {
       patchPay({ status: 'processing' })
-      later(() => patchPay({ status: ok ? 'success' : 'failed' }), FLOW.payMs)
+      later(() => {
+        const card = live.current.pay.method === 'card'
+        // 카드는 승인 뒤 투입구에서 다시 올라온다(reader 'out'). 실패하면 바로 빠진다.
+        patchPay({ status: ok ? 'success' : 'failed', reader: card && ok ? 'out' : null })
+      }, FLOW.payMs)
     },
     [patchPay, later],
   )
+  // 카드: 투입구에 꽂는 순간(reader 'in') 뒤 FLOW.readerMs 동안 읽고 승인 요청. 삼성페이도 같은 순서로 단말기에 닿는다.
   const payTap = useCallback((ok = true) => {
-    const m = live.current.pay.method
-    if ((m !== 'card' && m !== 'samsung') || live.current.pay.status !== 'waiting') return
-    finishPay(ok)
-  }, [finishPay])
+    const p = live.current.pay
+    if ((p.method !== 'card' && p.method !== 'samsung') || p.status !== 'waiting' || p.reader) return
+    patchPay({ reader: 'in' })
+    later(() => finishPay(ok), FLOW.readerMs)
+  }, [finishPay, patchPay, later])
   const payCash = useCallback(() => {
     const p = live.current.pay
     if (p.method !== 'cash' || p.status !== 'waiting') return
@@ -249,7 +256,7 @@ export function useKioskController(options = {}) {
   useEffect(() => {
     if (step !== 'pay' || pay.status !== 'success') return undefined
     const id = setTimeout(() => {
-      if (live.current.step === 'pay') go('guide')
+      if (live.current.step === 'pay') go('cuts')
     }, FLOW.payDoneMs * live.current.speed)
     return () => clearTimeout(id)
   }, [step, pay.status, go])
@@ -389,16 +396,16 @@ export function useKioskController(options = {}) {
         break
       case 'intro':
         if (L.introPage < INTRO_PAGES - 1) setIntroPage(L.introPage + 1)
-        else go('cuts')
+        else go(L.pay.status === 'success' ? 'cuts' : 'pay')
         break
       case 'cuts':
         if (L.cuts) go('frame')
         break
       case 'frame':
-        go(L.pay.status === 'success' ? 'guide' : 'pay')
+        go('guide')
         break
       case 'pay':
-        if (L.pay.status === 'success') go('guide')
+        if (L.pay.status === 'success') go('cuts')
         break
       case 'guide':
         go('shoot')
@@ -430,16 +437,15 @@ export function useKioskController(options = {}) {
         if (L.introPage > 0) setIntroPage(L.introPage - 1)
         else go('language')
         break
-      case 'cuts':
-        setIntroPage(INTRO_PAGES - 1)
-        go('intro')
-        break
       case 'frame':
         go('cuts')
         break
       case 'pay':
-        if (L.pay.method && L.pay.status !== 'processing') payBack()
-        else go('frame')
+        if (L.pay.method && !['processing', 'success'].includes(L.pay.status) && !L.pay.reader) payBack()
+        else if (!L.pay.method) {
+          setIntroPage(INTRO_PAGES - 1)
+          go('intro')
+        }
         break
       case 'guide':
         go('frame')
@@ -557,7 +563,7 @@ export function useKioskController(options = {}) {
         return true
     }
   })()
-  const canBack = !['attract', 'shoot', 'print', 'finish'].includes(step)
+  const canBack = !['attract', 'shoot', 'print', 'finish', 'cuts'].includes(step)
   const cameraActive = CAMERA_STEPS.includes(step) && ['live', 'sample', 'fallback'].includes(camera.status)
 
   return {

@@ -34,8 +34,6 @@ const Visit = page('Visit')
 const Gallery = page('Gallery')
 const NotFound = page('NotFound')
 const Brand = page('Brand')
-const Metro = page('Metro')
-const Station = page('Station')
 // 키오스크 QR 결과 페이지: Layout(헤더, 푸터) 밖의 단독 모바일 화면
 const Result = lazy(() => import('./pages/Result.jsx'))
 
@@ -59,8 +57,6 @@ export default function App() {
           <Route path="visit" element={<Visit />} />
           <Route path="gallery" element={<Gallery />} />
           <Route path="brand" element={<Brand />} />
-          <Route path="metro" element={<Metro />} />
-          <Route path="station/:id" element={<Station />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

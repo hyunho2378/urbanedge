@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { Button, DepartureBoard, PLATFORMS, cx } from '@urbanedge/ds'
-import { DISCLAIMER, LINE, ROOMS, STATION } from '../../data/site.js'
+import { LINE, ROOMS, STATION } from '../../data/site.js'
 import { useMedia } from './hooks.js'
 import { usePick } from '../../i18n/index.jsx'
 import { B } from '../../layout/B.jsx'
@@ -11,15 +11,14 @@ import './board-fix.css'
 import { scrollToId } from '../../layout/scroll.js'
 
 const COPY = {
-  line1: { en: 'No subway in Gyeongju.', ko: '경주에는 지하철이 없어서' },
-  line2: { en: 'So we built one.', ko: '한 정거장을 직접 만들었다' },
+  line1: { en: 'UrbanEdge', ko: '어반엣지' },
+  line2: { en: 'Photo studio in Hwangridan-gil', ko: '황리단길 셀프 사진관' },
   lead: {
-    en: 'UrbanEdge is the first station on Gyeongju Metro. Four platforms, four photo rooms. Pick one.',
-    ko: '어반엣지는 경주 메트로의 첫 역이다. 승강장 네 곳이 곧 포토 룸이니 마음에 드는 곳에서 탑승한다.',
+    en: 'Three rooms: Subway, Karaoke and Retro. Open 10:00 to 24:00.',
+    ko: '지하철, 노래방, 레트로 방이 있다. 10:00부터 24:00까지 운영한다.',
   },
   board: { en: 'Board this platform', ko: '이 승강장 탑승' },
   way: { en: 'Show me the way', ko: '길 찾기' },
-  wink: { en: 'A brand fiction, not public transit. The studio is real: 10:00 to 24:00.', ko: '노선은 브랜드 콘셉트이고 사진관은 실제로 운영한다. 10:00부터 24:00까지다.' },
 }
 const GLOW = { yellow: '--ue-line-yellow', red: '--ue-line-red', blue: '--ue-line-blue', green: '--ue-line-green' }
 const BOARD_STATION = { code: STATION.code, name: STATION.name.en, nameKo: STATION.name.ko }
@@ -97,8 +96,6 @@ export default function Hero() {
             <B v={COPY.way} inline />
           </button>
         </div>
-        <p className="t-caption mt-4 max-w-md text-text-meta"><B v={COPY.wink} /></p>
-        <p className="t-label mt-8 text-yellow" lang="en"><B v={DISCLAIMER} /></p>
       </Wrap>
       <span className="sr-only">{pick({ en: 'Now boarding', ko: '탑승 중' })}: {pick(room.title)}</span>
     </section>

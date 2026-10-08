@@ -33,7 +33,7 @@ export default function TiltStrip({ className, date = '2026.10.09' }) {
       onPointerLeave={rest}
       onPointerUp={rest}
       role="img"
-      aria-label={pick({ en: 'A four-cut print of the UrbanEdge team in the karaoke room. Move your pointer or drag to tilt it.', ko: '노래방에서 찍은 어반엣지 팀의 4컷 인화물. 포인터를 움직이거나 끌면 기울어진다.' })}
+      aria-label={pick({ en: 'A four-cut print of the UrbanEdge team in the karaoke room', ko: '노래방에서 찍은 어반엣지 팀의 4컷 인화물' })}
     >
       <div
         ref={ref}

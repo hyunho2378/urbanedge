@@ -1,6 +1,6 @@
 // content.js: W2 하위 페이지가 공유하는 데이터와 문구.
 // 영문은 영어로 먼저 쓰고, 한국어는 따로 쓴다(docs/VOICE.md). 사실은 data/site.js와 현장 사진에서 확인된 것만 쓴다.
-// 시스템은 Gyeongju Metro(GY)이고 역은 GY-01 UrbanEdge 하나다. 방 네 곳이 승강장 1부터 4다. 가상의 관광 경험이며 공공 교통이 아니다.
+// 시스템은 Gyeongju Metro(GY)이고 역은 GY-01 UrbanEdge 하나다. 유료 촬영 방 세 곳이 승강장 1부터 3이다. 가상의 관광 경험이며 공공 교통이 아니다.
 
 // 시스템은 Gyeongju Metro(코드 GY)이고, 실제 역은 GY-01 UrbanEdge(황리단길) 하나다. 방 네 곳이 역 안의 승강장 1부터 4다.
 // 가상의 관광 경험이며 실제 교통시설이나 공식 역이 아니다. 화면에는 항상 "Imaginary Metro · Travel Experience" 고지를 둔다.
@@ -192,35 +192,8 @@ const ALL = [
     ],
   },
   {
-    id: 'phone',
-    no: 3,
-    accent: 'blue',
-    name: 'PUBLIC PHONE SHOT',
-    title: { en: 'Public Phone Shot', ko: '공중전화 샷' },
-    vibe: { en: 'Pick up. It is for you.', ko: '수신음이 울리는 공중전화' },
-    story: {
-      en: 'A booth window with PUBLIC PHONE across the top, a steel door frame, and above it a call screen reading UrbanEdge with a red button and a green one. You are the one being called. Hold an imaginary receiver, lean on the tiled wall and look like you just pressed green.',
-      ko: '윗부분에 PUBLIC PHONE이라고 적힌 부스 창과 스테인리스 문틀이 있고, 문틀 위에는 빨간 버튼과 초록 버튼이 달린 UrbanEdge 수신 화면이 떠 있다. 전화를 받는 사람이 바로 나이므로 가상의 수화기를 귀에 대고 타일 벽에 기대어 방금 초록 버튼을 누른 얼굴을 하면 된다.',
-    },
-    why: {
-      en: 'Cool steel and white tile make a clean, almost film-still backdrop, and the call screen works as a caption for your pose.',
-      ko: '차가운 철과 하얀 타일이 깨끗한 영화 장면 같은 배경을 만들고, 수신 화면이 포즈에 붙는 자막 역할을 한다.',
-    },
-    props: [
-      { en: 'Booth window', ko: '부스 창' },
-      { en: 'Call-screen decoration', ko: '수신 화면 장식' },
-      { en: 'Steel door frame', ko: '스테인리스 문틀' },
-    ],
-    photos: ['o_30', 'o_49'],
-    poses: [
-      { id: 'answer-call', title: { en: 'Answer the call', ko: '전화 받기' }, desc: { en: 'Hand to ear, eyebrows up, like you pressed green a second ago.', ko: '손을 귀에 대고 눈썹을 올려 방금 전화를 받은 표정을 짓는다.' } },
-      { id: 'whisper', title: { en: 'Whisper', ko: '소곤거리기' }, desc: { en: 'Cup a hand around your mouth and glance sideways.', ko: '한 손으로 입을 가리고 옆을 힐끔 본다.' } },
-      { id: 'hold-line', title: { en: 'Hold the line', ko: '기다리는 사람' }, desc: { en: 'Lean on the wall with arms crossed, waiting for a callback.', ko: '벽에 기대 팔짱을 끼고 걸려 올 전화를 기다린다.' } },
-    ],
-  },
-  {
     id: 'retro',
-    no: 4,
+    no: 3,
     accent: 'green',
     name: 'RETRO SHOT',
     title: { en: 'Retro Shot', ko: '레트로 샷' },

@@ -1,14 +1,11 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowDown, ArrowRight } from 'lucide-react'
+import { ArrowDown, ArrowRight, ArrowUpRight } from 'lucide-react'
 import { Bi, Button, CautionTape, Container, ExitSign, ShareButton, TrainTrack, cx, useLangValue } from '@urbanedge/ds'
-import { SITE } from '../data/site.js'
+import { SITE, kioskHref } from '../data/site.js'
 import { PageShell, Tx, useV } from '../components/pages/Bilingual.jsx'
 import { CameraDiagram, CAMERA_PARTS } from '../components/pages/CameraDiagram.jsx'
-import { CutCompare } from '../components/pages/CutCompare.jsx'
 import { Faq } from '../components/pages/Faq.jsx'
-import { FrameCarousel } from '../components/pages/FrameCarousel.jsx'
-import { KioskEmbed } from '../components/pages/KioskEmbed.jsx'
 import { PageTop } from '../components/pages/PageTop.jsx'
 import { Tape } from '../components/pages/Tape.jsx'
 import { useMedia, useScrollStops } from '../components/pages/hooks.js'
@@ -20,13 +17,13 @@ const price = { en: `\u20a9${won.en}`, ko: `${won.ko}원` }
 
 const T = {
   title: { en: 'How to', ko: '이용 안내' },
-  h1: { en: 'Five stops from the street to your strip.', ko: '거리에서 인화물까지 다섯 정거장' },
+  h1: { en: 'How to', ko: '이용 안내' },
   lead: {
-    en: 'Enter at Exit 1, ride five stops and step off with a printed strip. Nobody works the floor and the camera sits below the screen, so here is everything in the order it happens.',
-    ko: '1번 출구로 들어와 다섯 정거장을 지나면 인화물이 손에 남는다. 현장에 직원이 없고 카메라가 화면 아래에 있으므로, 일어나는 순서대로 모두 적어 두었다.',
+    en: 'Nobody works the floor. The camera sits below the screen.',
+    ko: '현장에 직원이 없다. 카메라는 화면 아래에 있다.',
   },
   start: { en: 'Start the journey', ko: '여정 시작' },
-  try: { en: 'Try the kiosk now', ko: '키오스크 바로 체험' },
+  kiosk: { en: 'Open the kiosk screen', ko: '키오스크 화면 열기' },
   tape: [
     { en: 'Next stop: Choose cuts', ko: '다음 정거장은 컷 선택입니다' },
     { en: 'Mind the lens, it sits below the screen', ko: '렌즈는 화면 아래에 있으니 주의하세요' },
@@ -37,47 +34,17 @@ const T = {
   play: { en: 'Resume announcements', ko: '안내 문구 다시 흐르기' },
   trackLabel: { en: 'Journey progress', ko: '여정 진행' },
 
-  cut: {
-    group: { en: 'Number of cuts', ko: '컷 수' },
-    four: { en: '4 cuts', ko: '4컷' },
-    eight: { en: '8 cuts', ko: '8컷' },
-    fourText: { en: 'Four shots, and all four go on the print.', ko: '네 장을 찍으면 네 장이 모두 인화된다.' },
-    eightText: {
-      en: 'Eight shots, then you choose which ones go on the print. How many fit depends on the frame.',
-      ko: '여덟 장을 찍은 뒤 인화할 컷을 직접 고르며, 몇 장이 들어가는지는 프레임에 따라 다르다.',
-    },
-    shots: { en: 'Your shots', ko: '찍은 컷' },
-    shot: { en: 'Shot', ko: '컷' },
-    all: { en: 'All four shots are on the print.', ko: '네 컷이 모두 인화물에 올라간다.' },
-    picked: { en: 'Picked', ko: '고른 컷' },
-    full: { en: 'The frame is full. Tap a picked shot to swap it.', ko: '프레임이 가득 찼다. 고른 컷을 누르면 빠지고 다른 컷으로 바꿀 수 있다.' },
-    frames: { en: 'Frames for this choice', ko: '이 컷 수의 프레임' },
-    printNote: {
-      en: 'A live preview with the team photos. Your own strip prints the shot date in small type.',
-      ko: '팀 사진으로 만든 실시간 미리보기이며, 실제 인화물에는 촬영 날짜가 작게 찍힌다.',
-    },
-  },
-  framesLabel: { en: 'All frames', ko: '전체 프레임' },
 
   camAria: {
     en: 'Front view of the machine. The lens is centred below the monitor, the card terminal sits to its lower right and the print slot is at the bottom.',
     ko: '기기 정면 도식. 모니터 아래 가운데에 렌즈가 있고, 렌즈 오른쪽 아래에 카드 단말기, 하단에 인화 출구가 있다.',
   },
-  camCaption: { en: 'Tap a number to find the part.', ko: '번호를 누르면 부품이 강조된다.' },
   camList: { en: 'Machine parts', ko: '기기 부품' },
   camNotice: {
     en: 'Two notices sit on top of the machine: do not move it, and CCTV is recording.',
     ko: '기기 상단에는 기기 이동 금지와 CCTV 녹화 중이라는 안내문 두 장이 붙어 있다.',
   },
 
-  simTitle: { en: 'Try the real screen.', ko: '실제 화면 체험' },
-  simSub: { en: 'This is the kiosk screen running in your browser. Payment is left out of the demo.', ko: '브라우저에서 돌아가는 키오스크 화면이며, 결제는 체험에서 제외했다.' },
-  sim: {
-    title: { en: 'UrbanEdge kiosk simulator', ko: '어반엣지 키오스크 시뮬레이터' },
-    loading: { en: 'Loading the kiosk', ko: '키오스크 불러오는 중' },
-    full: { en: 'Open full screen in a new window', ko: '새 창에서 전체 화면으로 열기' },
-    restart: { en: 'Restart', ko: '처음부터' },
-  },
   faqTitle: { en: 'Questions people ask at Exit 1.', ko: '1번 출구에서 자주 나오는 질문' },
   endTitle: { en: 'Ready to board?', ko: '탑승 준비가 되었다면' },
   endBody: { en: 'Pick the platform you like, or get directions to Exit 1.', ko: '마음에 드는 승강장을 고르거나 1번 출구까지 가는 길을 확인해 보자.' },
@@ -108,8 +75,8 @@ const COPY = [
     announce: { en: 'Next stop: Choose cuts.', ko: '이번 정거장은 컷 선택입니다.' },
     title: { en: 'Tap the screen, pick 4 cuts or 8.', ko: '화면을 누르고 4컷이나 8컷 고르기' },
     body: {
-      en: 'The kiosk wakes on a touch and asks for a language, English or Korean. Then it asks how many shots you want. Try the choice below with real team photos.',
-      ko: '키오스크는 화면을 터치하면 깨어나 한국어와 영어 가운데 언어를 묻고, 이어서 촬영할 컷 수를 묻는다. 아래에서 실제 팀 사진으로 직접 골라 볼 수 있다.',
+      en: 'The kiosk wakes on a touch and asks for a language, English or Korean. Then it asks how many shots you want.',
+      ko: '화면을 누르면 언어(한국어, 영어)를 고르고 이어서 컷 수를 고른다.',
     },
   },
   {
@@ -182,8 +149,8 @@ const FAQ = [
   {
     q: { en: 'Which platform should I pick?', ko: '어느 승강장을 고르면 좋나요?' },
     a: {
-      en: 'Pick the mood: steel doors and straps on Platform 1, a sing-along on Platform 2, a ringing phone on Platform 3, a quiet portrait on Platform 4. Every platform has its own kiosk, so you can walk to the next one and shoot again.',
-      ko: '원하는 분위기에 맞추면 된다. 1번 승강장은 스테인리스 문과 손잡이, 2번은 노래방, 3번은 울리는 공중전화, 4번은 조용한 인물 사진에 어울린다. 승강장마다 키오스크가 따로 있어 옆 승강장으로 걸어가 다시 찍을 수 있다.',
+      en: 'Subway Shot has steel doors and straps, Karaoke Shot has a mic and props, Retro Shot is for a quiet portrait. Each room has its own kiosk, so you can walk to the next one and shoot again.',
+      ko: '지하철 샷은 스테인리스 문과 손잡이, 노래방 샷은 마이크와 소품, 레트로 샷은 차분한 인물 사진에 어울린다. 방마다 키오스크가 있어 옆방에서 다시 찍을 수 있다.',
     },
   },
   {
@@ -234,6 +201,13 @@ export default function Guide() {
   const origin = typeof window !== 'undefined' ? window.location.href : ''
   const ph1 = photo('o_21')
   const ph5 = photo('o_52')
+  const kioskScreen = (() => {
+    try {
+      return new URL('screen', kioskHref()).toString()
+    } catch {
+      return '/screen'
+    }
+  })()
 
   const head = (i) => (
     <>
@@ -267,9 +241,9 @@ export default function Guide() {
             <Tx inline {...T.start} />
             <ArrowDown size={20} aria-hidden="true" />
           </Button>
-          <a href="#try" className="t-strong inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
-            <Tx inline {...T.try} />
-            <ArrowRight size={18} aria-hidden="true" />
+          <a href={kioskScreen} target="_blank" rel="noopener noreferrer" className="t-strong inline-flex min-h-48 items-center gap-8 text-yellow underline underline-offset-8 hover:text-yellow-hover">
+            <Tx inline {...T.kiosk} />
+            <ArrowUpRight size={18} aria-hidden="true" />
           </a>
         </div>
       </PageTop>
@@ -298,13 +272,11 @@ export default function Guide() {
             </article>
 
             <article ref={refs[1]} id="stop-cuts" className="py-48 md:py-72 lg:py-96">
-              <div className="mb-32">{head(1)}</div>
-              <CutCompare copy={T.cut} />
+              {head(1)}
             </article>
 
             <article ref={refs[2]} id="stop-frame" className="py-48 md:py-72 lg:py-96">
-              <div className="mb-32">{head(2)}</div>
-              <FrameCarousel label={v(T.framesLabel)} />
+              {head(2)}
             </article>
 
             <article ref={refs[3]} id="stop-pose" className="grid items-start gap-x-48 gap-y-32 py-48 md:py-72 lg:grid-cols-2 lg:py-96">
@@ -335,7 +307,7 @@ export default function Guide() {
                   <CameraDiagram active={part} onSelect={setPart} ariaLabel={v(T.camAria)} />
                 </div>
                 <figcaption className="px-24 pb-16 text-text-meta">
-                  <Tx inline {...T.camCaption} role="caption" /> <Tx inline {...T.camNotice} role="caption" />
+                  <Tx inline {...T.camNotice} role="caption" />
                 </figcaption>
               </figure>
             </article>
@@ -351,16 +323,6 @@ export default function Guide() {
               </div>
               {figure(ph5)}
             </article>
-          </div>
-        </Container>
-      </section>
-
-      <section id="try" aria-labelledby="try-title" className="scroll-mt-64 bg-bg-elev py-64 md:py-96">
-        <Container className="4xl:max-w-screen-4xl">
-          <Tx {...T.simTitle} as="h2" role="headline" className="text-text-pri" id="try-title" />
-          <Tx {...T.simSub} as="p" role="body" className="mt-12 max-w-read text-text-sec" />
-          <div className="mt-32 max-w-wide">
-            <KioskEmbed copy={T.sim} />
           </div>
         </Container>
       </section>

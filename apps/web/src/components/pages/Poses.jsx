@@ -108,36 +108,6 @@ const POSES = {
     </g>,
     null,
   ],
-  // Platform 3 Public Phone Shot
-  'answer-call': [
-    mk({ arms: [[[78, 122], [96, 70]], [[152, 138], [136, 164]]] }),
-    <g key="b">
-      <rect x="132" y="16" width="92" height="40" rx="20" className="fill-bg-raised stroke-text-meta" strokeWidth="1.6" />
-      <circle cx="158" cy="36" r="10" className="fill-line-red" />
-      <circle cx="198" cy="36" r="10" className="fill-state-success" />
-    </g>,
-    <path key="f" d="M90 54 Q80 68 92 84" className={Y} strokeWidth="6" strokeLinecap="round" />,
-  ],
-  whisper: [
-    mk({ head: [124, 64], arms: [[[72, 126], [104, 80]], [[152, 136], [148, 168]]] }),
-    null,
-    <g key="f" className={Y} strokeWidth="3" strokeLinecap="round">
-      <path d="M70 70 Q60 78 70 88" />
-      <path d="M58 64 Q44 78 58 94" />
-      <path d="M46 58 Q28 78 46 100" />
-    </g>,
-  ],
-  'hold-line': [
-    mk({ head: [128, 64], sh: [[104, 100], [150, 96]], hip: [[118, 172], [142, 170]], arms: [[[106, 142], [152, 128]], [[152, 142], [108, 130]]], legs: [[[124, 226], [152, 280]], [[140, 228], [110, 280]]] }),
-    <g key="b" className={Y} strokeWidth="2.4">
-      <rect x="186" y="16" width="40" height="270" />
-      {[70, 124, 178, 232].map((y) => (
-        <path key={y} d={L([186, y], [226, y])} />
-      ))}
-      <path d={L([206, 16], [206, 286])} />
-    </g>,
-    null,
-  ],
   // Platform 4 Retro Shot
   'stool-sit': [
     mk({ head: [120, 104], sh: [[98, 138], [142, 138]], hip: [[102, 214], [138, 214]], arms: [[[80, 172], [96, 206]], [[160, 172], [144, 206]]], legs: [[[96, 242], [90, 282]], [[144, 242], [150, 282]]] }),

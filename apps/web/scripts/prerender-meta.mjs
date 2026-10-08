@@ -18,16 +18,16 @@ const ROUTES = [
   {
     path: '',
     og: 'home',
-    title: `Gyeongju Metro | ${NAME}`,
-    description: 'Explore Gyeongju, one station at a time. GY-01 UrbanEdge is the first station, a self-service photo studio with four platforms. Imaginary Metro · Travel Experience. 경주 메트로, 어반엣지역.',
+    title: NAME,
+    description: 'Self-service photo studio in Hwangridan-gil, Gyeongju. Subway, Karaoke and Retro rooms, open 10:00 to 24:00. 경주 황리단길 셀프 사진관.',
     alt: 'UrbanEdge photo strips and a yellow caution tape band: Explore Gyeongju, one station at a time.',
   },
   {
     path: 'rooms',
     og: 'rooms',
     title: `Platforms | ${NAME}`,
-    description: 'Four platforms at GY-01 UrbanEdge: Subway, Karaoke, Public Phone and Retro. Each has its own color and kiosk. 승강장 4곳 안내.',
-    alt: 'Four UrbanEdge photo strips, one for each platform, with color badges P1 to P4.',
+    description: 'Three photo rooms at UrbanEdge: Subway, Karaoke and Retro. 촬영 방 세 곳.',
+    alt: 'UrbanEdge photo strips with platform color badges.',
   },
   {
     path: 'guide',
@@ -47,25 +47,21 @@ const ROUTES = [
     path: 'gallery',
     og: 'gallery',
     title: `Gallery | ${NAME}`,
-    description: 'Prints from the machine, shot on four platforms. 기기에서 나온 인화물 모음.',
+    description: 'Prints from UrbanEdge. 어반엣지 인화물.',
     alt: 'A collage of UrbanEdge prints in several frames.',
   },
   // 경주 메트로 화면(노선도, 메트로 패스, 역 상세)은 전용 카드가 생기기 전까지 홈 카드를 쓴다.
-  { path: 'metro', og: 'home', title: `Metro map | ${NAME}`, description: 'The imaginary Gyeongju Metro map. GY-01 UrbanEdge is open; other stops are concepts. 가상의 경주 메트로 노선도.', alt: 'UrbanEdge photo strips and a yellow caution tape band.' },
-  { path: 'pass', og: 'home', title: `Metro Pass | ${NAME}`, description: 'Collect stations on your Metro Pass. Imaginary Metro · Travel Experience. 메트로 패스.', alt: 'UrbanEdge photo strips and a yellow caution tape band.' },
-  { path: 'station/gy-01', og: 'home', title: `GY-01 UrbanEdge Station | ${NAME}`, description: 'GY-01 UrbanEdge, Hwangridan-gil, Gyeongju. Four platforms, open 10:00 to 24:00. 어반엣지역 상세.', alt: 'UrbanEdge photo strips and a yellow caution tape band.' },
   // 방 상세(/rooms/:id)는 승강장 이름만 바꾸고 rooms 카드 이미지를 쓴다.
   ...[
     ['subway', 'Platform 1, Subway Shot', '1번 승강장, 지하철 샷'],
     ['karaoke', 'Platform 2, Karaoke Shot', '2번 승강장, 노래방 샷'],
-    ['phone', 'Platform 3, Public Phone Shot', '3번 승강장, 공중전화 샷'],
-    ['retro', 'Platform 4, Retro Shot', '4번 승강장, 레트로 샷'],
+    ['retro', 'Platform 3, Retro Shot', '3번 승강장, 레트로 샷'],
   ].map(([id, en, ko]) => ({
     path: `rooms/${id}`,
     og: 'rooms',
     title: `${en} | ${NAME}`,
     description: `${en} at GY-01 UrbanEdge, Gyeongju. ${ko}.`,
-    alt: 'Four UrbanEdge photo strips, one for each platform, with color badges P1 to P4.',
+    alt: 'UrbanEdge photo strips with platform color badges.',
   })),
 ]
 

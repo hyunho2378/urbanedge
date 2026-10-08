@@ -14,12 +14,12 @@ import TrainSvg from './TrainSvg.jsx'
 const COPY = {
   title: { en: 'Welcome to UrbanEdge Station.', ko: '어반엣지역에 오신 것을 환영합니다' },
   body: {
-    en: 'Gyeongju has no subway, so this is the first and only stop on Gyeongju Metro. Cones, yellow tape and a checkerboard floor mark the way in. Four platforms follow, each with its own kiosk.',
-    ko: '경주에는 지하철이 없어서 이곳이 경주 메트로의 처음이자 유일한 열린 역이다. 검은 고깔과 노란 테이프, 체커보드 바닥이 보이면 입구이고 안쪽으로 승강장 네 곳이 이어진다.',
+    en: 'Black cones, yellow tape and a checkerboard floor mark the entrance. Three photo rooms are inside.',
+    ko: '검은 고깔과 노란 테이프, 체커보드 바닥이 있는 곳이 입구다. 안쪽에 촬영 방 세 곳이 있다.',
   },
   a0: { en: 'Platform clear. Please stand behind the yellow line.', ko: '안전선 뒤로 한 걸음 물러서기' },
   a1: { en: 'A train is arriving at UrbanEdge.', ko: '열차 진입 중, 행선지는 어반엣지' },
-  a2: { en: 'Doors open. Mind the gap between the train and your photo.', ko: '문 열림, 내리면 바로 포토 룸' },
+  a2: { en: 'Doors open.', ko: '문이 열렸다' },
   pick: { en: 'Pick a platform', ko: '승강장 고르기' },
   go: { en: 'Open', ko: '열기' },
 }

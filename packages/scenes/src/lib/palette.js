@@ -37,12 +37,12 @@ export const accentOf = (P, color) => (color === 'red' ? P['line-red'] : color =
 // 노선 색 위의 글자색(노랑, 초록은 검정 글자, 빨강, 파랑은 흰 글자)
 export const inkOn = (P, color) => (color === 'red' || color === 'blue' ? P.white : P['bg-base'])
 
-// Gyeongju Metro(GY). 첫 역 GY-01 UrbanEdge 안에 승강장(방) 4곳이 있다(docs/NAMING.md).
+// Gyeongju Metro(GY). 첫 역 GY-01 UrbanEdge 안에 승강장(방) 3곳이 있다(docs/NAMING.md).
 export const LINE = { name: 'Gyeongju Metro', code: 'GY', color: 'yellow' }
 export const STATION = { id: 'urbanedge', no: 'GY-01', name: 'UrbanEdge' }
-const NAMES = { subway: 'Subway Shot', karaoke: 'Karaoke Shot', phone: 'Public Phone Shot', retro: 'Retro Shot' }
-const COLORS = { subway: 'yellow', karaoke: 'red', phone: 'blue', retro: 'green' }
-// 방은 4곳(화장실 방은 없어졌다). 색은 tokens.lines에 같은 id가 있으면 그 값을 따른다.
+const NAMES = { subway: 'Subway Shot', karaoke: 'Karaoke Shot', retro: 'Retro Shot' }
+const COLORS = { subway: 'yellow', karaoke: 'red', retro: 'green' }
+// 유료 촬영 방은 3곳(지하철, 노래방, 레트로). 색은 tokens.lines에 같은 id가 있으면 그 값을 따른다.
 export const PLATFORMS = Object.keys(NAMES).map((id, i) => ({ id, no: String(i + 1), platform: i + 1, name: NAMES[id], color: TOKEN_LINES.find((l) => l.id === id)?.color || COLORS[id] }))
 export const ROOM_STATIONS = PLATFORMS
 export const STATIONS = PLATFORMS

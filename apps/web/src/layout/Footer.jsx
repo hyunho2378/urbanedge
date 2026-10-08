@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { Clock, MapPin, Ticket } from 'lucide-react'
 import { CautionTape } from '@urbanedge/ds'
 import { UEMark, UrbanEdgeWordmark } from '@urbanedge/brand'
-import { DISCLAIMER, LINE, MOTTO, NAV, SITE, formatPrice } from '../data/site.js'
+import { LINE, NAV, SITE, formatPrice } from '../data/site.js'
 import { useLang, usePick } from '../i18n/index.jsx'
 import { ExtLink } from './ExtLink.jsx'
 import { InstagramGlyph, NaverGlyph } from './SocialLinks.jsx'
@@ -18,13 +18,9 @@ export default function Footer() {
   return (
     <footer className="relative bg-bg-elev">
       <Wrap className="pb-24 pt-40 md:pb-32 md:pt-56 lg:pt-96">
-        <p className="t-label text-text-meta"><B v={{ en: 'Terminus', ko: '종착역' }} inline /></p>
         <Link to="/" aria-label={pick({ en: 'UrbanEdge Metrography, home', ko: '어반엣지 메트로그래피 홈' })} className="mt-16 block">
           <UrbanEdgeWordmark className="h-auto w-3/4 text-text-pri md:w-full md:max-w-3xl" aria-hidden="true" role="presentation" />
         </Link>
-        <p className="t-subhead mt-16 max-w-read text-text-pri md:mt-24">
-          <B v={MOTTO} inline />
-        </p>
 
         <div className="mt-24 flex flex-wrap gap-x-24 md:mt-40">
           <ExtLink href={SITE.instagram.url} className={link} icon={false}><InstagramGlyph size={16} />Instagram</ExtLink>
@@ -51,7 +47,7 @@ export default function Footer() {
           </address>
 
           <nav aria-label={pick({ en: 'Footer', ko: '푸터' })} className="hidden md:block lg:col-span-3">
-            <p className="t-label mb-8 text-text-meta"><B v={LINE.name} inline /></p>
+            <p className="t-label mb-8 text-text-meta"><B v={{ en: 'Pages', ko: '페이지' }} inline /></p>
             <ul className="text-body-sm">
               {NAV.map((n) => (
                 <li key={n.to}>
@@ -71,10 +67,9 @@ export default function Footer() {
           </div>
         </div>
 
-        <p className="t-label mt-24 text-yellow md:mt-56" lang="en"><B v={DISCLAIMER} /></p>
-        <p className="t-caption mt-8 flex items-start gap-10 text-text-meta">
+        <p className="t-caption mt-24 flex md:mt-56 items-start gap-10 text-text-meta">
           <UEMark className="mt-2 w-20 shrink-0 text-text-meta" title="" aria-hidden="true" role="presentation" />
-          <span>&copy; 2026 UrbanEdge. <B v={{ en: 'A playful brand fiction, not an official station or public transit service.', ko: '노선과 역은 브랜드 콘셉트이며 실제 대중교통 시설이 아니다.' }} inline /></span>
+          <span>&copy; 2026 UrbanEdge</span>
         </p>
       </Wrap>
       <div className="h-16 w-full lg:h-24" aria-hidden="true">

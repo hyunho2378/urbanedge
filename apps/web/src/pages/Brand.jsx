@@ -15,8 +15,8 @@ import { B } from '../layout/B.jsx'
 const COPY = {
   heroTitle: { en: 'Explore Gyeongju, one station at a time.', ko: '한 정거장씩 경주를 탐험한다' },
   heroBody: {
-    en: 'Gyeongju has no subway, so UrbanEdge imagined one: Gyeongju Metro. UrbanEdge Station is stop GY-01, and the only station that is real. This page holds the story, the signs and the livery.',
-    ko: '경주에는 지하철이 없어서 어반엣지가 경주 메트로를 상상해 만들었다. 어반엣지역은 GY-01역이고 지금 실제로 열린 유일한 역이다. 이 페이지에는 그 이야기와 역 표지, 열차 디자인이 담겨 있다.',
+    en: 'Gyeongju has no subway, so UrbanEdge drew one: Gyeongju Metro. UrbanEdge Station is stop GY-01.',
+    ko: '경주에는 지하철이 없어서 어반엣지가 경주 메트로를 그렸다. 어반엣지역이 GY-01역이다.',
   },
   storyLabel: { en: 'The story', ko: '이야기' },
   storyTitle: { en: 'No subway in Gyeongju. So we built one.', ko: '경주에는 지하철이 없어서 직접 만들었다' },
@@ -25,8 +25,8 @@ const COPY = {
     ko: '경주에는 고분과 절, 걷기 좋은 황리단길이 있지만 지하철 노선은 하나도 없다. 어반엣지는 그 빈자리를 콘셉트로 가져와 매장을 역으로, 길가 문을 1번 출구로, 포토 룸을 승강장으로 만들었다. 부스가 있는 곳마다 역이 생긴다는 설정이 경주 메트로(GY)다.',
   },
   story2: {
-    en: 'The line is a story we tell. In real life UrbanEdge is a self-service photo studio, open 10:00 to 24:00, where you press start and look at the lens below the screen.',
-    ko: '노선은 우리가 지어낸 이야기이고, 어반엣지는 10:00부터 24:00까지 운영하는 무인 셀프 사진관이다. 시작을 누르고 화면 아래 렌즈를 보면 된다.',
+    en: 'UrbanEdge is a self-service photo studio, open 10:00 to 24:00. Press start and look at the lens below the screen.',
+    ko: '어반엣지는 10:00부터 24:00까지 운영하는 무인 셀프 사진관이다. 시작을 누르고 화면 아래 렌즈를 보면 된다.',
   },
   conceptLabel: { en: 'Concept', ko: '콘셉트' },
   conceptTitle: { en: 'Metrography: metro plus photography.', ko: '메트로그래피, 지하철과 사진의 만남' },
@@ -41,10 +41,10 @@ const COPY = {
     ko: 'UE 심볼은 직사각형만으로 만들어서 파비콘 크기까지 또렷하게 인쇄된다. 노랑이나 흰색 바탕에는 검정, 검정 바탕에는 노랑으로 쓴다. 전체 이름은 워드마크가 맡는다.',
   },
   colorLabel: { en: 'Colors', ko: '색' },
-  colorTitle: { en: 'Black, yellow, and four platform colors.', ko: '검정과 노랑, 승강장 네 가지 색' },
+  colorTitle: { en: 'Black, yellow, and three platform colors.', ko: '검정과 노랑, 승강장 세 가지 색' },
   colorBody: {
-    en: 'Black and signal yellow carry the brand. Each platform adds one accent on its badge: yellow, red, blue and green.',
-    ko: '검정과 신호 노랑이 브랜드를 이끌고, 승강장마다 노랑, 빨강, 파랑, 초록 배지 색이 하나씩 더해진다.',
+    en: 'Black and signal yellow carry the brand. Each platform adds one accent on its badge: yellow, red and green.',
+    ko: '검정과 신호 노랑이 브랜드 색이다. 승강장 배지에는 노랑, 빨강, 초록을 하나씩 쓴다.',
   },
   trainLabel: { en: 'The train', ko: '열차' },
   trainTitle: { en: 'White body, yellow stripe, GY on the side.', ko: '흰 차체와 노란 띠, 옆면의 GY' },
@@ -53,11 +53,9 @@ const COPY = {
     ko: '서울 지하철 장난감 열차처럼 흰 차체에 색 띠 하나와 노선 배지를 얹었다. 우리 열차에는 UE 심볼과 GY 코드가 붙는다.',
   },
   postersLabel: { en: 'Posters', ko: '포스터' },
-  postersTitle: { en: 'Wall prints from the street door.', ko: '길가 문에서 만나는 포스터' },
-  postersBody: { en: 'The posters on the walls and the shutter, as photographed and as printed.', ko: '매장 벽과 셔터에 붙는 포스터를 사진과 인쇄본으로 모았다.' },
+  postersTitle: { en: 'Store posters', ko: '매장 포스터' },
   linksLabel: { en: 'Find us online', ko: '온라인에서 만나기' },
   linksTitle: { en: 'Photos, reviews, hours.', ko: '사진, 후기, 영업 정보' },
-  linksBody: { en: 'Naver Place has visitor photos and the current hours. Instagram has the latest prints.', ko: '네이버 플레이스에서 방문자 사진과 영업 정보를, 인스타그램에서 최신 인화물을 볼 수 있다.' },
   share: { en: 'Share the line', ko: '노선 공유하기' },
   visit: { en: 'Show me the way', ko: '길 찾기' },
   station: { en: 'Station sign', ko: '역명판' },
@@ -74,8 +72,7 @@ const COLORS = [
   { id: 'yellow', cls: 'bg-yellow', on: 'text-text-onYellow', name: { en: 'Signal yellow', ko: '신호 노랑' }, rgb: '245 197 24' },
   { id: 'white', cls: 'bg-white', on: 'text-text-onYellow', name: { en: 'Tile white', ko: '타일 흰색' }, rgb: '255 255 255' },
   { id: 'red', cls: 'bg-line-red', on: 'text-text-pri', name: { en: 'Platform 2 red', ko: '2번 승강장 빨강' }, rgb: '231 65 53' },
-  { id: 'blue', cls: 'bg-line-blue', on: 'text-text-pri', name: { en: 'Platform 3 blue', ko: '3번 승강장 파랑' }, rgb: '90 130 205' },
-  { id: 'green', cls: 'bg-line-green', on: 'text-text-onYellow', name: { en: 'Platform 4 green', ko: '4번 승강장 초록' }, rgb: '63 166 107' },
+  { id: 'green', cls: 'bg-line-green', on: 'text-text-onYellow', name: { en: 'Platform 3 green', ko: '3번 승강장 초록' }, rgb: '63 166 107' },
 ]
 
 export default function Brand() {
@@ -200,7 +197,7 @@ export default function Brand() {
       </Section>
 
       <Section id="posters" labelledBy="posters-title">
-        <Head label={COPY.postersLabel} title={COPY.postersTitle} titleId="posters-title" desc={COPY.postersBody} />
+        <Head label={COPY.postersLabel} title={COPY.postersTitle} titleId="posters-title" />
         <ul className="mt-32 columns-2 gap-12 md:columns-4 md:gap-16">
           {posterList.map((src) => (
             <li key={src} className="mb-12 break-inside-avoid md:mb-16">
@@ -213,7 +210,7 @@ export default function Brand() {
       </Section>
 
       <Section id="links" labelledBy="links-title" tone="elev">
-        <Head label={COPY.linksLabel} title={COPY.linksTitle} titleId="links-title" desc={COPY.linksBody} />
+        <Head label={COPY.linksLabel} title={COPY.linksTitle} titleId="links-title" />
         <div className="mt-32 flex flex-col items-start gap-12 md:flex-row md:flex-wrap md:items-center md:gap-x-32">
           <SocialButton kind="naver" tone="solid" className="min-h-56 w-full md:w-auto" />
           <SocialButton kind="instagram" tone="link" />

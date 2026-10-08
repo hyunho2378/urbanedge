@@ -1,6 +1,6 @@
 // site.js: 웹 전체가 공유하는 사실 데이터. 사전 리서치와 사용자가 확인한 값만 둔다. 새 수치를 만들지 않는다.
 // 서사(docs/NAMING.md): 경주에는 지하철이 없다. 어반엣지는 "Gyeongju Metro, Powered by UrbanEdge"라는 가상의 지하철 관광 경험을 만든다.
-// 실제 역은 GY-01 UrbanEdge(황리단길) 하나이고 방 4곳은 그 역의 승강장(Platform 1부터 4)이다. 놀이로 만든 브랜드 설정이며 실제 대중교통이 아니다.
+// 실제 역은 GY-01 UrbanEdge(황리단길) 하나이고 유료 촬영 방 3곳(지하철, 노래방, 레트로)이 그 역의 승강장 1부터 3이다. 놀이로 만든 브랜드 설정이며 실제 대중교통이 아니다.
 
 export const SITE = {
   name: 'UrbanEdge Metrography',
@@ -21,7 +21,7 @@ export const SITE = {
     naver: 'https://map.naver.com/p/search/%EC%96%B4%EB%B0%98%EC%97%A3%EC%A7%80%20%EA%B2%BD%EC%A3%BC',
     google: 'https://www.google.com/maps/search/?api=1&query=UrbanEdge+Metrography+Gyeongju',
   },
-  kioskUrl: import.meta.env.VITE_KIOSK_URL || '/',
+  kioskUrl: import.meta.env.VITE_KIOSK_URL || 'https://urbanedge-kiosk.vercel.app/',
   // 공유 뒤 열리는 스크래치 쿠폰. 코드는 키오스크가 받아 주는 값으로 매장과 확정해야 한다(혜택 금액은 정하지 않았다).
   coupon: { code: 'GY01-SHARE' },
 }
@@ -47,8 +47,8 @@ export const METRO_STOPS = [
   {
     id: 'gy-01', code: 'GY-01', real: true, name: STATION.name, nameKo: STATION.nameKo, area: STATION.area,
     summary: {
-      en: 'The only open station so far: a self-service photo studio with four platforms, open 10:00 to 24:00.',
-      ko: '지금 실제로 열려 있는 유일한 역이다. 승강장 네 곳이 포토 룸이며 10:00부터 24:00까지 운영한다.',
+      en: 'A self-service photo studio with three rooms, open 10:00 to 24:00.',
+      ko: '촬영 방 세 곳이 있는 셀프 사진관이다. 10:00부터 24:00까지 운영한다.',
     },
     photo: { src: '/img/place/naver-15.jpg', alt: { en: 'The UrbanEdge storefront on the corner of the street', ko: '골목 모퉁이의 어반엣지 매장 외관' } },
   },
@@ -73,14 +73,6 @@ export function kioskHref() {
   if (import.meta.env.VITE_KIOSK_URL) return import.meta.env.VITE_KIOSK_URL
   if (import.meta.env.DEV && typeof window !== 'undefined') return `${window.location.protocol}//${window.location.hostname}:5185/`
   return SITE.kioskUrl
-}
-// 키오스크 화면만 임베드하는 주소
-export const kioskEmbedHref = () => {
-  try {
-    return new URL('screen?embed=1', kioskHref()).toString()
-  } catch {
-    return '/screen?embed=1'
-  }
 }
 
 export const formatPrice = (lang) =>
@@ -110,7 +102,7 @@ export const ENTRANCE = {
   photo: { src: '/img/place/naver-14.jpg', alt: { en: 'Black cones, yellow caution tape and a checkerboard floor at the entrance', ko: '검은 고깔과 노란 경고 테이프, 체커보드 바닥이 놓인 입구' } },
 }
 
-// 승강장 4곳(Platform 1부터 4, GY-01 UrbanEdge 안). 사진은 public/img 아래 실제 파일이다(place는 네이버 플레이스, ig는 인스타그램 공개 사진). concept, pose, why는 사진에서 확인한 것만 쓴다.
+// 승강장 3곳(Platform 1부터 3, GY-01 UrbanEdge 안). 사진은 public/img 아래 실제 파일이다(place는 네이버 플레이스, ig는 인스타그램 공개 사진). concept, pose, why는 사진에서 확인한 것만 쓴다.
 const P = (n, alt) => ({ src: `/img/place/naver-${n}.jpg`, alt })
 export const ROOMS = [
   {
@@ -148,23 +140,7 @@ export const ROOMS = [
     ],
   },
   {
-    id: 'phone', platform: 3, name: 'PUBLIC PHONE SHOT', code: '3', color: 'blue',
-    title: { en: 'Public Phone Shot', ko: '공중전화 샷' },
-    summary: { en: 'A mirror framed like an incoming call', ko: '수신 화면 모양 프레임이 걸린 거울이 있는 공중전화 부스' },
-    concept: {
-      en: 'A mirror topped with a giant incoming-call screen, red and green buttons included. You pose in the mirror, the kiosk shoots from below, and somehow you are the one calling.',
-      ko: '수신 화면 모양 프레임이 위에 걸린 거울이 중심인 부스다. 거울 속 내 모습과 빨간 버튼, 초록 버튼이 한 컷에 같이 담긴다.',
-    },
-    pose: { en: 'Answer the call. Lean on the mirror, press the green button and look surprised.', ko: '초록 버튼을 누르는 척하며 놀란 표정으로 전화를 받는다.' },
-    why: { en: 'The call screen is a built-in joke and the mirror lets you check your pose before the countdown ends.', ko: '수신 화면 자체가 소재가 되고 거울로 포즈를 확인하며 찍을 수 있다.' },
-    photo: P('26', { en: 'Two people in the mirror under a phone call screen', ko: '수신 화면 프레임 아래 거울에 비친 두 사람' }),
-    photos: [
-      P('24', { en: 'The PUBLIC PHONE wall covered in prints', ko: '인화물이 빼곡히 붙은 PUBLIC PHONE 벽' }),
-      P('16', { en: 'A mirrored doorway with a black line on the floor', ko: '바닥에 검은 선이 이어진 거울 문' }),
-    ],
-  },
-  {
-    id: 'retro', platform: 4, name: 'RETRO SHOT', code: '4', color: 'green',
+    id: 'retro', platform: 3, name: 'RETRO SHOT', code: '3', color: 'green',
     title: { en: 'Retro Shot', ko: '레트로 샷' },
     summary: { en: 'A brown curtain and two wooden stools', ko: '갈색 커튼과 나무 의자 두 개가 있는 레트로 부스' },
     concept: {
@@ -187,7 +163,6 @@ export const platformById = (id) => ROOMS.find((r) => r.id === id)
 
 export const NAV = [
   { to: '/', label: { en: 'Home', ko: '홈' } },
-  { to: '/metro', label: { en: 'Metro', ko: '메트로' } },
   { to: '/rooms', label: { en: 'Platforms', ko: '승강장' } },
   { to: '/guide', label: { en: 'How to', ko: '이용 안내' } },
   { to: '/visit', label: { en: 'Visit', ko: '오시는 길' } },

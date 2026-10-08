@@ -1,7 +1,7 @@
 import { LangContext as DsLangContext } from '@urbanedge/ds'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
-// 언어 상태. 브라우저 저장소를 쓰지 않고 URL 쿼리(?lang=en)와 브라우저 언어로 초기값을 정한다.
+// 언어 상태. 브라우저 저장소를 쓰지 않는다. 기본은 영어이고 URL 쿼리(?lang=ko)가 있으면 그 값을 쓴다.
 // 언어 전환은 텍스트만 교체하고 컴포넌트를 리마운트하지 않는다.
 export const LANGS = ['en', 'ko']
 
@@ -12,11 +12,12 @@ const queryLang = () => {
 }
 
 const initial = () => {
-  if (typeof window === 'undefined') return 'ko'
-  return queryLang() || ((navigator.language || 'ko').toLowerCase().startsWith('ko') ? 'ko' : 'en')
+  // 기본 언어는 영어다(외국인 방문객이 주 사용자). 주소에 ?lang=ko가 있을 때만 한국어로 시작한다.
+  if (typeof window === 'undefined') return 'en'
+  return queryLang() || 'en'
 }
 
-const LangContext = createContext({ lang: 'ko', setLang: () => {}, ensureLangParam: () => {} })
+const LangContext = createContext({ lang: 'en', setLang: () => {}, ensureLangParam: () => {} })
 
 export function LangProvider({ children }) {
   const [lang, setLangState] = useState(initial)

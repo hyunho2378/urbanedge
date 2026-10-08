@@ -72,7 +72,7 @@ export default function StationMap({ activeId, onSelect, className }) {
   return (
     <div ref={ref} className={cx('w-full', className)}>
       {w > 0 && (
-        <svg width={w} height={H} viewBox={`0 0 ${w} ${H}`} role="group" aria-label={pick({ en: 'UrbanEdge Station map: four platforms', ko: '어반엣지역 노선도: 승강장 4개' })} className="block overflow-visible">
+        <svg width={w} height={H} viewBox={`0 0 ${w} ${H}`} role="group" aria-label={pick({ en: 'UrbanEdge Station map: three platforms', ko: '어반엣지역 노선도: 승강장 4개' })} className="block overflow-visible">
           {/* 황리단선: 왼쪽에서 들어와 어반엣지역에서 끝난다 */}
           <path d={`M0 ${hub.y} H${hub.x}`} fill="none" strokeWidth="14" strokeLinecap="round" className="stroke-line-yellow" />
           <text x="0" y={hub.y - 24} fontSize="12" fontWeight="700" letterSpacing="1.5" className="fill-text-sec font-label">

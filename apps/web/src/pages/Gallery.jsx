@@ -11,11 +11,7 @@ import { usePageTitle } from '../components/pages/usePageTitle.js'
 
 const T = {
   title: { en: 'Gallery', ko: '갤러리' },
-  h1: { en: 'The wall of prints.', ko: '인화물이 붙은 벽' },
-  lead: {
-    en: 'Real strips from real visitors, next to the rooms they were shot in. Tap a photo to open it, share it, or jump to the original post.',
-    ko: '방문객이 남긴 실제 인화물과 그 사진을 찍은 방을 함께 모았다. 사진을 누르면 크게 열어 공유하거나 원본 게시물로 넘어갈 수 있다.',
-  },
+  h1: { en: 'Gallery', ko: '갤러리' },
   insta: { en: 'Instagram @__urbanedge', ko: '인스타그램 @__urbanedge' },
   naver: { en: 'Naver Place photos', ko: '네이버 플레이스 사진' },
   filterAria: { en: 'Photo category', ko: '사진 분류' },
@@ -78,7 +74,7 @@ export default function Gallery() {
 
   return (
     <PageShell>
-      <PageTop title={T.h1} lead={T.lead}>
+      <PageTop title={T.h1}>
         <div className="mt-32 flex flex-wrap items-center gap-x-24 gap-y-12">
           <Button as="a" href={INSTAGRAM} target="_blank" rel="noopener noreferrer" size="lg">
             <Tx inline {...T.insta} />

@@ -13,10 +13,6 @@ import { Head, Photo, Section } from './parts.jsx'
 const COPY = {
   label: { en: 'UrbanEdge Station', ko: '어반엣지역' },
   title: { en: 'Pick your platform.', ko: '승강장 고르기' },
-  desc: {
-    en: 'Four platforms, one photo room each. Tap a platform badge on the map to see what happens there.',
-    ko: '승강장 네 곳이 각각 포토 룸 하나다. 노선도에서 승강장 배지를 누르면 그곳의 분위기와 포즈를 볼 수 있다.',
-  },
   pose: { en: 'Pose idea', ko: '포즈 제안' },
   why: { en: 'Why it photographs well', ko: '사진이 잘 나오는 이유' },
   board: { en: 'Departures', ko: '출발 안내' },
@@ -27,7 +23,6 @@ const COPY = {
 const VIBE = {
   subway: { en: 'Commute', ko: '출퇴근' },
   karaoke: { en: 'Duet', ko: '듀엣' },
-  phone: { en: 'Call', ko: '통화' },
   retro: { en: 'Booth', ko: '부스' },
 }
 
@@ -53,7 +48,7 @@ export default function Platforms() {
 
   return (
     <Section id="platforms" labelledBy="platforms-title" className="overflow-hidden">
-      <Head label={COPY.label} title={COPY.title} titleId="platforms-title" desc={COPY.desc} lean />
+      <Head label={COPY.label} title={COPY.title} titleId="platforms-title" lean />
 
       <div className="mt-16 md:mt-40">
         <StationMap activeId={id} onSelect={setId} />

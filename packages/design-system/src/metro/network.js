@@ -19,12 +19,11 @@ export const CONCEPT_STOPS = [
   { id: 'gy-04', code: 'GY-04', name: 'Donggung & Wolji', nameKo: '동궁과 월지', icon: 'waves', accent: 'green' },
 ]
 
-// 승강장 4개. id는 tokens.js lines의 방 id와 같다. legacyCode는 이전 L1에서 L4 코드다.
+// 승강장 3개(유료 촬영 방). id는 tokens.js lines의 방 id와 같다. legacyCode는 이전 L1에서 L4 코드다.
 export const PLATFORMS = [
   { id: 'subway', number: 1, name: 'Subway Shot', short: 'Subway', nameKo: '지하철 샷', accent: 'yellow', icon: 'subway', legacyCode: 'L1' },
   { id: 'karaoke', number: 2, name: 'Karaoke Shot', short: 'Karaoke', nameKo: '노래방 샷', accent: 'red', icon: 'mic', legacyCode: 'L2' },
-  { id: 'phone', number: 3, name: 'Public Phone Shot', short: 'Public Phone', nameKo: '공중전화 샷', accent: 'blue', icon: 'phone', legacyCode: 'L3' },
-  { id: 'retro', number: 4, name: 'Retro Shot', short: 'Retro', nameKo: '레트로 샷', accent: 'green', icon: 'retro', legacyCode: 'L4' },
+  { id: 'retro', number: 3, name: 'Retro Shot', short: 'Retro', nameKo: '레트로 샷', accent: 'green', icon: 'retro', legacyCode: 'L4' },
 ]
 export const platformById = (id) => PLATFORMS.find((p) => p.id === id)
 

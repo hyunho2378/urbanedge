@@ -12,10 +12,10 @@ import { RoomExplorer } from '../components/rooms/RoomExplorer.jsx'
 
 const T = {
   title: { en: 'Platforms', ko: '승강장' },
-  h1: { en: 'Gyeongju has no subway. We built a station anyway.', ko: '경주에 없던 지하철, 어반엣지역' },
+  h1: { en: 'Three photo rooms', ko: '촬영 방 세 곳' },
   lead: {
-    en: 'Welcome to GY-01 UrbanEdge, the first station of Gyeongju Metro. Four platforms sit inside it, and each platform is a photo room with its own kiosk. Walking from one room to the next counts as a transfer.',
-    ko: 'GY-01 어반엣지역은 경주 메트로의 첫 정거장이며, 안쪽에 승강장 네 곳이 있고 승강장마다 키오스크가 달린 포토 룸이 하나씩 들어 있다. 방에서 방으로 걸어가는 일이 곧 환승이다.',
+    en: 'Subway, Karaoke and Retro. Each room has its own kiosk.',
+    ko: '지하철, 노래방, 레트로 방마다 촬영 기기가 하나씩 있다.',
   },
   tape: [
     { en: 'Now boarding: Gyeongju Metro', ko: '승차 안내: 경주 메트로' },
@@ -26,17 +26,14 @@ const T = {
   pause: { en: 'Pause announcements', ko: '안내 문구 멈추기' },
   play: { en: 'Resume announcements', ko: '안내 문구 다시 흐르기' },
   mapTitle: { en: 'Pick your platform.', ko: '승강장 선택' },
-  mapSub: { en: 'Tap a track on the map. The platform opens right below it.', ko: '노선도에서 선로를 누르면 그 아래에 승강장이 열린다.' },
-  mapLabel: { en: 'UrbanEdge station map with four platforms', ko: '승강장 네 곳이 있는 어반엣지역 노선도' },
+  mapLabel: { en: 'UrbanEdge station map with three platforms', ko: '승강장 세 곳이 있는 어반엣지역 노선도' },
   boardingNow: { en: 'Now boarding', ko: '지금 승차 중' },
   why: { en: 'Why it photographs well', ko: '잘 나오는 이유' },
   open: { en: 'Open this platform', ko: '이 승강장 보기' },
   next: { en: 'Next platform', ko: '다음 승강장' },
   allTitle: { en: 'One platform per mood', ko: '분위기마다 하나씩 승강장' },
-  allSub: { en: 'Swipe, scroll or use the arrow keys. Each photo opens its platform.', ko: '옆으로 밀거나 화살표 키를 누르면 승강장이 넘어가고, 사진을 누르면 승강장 페이지로 이동한다.' },
-  ctaTitle: { en: 'Cannot choose? Ride them in order.', ko: '고르기 어렵다면 순서대로 타 보는 방법이 있다' },
-  ctaBody: { en: 'The journey page walks through the kiosk step by step, from the first tap to the print slot.', ko: '여정 안내 페이지에서 첫 터치부터 인화 출구까지 키오스크 사용 순서를 차례로 볼 수 있다.' },
-  ctaLink: { en: 'See the journey', ko: '여정 안내 보기' },
+  ctaTitle: { en: 'How to', ko: '이용 안내' },
+  ctaLink: { en: 'Open the guide', ko: '이용 안내 보기' },
 }
 
 export default function Rooms() {
@@ -71,7 +68,6 @@ export default function Rooms() {
       <section aria-labelledby="rooms-map" className="section-y">
         <Container className="4xl:max-w-screen-4xl">
           <Tx {...T.mapTitle} as="h2" role="headline" className="text-text-pri" id="rooms-map" />
-          <Tx {...T.mapSub} as="p" role="body" className="mt-12 max-w-read text-text-sec" />
 
           <div className="mx-auto mt-32 w-full max-w-wide md:mt-48">
             <TransitMap network={NETWORK} orientation="auto" activeId={active} onSelect={select} animateTrain aria-label={v(T.mapLabel)} />
@@ -130,7 +126,6 @@ export default function Rooms() {
       <section aria-labelledby="rooms-all" className="overflow-hidden bg-bg-elev py-64 md:py-96">
         <Container className="4xl:max-w-screen-4xl">
           <Tx {...T.allTitle} as="h2" role="headline" className="text-text-pri" id="rooms-all" />
-          <Tx {...T.allSub} as="p" role="body" className="mt-12 max-w-read text-text-sec" />
         </Container>
         <ul ref={rail} tabIndex={0} onKeyDown={onRailKey} aria-label={v(T.allTitle)} className="mt-32 flex snap-x snap-mandatory gap-12 overflow-x-auto px-page pb-24 md:gap-24" style={{ scrollbarWidth: 'none' }}>
           {PLATFORMS.map((s, i) => {
@@ -158,7 +153,6 @@ export default function Rooms() {
       <section aria-labelledby="rooms-cta" className="section-y">
         <Container className="4xl:max-w-screen-4xl">
           <Tx {...T.ctaTitle} as="h2" role="headline" className="max-w-read text-text-pri" id="rooms-cta" />
-          <Tx {...T.ctaBody} as="p" role="body" className="mt-16 max-w-read text-text-sec" />
           <Link to="/guide" className="t-strong mt-24 inline-flex min-h-48 items-center gap-8 text-yellow hover:text-yellow-hover">
             <Tx inline {...T.ctaLink} />
             <ArrowRight size={18} aria-hidden="true" />

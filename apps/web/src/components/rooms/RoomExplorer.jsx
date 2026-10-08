@@ -73,7 +73,7 @@ export function RoomExplorer() {
               <h4>{v(zone.title)}</h4>
               <p>{v(zone.desc)}</p>
             </div>
-            <nav className="room-explorer__platforms" aria-label={v({ ko: '포토 승강장 네 곳', en: 'Four photo platforms' })}>
+            <nav className="room-explorer__platforms" aria-label={v({ ko: '촬영 방 세 곳', en: 'Three photo rooms' })}>
               <span className="room-explorer__eyebrow">PHOTO PLATFORMS</span>
               <div>{PLATFORMS.map((platform) => <Link key={platform.id} to={`/rooms/${platform.id}`} className="room-explorer__platform-link"><span>{String(platform.no).padStart(2, '0')} / {v(platform.title)}</span><ArrowUpRight size={16} aria-hidden="true" /></Link>)}</div>
             </nav>

@@ -65,7 +65,7 @@ function PlatformView({ st }) {
                 <p className="text-text-sec">
                   <Tx inline {...T.platform} role="caption" /> <span className="t-caption">{st.no},</span> <Tx inline {...T.station} role="caption" />
                 </p>
-                <h1 className="t-display mt-8 text-display-m text-text-pri md:text-display-l">{st.name}</h1>
+                <h1 className="t-display mt-8 text-display-m text-text-pri md:text-display-l">{st.title ? v(st.title) : st.name}</h1>
               </div>
             </div>
           </Container>

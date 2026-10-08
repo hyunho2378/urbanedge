@@ -23,7 +23,7 @@ export default function Rooms() {
   const next = PLATFORMS[(at + 1) % PLATFORMS.length]
   const photo = st.photoList[1] || st.photoList[0]
   const facts = ZONES.find((z) => z.id === st.id)
-  const nm = (p) => ({ name: p.title.en, nameKo: p.title.ko })
+  const nm = (p) => ({ name: v(p.title) })
 
   return (
     <PageShell>
@@ -48,7 +48,7 @@ export default function Rooms() {
               <img src={photo.thumb} srcSet={`${photo.thumb} ${photo.w}w, ${photo.full} 1350w`} sizes="(min-width: 1024px) 40vw, 92vw" alt={v(photo.alt)} width={photo.w} height={photo.h} loading="lazy" decoding="async" className="size-full object-cover" />
             </Link>
             <div className="lg:col-span-7 lg:pt-16">
-              <StationSign station={{ code: STATION.code, name: STATION.name, nameKo: STATION.nameKo }} platform={platformById(st.id)} line={{ code: 'GY', color: 'yellow' }} prev={nm(prev)} next={nm(next)} size="md" />
+              <StationSign station={{ code: STATION.code, name: v({ en: STATION.name, ko: STATION.nameKo }) }} platform={platformById(st.id)} line={{ code: 'GY', color: 'yellow' }} prev={nm(prev)} next={nm(next)} size="md" />
               {facts && <p className="mt-24 max-w-read text-text-sec">{v(facts.desc)}</p>}
             </div>
           </div>

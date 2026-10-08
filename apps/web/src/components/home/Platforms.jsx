@@ -12,7 +12,7 @@ export default function Platforms() {
   const pick = usePick()
   return (
     <Section id="platforms" labelledBy="platforms-title" className="!py-24 md:!py-48">
-      <h2 id="platforms-title" className="sr-only">{pick({ en: 'Rooms', ko: '방' })}</h2>
+      <h2 id="platforms-title" className="sr-only">{pick({ en: 'Rooms', ko: '촬영 방' })}</h2>
       <ul className="grid grid-cols-3 gap-12 md:gap-24">
         {ROOMS.map((r) => (
           <li key={r.id}>

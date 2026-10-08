@@ -40,7 +40,6 @@ function Fare({ ctrl }) {
           <StripView frame={frame} date={ctrl.date} roomId={ctrl.room} height={360} className="k-lift" />
         </div>
       </div>
-      <T n={COPY.common.simulated} as="p" className="kt-caption mt-24 text-text-meta" />
     </div>
   )
 }

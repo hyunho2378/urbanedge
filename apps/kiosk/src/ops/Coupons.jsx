@@ -51,14 +51,14 @@ function TodayCodes({ L }) {
     <section className="op-card" aria-label={L('Today’s codes', '오늘의 통합 코드')}>
       <div className="op-row-between">
         <h3 className="op-h3">{L('Today’s codes', '오늘의 통합 코드')}</h3>
-        <span className="op-reset op-num">{date ? `${date} · ` : ''}{L('Resets at 00:00 KST', '한국 시각 00:00에 새 코드')}</span>
+        <span className="op-reset op-num">{date ? `${date}  ` : ''}{L('Resets at 00:00 KST', '매일 00:00 새 코드')}</span>
       </div>
-      <p className="op-meta">{L('The website scratch card and each partner receipt use these codes. Nobody changes anything by hand.', '웹사이트 스크래치 카드와 제휴처 영수증이 이 코드를 같이 쓴다. 손으로 바꿀 필요가 없다.')}</p>
+      <p className="op-meta">{L('The website scratch card and each partner receipt use these codes. Nobody changes anything by hand.', '웹사이트 스크래치 카드와 제휴처 영수증 공용 코드, 수동 변경 불필요')}</p>
       {codes.length ? (
         <div className="op-code-pair">
           {codes.map((c) => (
             <div key={c.channel || c.code} className="op-stack">
-              <p className="op-strong">{c.channel === 'web' ? L('Website coupon', '웹사이트 쿠폰') : c.label}{c.discount ? ` · ${won(c.discount)}` : ''}</p>
+              <p className="op-strong">{c.channel === 'web' ? L('Website coupon', '웹사이트 쿠폰') : c.label}{c.discount ? `  ${won(c.discount)}` : ''}</p>
               <div className="op-code-box">
                 <span className="op-code">{c.code}</span>
                 <button type="button" className="op-icon-btn" onClick={() => copy(c.code)} aria-label={`${c.label || c.channel} ${L('copy code', '코드 복사')}`}>
@@ -69,7 +69,7 @@ function TodayCodes({ L }) {
           ))}
         </div>
       ) : (
-        <p className="op-empty">{failed ? L('Could not reach the server for today’s codes.', '서버에서 오늘 코드를 받지 못했다.') : L('Loading…', '불러오는 중')}</p>
+        <p className="op-empty">{failed ? L('Could not reach the server for today’s codes.', '오늘 코드 수신 실패') : L('Loading…', '불러오는 중')}</p>
       )}
     </section>
   )
@@ -133,7 +133,7 @@ export default function Coupons() {
       <div className="op-grid-2">
         <section className="op-card" aria-label={L('Partner daily code', '제휴처 일일 코드')}>
           <h3 className="op-h3">{L('Partner daily code', '제휴처 일일 코드')}</h3>
-          <p className="op-meta">{L('A new code every day from the partner name and date. Print it at the bottom of the partner receipt; no one has to change anything by hand.', '제휴처 이름과 날짜로 매일 새 코드가 나온다. 제휴처 영수증 하단에 넣으면 되고 손으로 바꿀 필요가 없다.')}</p>
+          <p className="op-meta">{L('A new code every day from the partner name and date. Print it at the bottom of the partner receipt; no one has to change anything by hand.', '제휴처 이름과 날짜 기준 매일 새 코드, 제휴처 영수증 하단 인쇄용')}</p>
           <div className="op-form">
             <label className="op-field">
               <span>{L('Partner', '제휴처')}</span>
@@ -153,14 +153,14 @@ export default function Coupons() {
             </button>
           </div>
           <p className="op-meta op-num">
-            {today()} · {won(discount)} {L('off', '할인')}
+            {today()}  {L('off', '할인')} {won(discount)}
           </p>
           <div className="op-receipt op-receipt-mini" aria-label={L('Receipt footer preview', '영수증 하단 미리보기')}>
             <p className="op-receipt-c">{partner.trim() || L('Partner', '제휴처')}</p>
             <hr />
             <p className="op-receipt-c">{L('UrbanEdge photo coupon', '어반엣지 사진관 할인')} {won(discount)}</p>
             <p className="op-receipt-c op-receipt-total">{code}</p>
-            <p className="op-receipt-c">{L('Today only · enter on the kiosk', '오늘만 사용 · 키오스크에 입력')}</p>
+            <p className="op-receipt-c">{L('Today only', '오늘만 사용')}</p>
           </div>
           <button type="button" className="op-btn" onClick={issueDaily} disabled={!!registered}>
             {registered ? L('Active today', '오늘 사용 중') : L('Activate today’s code', '오늘 코드 등록')}
@@ -169,7 +169,7 @@ export default function Coupons() {
 
         <section className="op-card" aria-label={L('Single-use codes', '1회용 코드 묶음')}>
           <h3 className="op-h3">{L('Single-use codes', '1회용 코드 묶음')}</h3>
-          <p className="op-meta">{L('Each code works once. Use them for events or apology vouchers.', '코드마다 한 번만 쓸 수 있다. 이벤트나 사과 쿠폰에 쓴다.')}</p>
+          <p className="op-meta">{L('Each code works once. Use them for events or apology vouchers.', '코드당 1회 사용, 이벤트와 사과 쿠폰용')}</p>
           <div className="op-form">
             <label className="op-field">
               <span>{L('How many', '개수')}</span>
@@ -190,7 +190,7 @@ export default function Coupons() {
       <section className="op-card" aria-label={L('Issued codes', '발급한 코드')}>
         <h3 className="op-h3">{L('Issued codes', '발급한 코드')}</h3>
         {coupons.length === 0 ? (
-          <p className="op-empty">{L('No codes issued in this session.', '이 세션에서 발급한 코드가 없다.')}</p>
+          <p className="op-empty">{L('No codes issued in this session.', '발급한 코드 없음')}</p>
         ) : (
           <div className="op-table-wrap">
             <table className="op-table">

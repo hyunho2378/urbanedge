@@ -1,4 +1,4 @@
-// ops/Products.jsx: 상품·가격표. 표에서 바로 고치면 키오스크 결제 화면에 즉시 반영된다.
+// ops/Products.jsx: 상품과 가격표. 표 수정 즉시 키오스크 결제 화면 반영
 // 코드를 몰라도 되게 한 줄이 한 상품이다: 이름(한/영), 컷 수, 인화 장수, 가격, 사용 여부.
 import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
@@ -24,10 +24,10 @@ export default function Products() {
 
   return (
     <div className="op-stack">
-      <section className="op-card" aria-label={L('Products and prices', '상품·가격표')}>
+      <section className="op-card" aria-label={L('Products and prices', '상품과 가격표')}>
         <div className="op-card-head">
-          <h3 className="op-h3">{L('Products and prices', '상품·가격표')}</h3>
-          <span className="op-meta">{L('Edit a cell and it applies to the kiosks at once.', '칸을 고치면 키오스크에 바로 반영된다.')}</span>
+          <h3 className="op-h3">{L('Products and prices', '상품과 가격표')}</h3>
+          <span className="op-meta">{L('Edit a cell and it applies to the kiosks at once.', '수정 즉시 키오스크 반영')}</span>
         </div>
         <div className="op-table-wrap">
           <table className="op-table op-table-edit">

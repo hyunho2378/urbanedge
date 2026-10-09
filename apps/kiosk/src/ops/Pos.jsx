@@ -4,17 +4,19 @@ import { Receipt, RotateCcw } from 'lucide-react'
 import { BOOTHS, METHODS, ops, useOps } from './store.js'
 import { frameById } from '../flow/prints.js'
 import { rangeStart, summarize } from './Dashboard.jsx'
-import { Dialog, METHOD_LABEL, boothOf, hhmm, useL, useLangCode, won, ymd } from './ui.jsx'
+import { Dialog, METHOD_LABEL, boothOf, hhmm, payLines, payMain, useL, useLangCode, won, ymd } from './ui.jsx'
 
 export default function Pos() {
   const L = useL()
   const lang = useLangCode()
   const tx = useOps((s) => s.tx)
   const frames = useOps((s) => s.frames)
+  const products = useOps((s) => s.products)
   const [booth, setBooth] = useState('all')
   const [method, setMethod] = useState('all')
   const [confirm, setConfirm] = useState(null)
   const [receipt, setReceipt] = useState(false)
+  const [detail, setDetail] = useState(null)
 
   const rows = useMemo(() => tx.filter((t) => (booth === 'all' || t.booth === booth) && (method === 'all' || t.method === method)).slice(0, 200), [tx, booth, method])
   const todayTx = useMemo(() => tx.filter((t) => t.ts >= rangeStart('today')), [tx])
@@ -39,18 +41,16 @@ export default function Pos() {
             <h3 className="op-h3">{L('Day close', '일 마감')}</h3>
           </div>
           <p className="op-kpi-value op-num">{won(day.revenue)}</p>
-          <p className="op-meta">
-            {day.count}
-            {L(' paid', '건 결제')} · {L('refunds', '환불')} {day.refunds}
-            {L('', '건')}
+          <p className="op-meta op-row">
+            <span>{day.count}건 결제</span>
+            <span>환불 {day.refunds}건</span>
           </p>
           <ul className="op-legend op-legend-col">
             {byMethod.map((x) => (
               <li key={x.m}>
                 {METHOD_LABEL[x.m][lang] || METHOD_LABEL[x.m].ko}
                 <span className="op-num">
-                  {x.c}
-                  {L('', '건')} · {won(x.v)}
+                  {x.c}건 / {won(x.v)}
                 </span>
               </li>
             ))}
@@ -90,7 +90,7 @@ export default function Pos() {
             </div>
           </div>
           {rows.length === 0 ? (
-            <p className="op-empty">{L('No transactions yet. Payments from the kiosks appear here.', '아직 거래가 없다. 키오스크에서 결제하면 여기에 쌓인다.')}</p>
+            <p className="op-empty">{L('No transactions yet. Payments from the kiosks appear here.', '거래 없음, 키오스크 결제 즉시 표시')}</p>
           ) : (
             <div className="op-table-wrap">
               <table className="op-table">
@@ -109,7 +109,7 @@ export default function Pos() {
                 </thead>
                 <tbody>
                   {rows.map((t) => (
-                    <tr key={t.id} className={t.status === 'refunded' ? 'op-refunded' : ''}>
+                    <tr key={t.id} className={`op-tr-btn ${t.status === 'refunded' ? 'op-refunded' : ''}`} onClick={() => setDetail(t)} tabIndex={0} onKeyDown={(e) => (e.key === 'Enter' ? setDetail(t) : null)}>
                       <td className="op-num">
                         {t.ts < rangeStart('today') ? `${ymd(t.ts)} ` : ''}
                         {hhmm(t.ts)}
@@ -119,10 +119,15 @@ export default function Pos() {
                                                     {boothOf(t.booth).name[lang] || boothOf(t.booth).name.ko}
                         </span>
                       </td>
-                      <td>{METHOD_LABEL[t.method]?.[lang] || METHOD_LABEL[t.method]?.ko || t.method}</td>
-                      <td className="op-mono">{t.coupon || '-'}</td>
                       <td>
-                        {t.cuts ? `${t.cuts}${L(' cuts', '컷')}` : '-'}
+                        <span className="op-pay">
+                          <span className="op-strong">{payMain(t)}</span>
+                          <span className="op-pay-sub op-num">{payLines(t).join('   ') || ' '}</span>
+                        </span>
+                      </td>
+                      <td className="op-mono">{t.coupon || '-'}</td>
+                      <td className="op-ell" title={nameOf(t.frameId) || ''}>
+                        {t.cuts ? `${t.cuts}컷` : '-'}
                         {nameOf(t.frameId) ? ` / ${nameOf(t.frameId)}` : ''}
                       </td>
                       <td className="op-num op-right">{won(t.amount)}</td>
@@ -130,7 +135,7 @@ export default function Pos() {
                         {t.status === 'refunded' ? (
                           <span className="op-chip">{L('Refunded', '환불됨')}</span>
                         ) : (
-                          <button type="button" className="op-btn op-btn-sm op-btn-ghost" onClick={() => setConfirm(t)}>
+                          <button type="button" className="op-btn op-btn-sm op-btn-ghost" onClick={(e) => { e.stopPropagation(); setConfirm(t) }}>
                             <RotateCcw size={14} aria-hidden="true" />
                             {L('Refund', '환불')}
                           </button>
@@ -145,13 +150,46 @@ export default function Pos() {
         </section>
       </div>
 
-      <Dialog open={!!confirm} onClose={() => setConfirm(null)} title={L('Refund this payment?', '이 결제를 환불할까?')}>
+      <Dialog open={!!detail} onClose={() => setDetail(null)} title="결제 상세">
+        {detail ? (
+          <>
+            <div className="op-receipt" aria-label="결제 영수증">
+              <p className="op-receipt-c">URBANEDGE GY-01</p>
+              <hr />
+              <p className="op-receipt-row"><span>시각</span><span className="op-num">{ymd(detail.ts)} {hhmm(detail.ts)}</span></p>
+              <p className="op-receipt-row"><span>부스</span><span>{boothOf(detail.booth).name.ko}</span></p>
+              <p className="op-receipt-row"><span>상품</span><span>{products.find((p) => p.id === detail.product)?.name.ko || (detail.cuts ? `${detail.cuts}컷` : '-')}</span></p>
+              <p className="op-receipt-row"><span>프레임</span><span>{nameOf(detail.frameId) || '-'}</span></p>
+              <hr />
+              <p className="op-receipt-row"><span>결제수단</span><span>{payMain(detail)}</span></p>
+              {payLines(detail).map((l) => (
+                <p key={l} className="op-receipt-row"><span> </span><span className="op-num">{l}</span></p>
+              ))}
+              {detail.discount ? <p className="op-receipt-row"><span>할인</span><span className="op-num">{won(detail.discount)}</span></p> : null}
+              <hr />
+              <p className="op-receipt-row op-receipt-total"><span>금액</span><span>{won(detail.amount)}</span></p>
+              <p className="op-receipt-row"><span>상태</span><span>{detail.status === 'refunded' ? '환불됨' : '결제 완료'}</span></p>
+            </div>
+            <div className="op-row op-end">
+              <button type="button" className="op-btn op-btn-ghost" onClick={() => setDetail(null)}>닫기</button>
+              {detail.status !== 'refunded' ? (
+                <button type="button" className="op-btn" onClick={() => { setConfirm(detail); setDetail(null) }}>환불</button>
+              ) : null}
+            </div>
+          </>
+        ) : null}
+      </Dialog>
+
+      <Dialog open={!!confirm} onClose={() => setConfirm(null)} title={L('Refund this payment?', '이 결제 환불')}>
         {confirm ? (
           <>
-            <p className="op-body">
-              {hhmm(confirm.ts)} · {boothOf(confirm.booth).name[lang] || boothOf(confirm.booth).name.ko} · {METHOD_LABEL[confirm.method]?.[lang] || METHOD_LABEL[confirm.method]?.ko} · {won(confirm.amount)}
+            <p className="op-body op-row">
+              <span className="op-num">{hhmm(confirm.ts)}</span>
+              <span>{boothOf(confirm.booth).name.ko}</span>
+              <span>{payMain(confirm)}</span>
+              <span className="op-num op-strong">{won(confirm.amount)}</span>
             </p>
-            <p className="op-meta">{L('Status changes to Refunded and the totals drop by this amount.', '상태가 환불됨으로 바뀌고 매출 합계에서 이 금액이 빠진다.')}</p>
+            <p className="op-meta">{L('Status changes to Refunded and the totals drop by this amount.', '환불 처리 후 상태 환불됨, 매출 합계에서 해당 금액 제외')}</p>
             <div className="op-row op-end">
               <button type="button" className="op-btn op-btn-ghost" onClick={() => setConfirm(null)}>
                 {L('Cancel', '취소')}

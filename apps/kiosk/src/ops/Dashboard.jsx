@@ -8,7 +8,7 @@ import { allFrames } from '../flow/prints.js'
 import { BOOTHS, METHODS, ops, useOps } from './store.js'
 import { exportSales } from './exportSales.js'
 import { makeHistoryTx } from './history.js'
-import { METHOD_LABEL, STEP_LABEL, Tabs, compact, hhmmss, relTime, useL, useLangCode, won } from './ui.jsx'
+import { METHOD_LABEL, STEP_LABEL, Tabs, compact, hhmmss, payShort, relTime, useL, useLangCode, won } from './ui.jsx'
 
 export function rangeStart(range, now = new Date()) {
   const d = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -138,7 +138,7 @@ function Bars({ series, nowKey, title, unit }) {
           const hot = s.k === nowKey
           const showVal = s.v > 0 && (hot || s.k === topK) && !(dense && !hot && s.k !== topK)
           return (
-            <div key={s.k} className="op-col" title={`${s.label}${unit} ${won(s.v)} · ${s.c}`}>
+            <div key={s.k} className="op-col" title={`${s.label}${unit} ${won(s.v)}, ${s.c}건`}>
               <div className="op-col-area">
                 {showVal ? <span className="op-col-val op-num">{compact(s.v, lang)}</span> : null}
                 <div className={`op-col-bar ${hot ? 'op-col-hot' : ''}`} style={{ height: `${s.v ? Math.max(3, (s.v / max) * 100) : 0}%` }} />
@@ -176,7 +176,7 @@ function ExportMenu({ range, rows, L }) {
       else await ops.download(fmt, { range, kind: 'sales' })
       setOpen(false)
     } catch (e) {
-      setMsg(L('Export failed. Try again.', '내보내지 못했다. 다시 시도해 주세요.'))
+      setMsg(L('Export failed. Try again.', '내보내기 실패, 다시 시도'))
     }
   }
   const items = [
@@ -198,7 +198,7 @@ function ExportMenu({ range, rows, L }) {
               {it.label}
             </button>
           ))}
-          {!server ? <small>{L('Excel, Hangul and PDF need the server. It is not connected.', '엑셀, 한글, PDF는 서버가 있어야 한다. 지금은 연결되지 않았다.')}</small> : null}
+          {!server ? <small>{L('Excel, Hangul and PDF need the server. It is not connected.', '엑셀, 한글, PDF는 서버 연결 필요, 현재 미연결')}</small> : null}
           {msg ? <small>{msg}</small> : null}
         </div>
       ) : null}
@@ -311,7 +311,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
   const feed = useMemo(() => all.filter((t) => t.ts >= feedStart && !t.history).slice(0, tv ? 4 : 8), [all, feedStart, tv])
 
   const mLabel = (m) => METHOD_LABEL[m]?.[lang] || METHOD_LABEL[m]?.ko || m
-  const methodLine = METHODS.map((m) => ({ m, c: cur.paid.filter((t) => t.method === m).length })).filter((x) => x.c).map((x) => `${mLabel(x.m)} ${x.c}`).join(' · ') || '—'
+  const methodLine = METHODS.map((m) => ({ m, c: cur.paid.filter((t) => t.method === m).length })).filter((x) => x.c).map((x) => `${mLabel(x.m)} ${x.c}`).join(', ') || '—'
   const dayOfMonth = nd.getDate()
   const dayOfYear = Math.max(1, Math.floor((now - rangeStart('year')) / 86400000) + 1)
 
@@ -376,11 +376,11 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
   const offProducts = products.filter((p) => !p.enabled)
   const paying = BOOTHS.filter((b) => booth[b.id].step === 'pay')
   const todo = []
-  if (todayRefunds.length) todo.push({ id: 'refund', label: L('Refunds to review', '환불 내역 확인'), sub: todayRefunds.map((t) => `P${BOOTHS.find((b) => b.id === t.booth)?.n} ${hhmmss(t.refundedAt || t.ts)}`).slice(0, 2).join(' · '), value: `${todayRefunds.length}${L('', '건')}`, go: 'pos' })
+  if (todayRefunds.length) todo.push({ id: 'refund', label: L('Refunds to review', '환불 내역 확인'), sub: todayRefunds.map((t) => `P${BOOTHS.find((b) => b.id === t.booth)?.n} ${hhmmss(t.refundedAt || t.ts)}`).slice(0, 2).join(', '), value: `${todayRefunds.length}${L('', '건')}`, go: 'pos' })
   if (offline.length) todo.push({ id: 'off', label: L('Offline booths', '연결 끊긴 부스'), sub: offline.map((b) => b.name[lang] || b.name.ko).join(', '), value: `${offline.length}${L('', '곳')}`, go: null })
-  if (lowCoupons.length) todo.push({ id: 'cp', label: L('Coupons almost used up', '쿠폰 소진 임박'), sub: lowCoupons.slice(0, 2).map((c) => c.code).join(' · '), value: `${lowCoupons.length}${L('', '개')}`, go: 'coupon' })
-  if (offProducts.length) todo.push({ id: 'prod', label: L('Products switched off', '판매 중지 상품'), sub: offProducts.slice(0, 2).map((p) => p.name[lang] || p.name.ko).join(' · '), value: `${offProducts.length}${L('', '개')}`, go: 'products' })
-  if (!hasHistory) todo.push({ id: 'hist', label: L('Monthly and yearly figures are empty', '월·연 통계가 비어 있음'), sub: L('Load past records to fill them', '지난 기록을 불러오면 채워진다'), value: L('Load', '불러오기'), go: 'history' })
+  if (lowCoupons.length) todo.push({ id: 'cp', label: L('Coupons almost used up', '쿠폰 소진 임박'), sub: lowCoupons.slice(0, 2).map((c) => c.code).join(', '), value: `${lowCoupons.length}${L('', '개')}`, go: 'coupon' })
+  if (offProducts.length) todo.push({ id: 'prod', label: L('Products switched off', '판매 중지 상품'), sub: offProducts.slice(0, 2).map((p) => p.name[lang] || p.name.ko).join(', '), value: `${offProducts.length}${L('', '개')}`, go: 'products' })
+  if (!hasHistory) todo.push({ id: 'hist', label: L('Monthly and yearly figures are empty', '월별 연별 통계 없음'), sub: L('Load past records to fill them', '지난 기록 불러오기로 채움'), value: L('Load', '불러오기'), go: 'history' })
   if (paying.length) todo.push({ id: 'pay', label: L('Paying now', '지금 결제 중'), sub: paying.map((b) => b.name[lang] || b.name.ko).join(', '), value: `${paying.length}${L('', '곳')}`, go: null })
 
   const doGo = (id) => {
@@ -443,7 +443,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
 
         <div className="op-r1">
           <section className="op-card op-card-inv" aria-label={L('Revenue summary', '매출 요약')}>
-            <Head title={L('Revenue summary', '매출 요약')} link={L('Sales', '거래·환불')} onLink={() => onGo?.('pos')} />
+            <Head title={L('Revenue summary', '매출 요약')} link={L('Sales', '거래와 환불')} onLink={() => onGo?.('pos')} />
             <p className="op-sum-label">{rangeName} {L('revenue', '매출')}</p>
             <p className="op-sum-value op-num">{won(cur.revenue)}</p>
             <p className="op-sum-sub op-num">
@@ -459,10 +459,10 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
           </section>
 
           <section className="op-card" aria-label={chartTitle}>
-            <Head title={chartTitle} link={L('Sales', '거래·환불')} onLink={() => onGo?.('pos')} />
+            <Head title={chartTitle} link={L('Sales', '거래와 환불')} onLink={() => onGo?.('pos')} />
             <p className="op-sub-line op-num">
               {L('Highest', '가장 많은 때')} {series.reduce((m, s) => (s.v > m.v ? s : m), { v: 0, label: '—' }).label}
-              {series.some((s) => s.v) ? unit : ''} · {L('Total', '합계')} {won(series.reduce((a, s) => a + s.v, 0))}
+              {series.some((s) => s.v) ? unit : ''}, {L('Total', '합계')} {won(series.reduce((a, s) => a + s.v, 0))}
             </p>
             <Bars series={series} nowKey={nowKey} title={chartTitle} unit={unit} />
             <div className="op-chips" role="radiogroup" aria-label={L('Booth filter', '부스 필터')}>
@@ -483,7 +483,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                 ))}
               </ul>
             ) : (
-              <p className="op-empty">{L('Nothing to check right now.', '지금 확인할 일이 없다.')}</p>
+              <p className="op-empty">{L('Nothing to check right now.', '확인할 일 없음')}</p>
             )}
           </section>
         </div>
@@ -515,7 +515,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                           </button>
                         </td>
                         <td>{s.online ? step : <span className="op-pill">{L('Offline', '연결 끊김')}</span>}</td>
-                        <td className="op-num">{b.last ? `${hhmmss(b.last.ts)} · ${relTime(b.last.ts, now, lang)}` : '—'}</td>
+                        <td className="op-num">{b.last ? <>{hhmmss(b.last.ts)}<span className="op-rel">{relTime(b.last.ts, now, lang)}</span></> : '—'}</td>
                         <td className="op-num op-right">
                           {b.todayN}
                           {L('', '건')}
@@ -531,7 +531,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
           </section>
 
           <section className="op-card" aria-label={L('Live payments', '실시간 결제')}>
-            <Head title={L('Live payments', '실시간 결제')} link={L('Sales', '거래·환불')} onLink={() => onGo?.('pos')} />
+            <Head title={L('Live payments', '실시간 결제')} link={L('Sales', '거래와 환불')} onLink={() => onGo?.('pos')} />
             {feed.length ? (
               <div className="op-table-wrap" aria-live="polite">
                 <table className="op-table op-table-plain">
@@ -555,8 +555,8 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                         <tr key={t.id} className={`${now - t.ts < 4000 ? 'op-new' : ''} ${t.status === 'refunded' ? 'op-refunded' : ''}`}>
                           <td className="op-num">{hhmmss(t.ts)}</td>
                           <td>P{b?.n} {b ? b.name[lang] || b.name.ko : ''}</td>
-                          <td className="op-strong">{label}</td>
-                          <td>{mLabel(t.method)}</td>
+                          <td className="op-strong op-ell" title={label}>{label}</td>
+                          <td className="op-ell" title={payShort(t)}>{payShort(t)}</td>
                           <td className="op-mono">{t.coupon || '—'}</td>
                           <td className="op-num op-right">{won(t.amount)}</td>
                           <td>{t.status === 'refunded' ? <span className="op-pill">{L('Refunded', '환불됨')}</span> : L('Paid', '완료')}</td>
@@ -567,20 +567,19 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                 </table>
               </div>
             ) : (
-              <p className="op-empty">{L('No payments yet today. A payment on any kiosk appears here at once.', '오늘 결제가 아직 없다. 키오스크에서 결제하면 바로 여기에 나타난다.')}</p>
+              <p className="op-empty">{L('No payments yet today. A payment on any kiosk appears here at once.', '오늘 결제 없음. 키오스크 결제 즉시 표시')}</p>
             )}
           </section>
         </div>
 
-        <h3 className="op-sec-title">{L('Sales breakdown', '판매 분석')} · {rangeName}</h3>
+        <h3 className="op-sec-title">{L('Sales breakdown', '판매 분석')} {rangeName}</h3>
         <div className="op-r3">
           <section className="op-card" aria-label={L('Sales by product', '상품별 판매')}>
             <Head title={L('Sales by product', '상품별 판매')} />
-            <table className="op-table op-table-plain">
+            <div className="op-table-wrap"><table className="op-table op-table-plain">
               <thead>
                 <tr>
                   <th>{L('Product', '상품')}</th>
-                  <th className="op-right">{L('Price', '가격')}</th>
                   <th className="op-right">{L('Sold', '판매')}</th>
                   <th className="op-right">{L('Revenue', '매출')}</th>
                   <th>{L('Share', '비중')}</th>
@@ -589,8 +588,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
               <tbody>
                 {prodRows.map((p) => (
                   <tr key={p.id || 'other'}>
-                    <td className="op-strong">{p.name}</td>
-                    <td className="op-num op-right">{p.price ? won(p.price) : '—'}</td>
+                    <td className="op-strong op-ell" title={p.name}>{p.name}</td>
                     <td className="op-num op-right">
                       {p.c}
                       {L('', '건')}
@@ -605,12 +603,12 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </section>
           <section className="op-card" aria-label={L('Sales by frame', '프레임별 판매')}>
             <Head title={L('Sales by frame', '프레임별 판매')} />
             {frameRows.length ? (
-              <table className="op-table op-table-plain">
+              <div className="op-table-wrap"><table className="op-table op-table-plain">
                 <thead>
                   <tr>
                     <th>{L('Frame', '프레임')}</th>
@@ -622,7 +620,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                 <tbody>
                   {frameShown.map((r) => (
                     <tr key={r.id || 'none'}>
-                      <td className="op-strong">{r.id === '__rest' ? `${L('Others', '그 외')} ${r.n}${L(' frames', '종')}` : r.id ? frameName(r.id) : L('Not chosen', '미선택')}</td>
+                      <td className="op-strong op-ell" title={r.id && r.id !== '__rest' ? frameName(r.id) : ''}>{r.id === '__rest' ? `그 외 ${r.n}종` : r.id ? frameName(r.id) : '미선택'}</td>
                       <td className="op-num op-right">{r.c}{L('', '건')}</td>
                       <td className="op-num op-right">{won(r.v)}</td>
                       <td>
@@ -634,14 +632,14 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             ) : (
-              <p className="op-empty">{L('No frame sales in this period.', '이 기간에 팔린 프레임이 없다.')}</p>
+              <p className="op-empty">{L('No frame sales in this period.', '이 기간 판매된 프레임 없음')}</p>
             )}
           </section>
           <section className="op-card" aria-label={L('Payment methods', '결제수단')}>
             <Head title={L('Payment methods', '결제수단')} />
-            <table className="op-table op-table-plain">
+            <div className="op-table-wrap"><table className="op-table op-table-plain">
               <thead>
                 <tr>
                   <th>{L('Method', '결제수단')}</th>
@@ -668,7 +666,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
             {couponRows.length ? (
               <>
                 <h4 className="op-h3 op-coupon-sub">{L('Coupon use by channel', '쿠폰 사용 채널')}</h4>

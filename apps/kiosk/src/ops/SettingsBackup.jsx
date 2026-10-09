@@ -22,7 +22,7 @@ export default function SettingsBackup() {
     a.download = name
     a.click()
     setTimeout(() => URL.revokeObjectURL(url), 1000)
-    setMsg({ ok: true, text: L(`Saved ${name}`, `${name} 파일로 저장했다.`) })
+    setMsg({ ok: true, text: L(`Saved ${name}`, `${name} 파일 저장 완료`) })
   }
 
   const importFile = async (e) => {
@@ -32,9 +32,9 @@ export default function SettingsBackup() {
     try {
       const obj = JSON.parse(await file.text())
       const r = ops.importSettings(obj)
-      setMsg(r.ok ? { ok: true, text: L('Settings restored. The kiosks use them from the next payment.', '설정을 불러왔다. 다음 결제부터 키오스크에 적용된다.') } : { ok: false, text: r.error })
+      setMsg(r.ok ? { ok: true, text: L('Settings restored. The kiosks use them from the next payment.', '설정 불러오기 완료, 다음 결제부터 적용') } : { ok: false, text: r.error })
     } catch {
-      setMsg({ ok: false, text: L('This file cannot be read. Pick a settings file saved from this screen.', '이 파일은 읽을 수 없다. 이 화면에서 저장한 설정 파일을 고른다.') })
+      setMsg({ ok: false, text: L('This file cannot be read. Pick a settings file saved from this screen.', '읽을 수 없는 파일, 이 화면에서 저장한 설정 파일 선택') })
     }
   }
 
@@ -43,7 +43,7 @@ export default function SettingsBackup() {
       <section className="op-card" aria-label={L('Settings backup', '설정 백업')}>
         <h3 className="op-h3">{L('Save and restore settings', '설정 저장과 불러오기')}</h3>
         <p className="op-body">
-          {L('Prices, products, frames, coupons and camera settings go into one file. Keep it somewhere safe, and load it again to get the same settings back.', '가격, 상품, 프레임, 쿠폰, 카메라 설정이 파일 하나에 담긴다. 안전한 곳에 보관해 두고, 같은 설정이 필요할 때 다시 불러온다.')}
+          {L('Prices, products, frames, coupons and camera settings go into one file. Keep it somewhere safe, and load it again to get the same settings back.', '가격, 상품, 프레임, 쿠폰, 카메라 설정을 파일 하나로 저장, 같은 설정이 필요할 때 다시 불러오기')}
         </p>
         <p className="op-meta">
           {L(`Now: ${counts.p} products, ${counts.f} frames, ${counts.c} coupons`, `지금 상품 ${counts.p}개, 프레임 ${counts.f}개, 쿠폰 ${counts.c}개`)}
@@ -64,7 +64,7 @@ export default function SettingsBackup() {
             {msg.text}
           </p>
         ) : null}
-        <p className="op-meta">{L('This screen runs inside this tab only, so reloading the page returns to the starting settings. Save a file first if you want to keep your changes.', '이 화면은 이 탭 안에서만 돌아가서, 페이지를 새로 열면 처음 설정으로 돌아간다. 바꾼 설정을 남기려면 먼저 파일로 저장한다.')}</p>
+        <p className="op-meta">{L('This screen runs inside this tab only, so reloading the page returns to the starting settings. Save a file first if you want to keep your changes.', '서버 미연결 시 새로고침하면 처음 설정으로 복귀, 변경 내용은 파일로 먼저 저장')}</p>
       </section>
     </div>
   )

@@ -1,4 +1,4 @@
-// ops/Frames.jsx: 프레임 켜고 끄기, 프레임 추가. 바꾸면 키오스크 3대에 바로 반영된다. (가격은 상품·가격 탭)
+// ops/Frames.jsx: 프레임 켜고 끄기와 추가. 수정 즉시 키오스크 반영. 가격은 상품과 가격 탭
 // 프레임은 데이터(이름, 색, 컷 수, 기본 레이아웃) 한 줄이라 하나를 더해도 프로그램을 다시 짤 필요가 없다.
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
@@ -31,7 +31,7 @@ export default function Frames() {
       <div className="op-stack">
         <section className="op-card" aria-label={L('Add a frame', '프레임 추가')}>
           <h3 className="op-h3">{L('Add a frame', '프레임 추가')}</h3>
-          <p className="op-meta">{L('A frame is one line of data, so adding one needs no program rewrite.', '프레임은 데이터 한 줄이라 하나를 더해도 프로그램을 다시 짤 필요가 없다.')}</p>
+          <p className="op-meta">{L('A frame is one line of data, so adding one needs no program rewrite.', '프레임은 데이터 한 줄, 추가에 프로그램 수정 불필요')}</p>
           <form className="op-form" onSubmit={add}>
             <label className="op-field op-span-2">
               <span>{L('Name', '이름')}</span>
@@ -90,7 +90,7 @@ export default function Frames() {
                   <span className="op-meta">
                     {c}
                     {L(' cuts', '컷')}
-                    {f.custom ? ` · ${L('added', '추가함')}` : ''}
+                    {f.custom ? ` ${L('added', '추가됨')}` : ''}
                   </span>
                 </div>
                 <Switch checked={f.enabled} onChange={() => ops.toggleFrame(f.id)} label={`${label} ${L('on kiosks', '키오스크에 표시')}`} />

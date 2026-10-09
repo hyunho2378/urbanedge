@@ -1,17 +1,15 @@
 // ops/ui.jsx: 운영 화면 공용 조각(언어, 탭, 대화상자, 형식).
 import { useCallback, useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
-import { pickLang, useLangValue } from '@urbanedge/ds'
 import { BOOTHS } from './store.js'
 
 // 운영 화면은 문구가 많고 촘촘해서 두 언어를 겹치지 않고 현재 언어 하나만 쓴다.
 let curLang = 'ko'
+// 운영 화면은 한국어만 쓴다. (영어 값은 받아 두기만 하고 쓰지 않는다)
 export function useL() {
-  const lang = useLangValue()
-  curLang = lang
-  return useCallback((en, ko) => pickLang(lang, en, ko), [lang])
+  return useCallback((en, ko) => ko, [])
 }
-export const useLangCode = useLangValue
+export const useLangCode = () => 'ko'
 
 // 색은 검정, 흰색, 노랑만 쓴다. 부스는 색이 아니라 이름과 P번호로 구분한다.
 export const BOOTH_COLOR = { retro: '17 17 17', karaoke: '17 17 17', subway: '17 17 17' }
@@ -178,3 +176,27 @@ export function Switch({ checked, onChange, label }) {
     </button>
   )
 }
+
+// 결제수단 상세: 카드는 카드사와 가린 번호, 승인번호, 할부. 현금은 받은 금액과 거스름돈. 쿠폰은 코드와 채널.
+export const payMain = (t) => {
+  const p = t.pay || {}
+  if (t.method === 'card') return p.brand || '카드'
+  if (t.method === 'samsungpay') return '삼성페이'
+  return METHOD_LABEL[t.method]?.ko || t.method
+}
+export const payLines = (t) => {
+  const p = t.pay || {}
+  if (t.method === 'card' || t.method === 'samsungpay') return [p.masked, p.approval ? `승인 ${p.approval}` : null, p.installment].filter(Boolean)
+  if (t.method === 'cash') return p.received ? [`받은 금액 ${won(p.received)}`, `거스름돈 ${won(p.change || 0)}`] : []
+  if (t.method === 'coupon') return [p.code || t.coupon, p.channel || t.couponChannel].filter(Boolean)
+  return []
+}
+export const payShort = (t) => {
+  const p = t.pay || {}
+  const last4 = (p.masked || '').replace(/\D/g, '').slice(-4)
+  if (t.method === 'card') return p.brand ? `${p.brand.replace('카드', '')} ${last4}`.trim() : '카드'
+  if (t.method === 'samsungpay') return `삼성페이 ${last4}`.trim()
+  if (t.method === 'coupon') return '쿠폰'
+  return METHOD_LABEL[t.method]?.ko || t.method
+}
+

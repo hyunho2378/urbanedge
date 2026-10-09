@@ -51,12 +51,12 @@ export default function CameraPanel() {
         <div className="op-cam-vwrap">
         <div className="op-cam-view">
           {stream ? <Live stream={stream} style={css} /> : <img src={SAMPLE[sel]} alt={L('Team photo standing in for the camera', '카메라 대신 보여 주는 팀 사진')} className="op-cam-media" style={css} />}
-          <span className={`op-chip op-cam-status ${bs.cameraActive ? 'op-chip-live' : ''}`}>
-            P{boothOf(sel).n} · {bs.online ? stepLabel : L('Offline', '연결 끊김')}
-          </span>
-          {!stream ? <span className="op-chip op-cam-src">{L('Team photo', '팀 사진')}</span> : null}
         </div>
         </div>
+        <p className="op-cam-caption">
+          <span className="op-strong">P{boothOf(sel).n} {boothOf(sel).name.ko}</span>
+          <span>{bs.online ? stepLabel : L('Offline', '연결 끊김')}</span>
+        </p>
       </div>
 
       <div className="op-cam-controls">
@@ -96,12 +96,12 @@ export default function CameraPanel() {
           </span>
         </h3>
         {mine.length === 0 ? (
-          <p className="op-empty">{L('Shots and prints from this booth land here.', '이 부스에서 찍은 컷과 인화본이 여기에 쌓인다.')}</p>
+          <p className="op-empty">{L('No files yet', '저장된 파일 없음')}</p>
         ) : (
           <ul className="op-files">
             {mine.map((f) => (
               <li key={f.id}>
-                <button type="button" className={`op-file ${f.kind === 'print' ? 'op-file-print' : ''}`} onClick={() => setOpen(f)} aria-label={`${f.kind === 'print' ? L('Print', '인화본') : L('Shot', '컷')} ${hhmm(f.ts)}`}>
+                <button type="button" title={hhmm(f.ts)} className={`op-file ${f.kind === 'print' ? 'op-file-print' : ''}`} onClick={() => setOpen(f)} aria-label={`${f.kind === 'print' ? L('Print', '인화본') : L('Shot', '컷')} ${hhmm(f.ts)}`}>
                   <img src={f.url} alt="" />
                   <span className="op-file-meta op-num">
                     {hhmm(f.ts)}
@@ -113,7 +113,7 @@ export default function CameraPanel() {
         )}
       </div>
 
-      <Dialog open={!!open} onClose={() => setOpen(null)} title={open ? `${boothOf(open.booth).name[lang] || boothOf(open.booth).name.ko} · ${hhmm(open.ts)}` : ''} wide>
+      <Dialog open={!!open} onClose={() => setOpen(null)} title={open ? `${boothOf(open.booth).name[lang] || boothOf(open.booth).name.ko} ${hhmm(open.ts)}` : ''} wide>
         {open ? <img src={open.url} alt="" className="op-file-big" /> : null}
       </Dialog>
     </section>

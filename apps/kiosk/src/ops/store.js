@@ -258,8 +258,8 @@ export const ops = {
     // 부스 상태는 1초에 한 번만 보낸다.
     debounced(`booth:${booth}`, api_, 800, (p) => push('PUT', `/api/booths/${booth}`, p, 'device'))
   },
-  recordPayment: ({ booth, method, amount, discount = 0, coupon = null, cuts = null, frameId = null, product = null, sim = false }) => {
-    const t = { id: newId(), booth, ts: Date.now(), method, amount, discount, coupon, cuts, frameId, product, sim, status: 'paid' }
+  recordPayment: ({ booth, method, amount, discount = 0, coupon = null, cuts = null, frameId = null, product = null, sim = false, pay = null }) => {
+    const t = { id: newId(), booth, ts: Date.now(), method, amount, discount, coupon, cuts, frameId, product, sim, pay, status: 'paid' }
     set((s) => ({ tx: [t, ...s.tx] }))
     if (queue) {
       pendingTx.add(t.id)
@@ -310,10 +310,10 @@ export const ops = {
     const k = kind === 'summary' ? 'summary' : 'tx'
     if (queue) return downloadFile(`/api/export?format=${encodeURIComponent(format)}&range=${encodeURIComponent(range)}&kind=${k}`, `UrbanEdge_${range}.${format}`)
     if (format !== 'csv') throw new Error('엑셀, 한글, PDF 내보내기는 서버에 연결되어 있을 때 쓸 수 있다.')
-    const head = ['시각', '부스', '상품', '프레임', '결제수단', '쿠폰', '쿠폰채널', '금액', '할인', '상태']
+    const head = ['시각', '부스', '상품', '프레임', '결제수단', '카드사', '카드번호', '승인번호', '할부', '받은금액', '거스름돈', '쿠폰', '쿠폰코드', '쿠폰채널', '금액', '할인', '상태']
     const cell = (v) => (/[",\r\n]/.test(String(v ?? '')) ? `"${String(v ?? '').replace(/"/g, '""')}"` : String(v ?? ''))
     const lines = [head.join(',')]
-    for (const t of state.tx) lines.push([new Date(t.ts).toLocaleString('sv-SE'), t.booth, t.product || '', t.frameId || '', t.method, t.coupon || '', t.couponChannel || '', t.amount, t.discount || 0, t.status === 'refunded' ? '환불' : '결제'].map(cell).join(','))
+    for (const t of state.tx) lines.push([new Date(t.ts).toLocaleString('sv-SE'), t.booth, t.product || '', t.frameId || '', t.method, (t.pay && t.pay.brand) || '', (t.pay && t.pay.masked) || '', (t.pay && t.pay.approval) || '', (t.pay && t.pay.installment) || '', t.pay && t.pay.received != null ? t.pay.received : '', t.pay && t.pay.change != null ? t.pay.change : '', t.coupon || '', (t.pay && t.pay.code) || '', t.couponChannel || (t.pay && t.pay.channel) || '', t.amount, t.discount || 0, t.status === 'refunded' ? '환불' : '결제'].map(cell).join(','))
     const url = URL.createObjectURL(new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }))
     const a = document.createElement('a')
     a.href = url

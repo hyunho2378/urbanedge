@@ -21,6 +21,14 @@ const uid = (p) => `${p}-${Date.now().toString(36)}-${(seq++).toString(36)}`
 function initial() {
   return {
     price: 7000,
+    // 상품(가격표). 키오스크 결제 화면이 이 목록에서 고르고, 운영 화면에서 이름/가격/사용 여부를 바꾼다.
+    // { id, name:{en,ko}, cuts, prints, price, enabled }
+    products: [
+      { id: 'strip4', name: { en: '4-cut strip', ko: '4컷 스트립' }, cuts: 4, prints: 2, price: 5000, enabled: true },
+      { id: 'grid4', name: { en: '4-cut photo', ko: '4컷 사진' }, cuts: 4, prints: 2, price: 7000, enabled: true },
+      { id: 'grid8', name: { en: '8-cut photo', ko: '8컷 사진' }, cuts: 8, prints: 2, price: 9000, enabled: true },
+      { id: 'premium', name: { en: 'Platform frame', ko: '승강장 프레임' }, cuts: 4, prints: 4, price: 10000, enabled: true },
+    ],
     // 거래: { id, booth, ts, method, amount, discount, coupon, cuts, frameId, status: 'paid'|'refunded', sample?: true }
     tx: [],
     // 저장 폴더: { id, booth, ts, url, settings }  (촬영 컷과 인화본)
@@ -56,8 +64,8 @@ export const ops = {
 
   // ---- 키오스크가 부르는 것 ----
   boothState: (booth, patch) => set((s) => ({ booth: { ...s.booth, [booth]: { ...s.booth[booth], ...patch } } })),
-  recordPayment: ({ booth, method, amount, discount = 0, coupon = null, cuts = null, frameId = null }) => {
-    const t = { id: uid('tx'), booth, ts: Date.now(), method, amount, discount, coupon, cuts, frameId, status: 'paid' }
+  recordPayment: ({ booth, method, amount, discount = 0, coupon = null, cuts = null, frameId = null, product = null, sim = false }) => {
+    const t = { id: uid('tx'), booth, ts: Date.now(), method, amount, discount, coupon, cuts, frameId, product, sim, status: 'paid' }
     set((s) => ({ tx: [t, ...s.tx] }))
     return t.id
   },
@@ -82,6 +90,8 @@ export const ops = {
 
   // ---- 운영 화면이 부르는 것 ----
   setPrice: (price) => set(() => ({ price })),
+  setProduct: (id, patch) => set((s) => ({ products: s.products.map((p) => (p.id === id ? { ...p, ...patch } : p)) })),
+  addProduct: (p) => set((s) => ({ products: [...s.products, { enabled: true, prints: 2, ...p }] })),
   refund: (id) => set((s) => ({ tx: s.tx.map((t) => (t.id === id ? { ...t, status: 'refunded', refundedAt: Date.now() } : t)) })),
   setCamera: (booth, patch) => set((s) => ({ camera: { ...s.camera, [booth]: { ...s.camera[booth], ...patch } } })),
   resetCamera: (booth) => set((s) => ({ camera: { ...s.camera, [booth]: { ...DEFAULT_CAMERA } } })),

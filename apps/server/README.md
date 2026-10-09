@@ -95,3 +95,21 @@ API_URL=http://localhost:8787 node apps/server/test/smoke.mjs   # 전체 시험
 - 금액은 원 단위 정수. 환불하면 `status='refunded'`가 되고 매출 합계에서 빠진다.
 - 시간은 UTC로 저장하고, 통계에서 한국 시간으로 자른다.
 - 서버는 사진 원본을 저장하지 않는다. 저장 폴더에는 작은 썸네일만 부스마다 최근 60개 남긴다.
+
+## 하루마다 바뀌는 쿠폰 코드 (웹사이트 + 제휴처)
+
+- 코드는 채널(웹사이트 `web`, 제휴처 `olive` 등)과 한국 날짜로 정해진다. 자정(KST)에 바뀌고 새벽 2시까지는 어제 코드도 받는다. 손으로 고칠 일이 없다.
+- `GET /api/coupons/today`: 누구나 웹사이트 코드만 본다. `X-Admin-Key`를 보내면 제휴처 코드까지 본다.
+- 제휴처 관리(관리자): `GET/POST /api/partners`, `PATCH/DELETE /api/partners/:id` (label, discount, active). 웹 할인액: `PUT /api/coupons/web {discount}` (기본 1000원).
+- `POST /api/coupons/check {code, due}`는 오늘 코드, 등록한 1회용 코드를 받는다. 예전 체크섬 코드(`UE-AAAA-AAAA` 같은 것)는 `ALLOW_LEGACY=1`일 때만 받는다(기본 꺼짐).
+- 거래에는 `couponChannel`이 남는다(웹사이트, 제휴처 id, `single`, `legacy`).
+- 환경변수 `COUPON_SECRET`: 하루 코드를 만드는 비밀값. 없으면 `ADMIN_KEY`를 쓴다. 바꾸면 모든 코드가 바뀐다. Render 환경변수에 넣는다.
+
+## 통계와 내보내기
+
+- `GET /api/stats?range=today|week|month|year`에 `byFrame`(프레임별 건수, 매출, 비중, 이름), `byProduct`, `byMethod`, `byCouponChannel`이 들어 있다.
+- `GET /api/export?format=csv|xlsx|hwpx|pdf&range=today|week|month|year&kind=tx|summary` (관리자 키). 파일 이름은 한글이다(`UrbanEdge_매출_오늘_거래_2026-10-09.xlsx`).
+  - csv: UTF-8 BOM(엑셀에서 한글이 깨지지 않는다). xlsx: 요약과 거래내역 두 시트. hwpx: kordoc `markdownToHwpx`로 만든 한글 보고서. pdf: pdfkit과 Pretendard(`assets/fonts`, OFL).
+- 의존성: exceljs, pdfkit, kordoc. kordoc의 선택 의존성(onnxruntime 등 약 300MB)은 서버에 필요 없으므로 Render 빌드 명령에 `--omit=optional`을 붙인다:
+  `npm ci --workspace=@urbanedge/server --include-workspace-root=false --omit=optional`
+- 시험: `PG_POOL_MAX=1 DATABASE_URL=... PGSSL=off node test/daily.mjs` (가짜 시계로 하루 코드 회전, 프레임별 매출, 4가지 내보내기). `test/smoke.mjs`는 서버를 `ALLOW_LEGACY=1`로 띄워 실행한다.

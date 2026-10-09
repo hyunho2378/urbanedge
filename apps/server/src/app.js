@@ -6,6 +6,8 @@ import { TZ, BOOTHS, DEFAULT_CAMERA } from './db.js'
 import { validateChecksum, randomCoupon, isComplete } from './coupon.js'
 import { makeHistory } from './history.js'
 import { stats } from './stats.js'
+import { dailyCode, activeDates } from './daily.js'
+import { makeExport } from './export.js'
 
 const METHODS = ['card', 'samsungpay', 'cash', 'coupon']
 const BOOTH_IDS = BOOTHS.map((b) => b.id)
@@ -22,6 +24,7 @@ const safeEq = (a, b) => {
   return x.length === y.length && x.length > 0 && timingSafeEqual(x, y)
 }
 const todayKst = () => new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date())
+const kstToday = todayKst
 
 // ---- 행 → 클라이언트 모양 ----
 export const txOut = (r) => ({
@@ -35,6 +38,7 @@ export const txOut = (r) => ({
   coupon: r.coupon,
   cuts: r.cuts,
   frameId: r.frame_id,
+  couponChannel: r.coupon_channel || null,
   status: r.status,
   refundedAt: ms(r.refunded_at),
   sim: r.sim,
@@ -45,7 +49,7 @@ const frameOut = (r) => ({ id: r.id, enabled: r.enabled, ...(r.custom ? { custom
 const couponOut = (r) => ({ code: r.code, label: r.label, kind: r.kind, discount: r.discount, uses: r.uses, maxUses: r.max_uses, date: r.date, active: r.active })
 const boothOut = (r) => ({ step: r.step, lang: r.lang, cameraActive: r.camera_active, lastShot: ms(r.last_shot), online: r.online, error: null, lastSeen: ms(r.last_seen) })
 
-export function createApp({ pool, deviceKey = process.env.DEVICE_KEY, adminKey = process.env.ADMIN_KEY, origins = process.env.ALLOWED_ORIGINS, production = process.env.NODE_ENV === 'production' } = {}) {
+export function createApp({ pool, now = () => new Date(), secret = process.env.COUPON_SECRET || process.env.ADMIN_KEY, allowLegacy = process.env.ALLOW_LEGACY === '1', deviceKey = process.env.DEVICE_KEY, adminKey = process.env.ADMIN_KEY, origins = process.env.ALLOWED_ORIGINS, production = process.env.NODE_ENV === 'production' } = {}) {
   const app = express()
   app.disable('x-powered-by')
   app.set('trust proxy', 1)
@@ -174,12 +178,13 @@ export function createApp({ pool, deviceKey = process.env.DEVICE_KEY, adminKey =
   }
   app.post('/api/tx', device, wrap(async (req, res) => {
     const t = txFrom(req.body || {})
+    t.channel = await couponChannelOf(t.coupon)
     // 같은 id를 다시 보내도(재시도) 한 건만 남는다.
     const { rows } = await q(
-      `INSERT INTO transactions (id, booth, ts, method, product, amount, discount, coupon, cuts, frame_id, sim)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+      `INSERT INTO transactions (id, booth, ts, method, product, amount, discount, coupon, cuts, frame_id, sim, coupon_channel)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
        ON CONFLICT (id) DO UPDATE SET id = EXCLUDED.id RETURNING *`,
-      [t.id, t.booth, t.ts, t.method, t.product, t.amount, t.discount, t.coupon, t.cuts, t.frame_id, t.sim],
+      [t.id, t.booth, t.ts, t.method, t.product, t.amount, t.discount, t.coupon, t.cuts, t.frame_id, t.sim, t.channel],
     )
     const out = txOut(rows[0])
     broadcast('tx', out)
@@ -371,20 +376,92 @@ export function createApp({ pool, deviceKey = process.env.DEVICE_KEY, adminKey =
     settingsChanged('coupons')
     res.json(couponOut(rows[0]))
   }))
-  // 확인(소모하지 않음). 결과 { ok, discount, label }
+  // ---- 하루마다 바뀌는 코드(웹사이트 + 제휴처) ----
+  const adminOk = (req) => !!adminKey && safeEq(adminKey, req.get('x-admin-key'))
+  async function channels() {
+    const { rows: w } = await q(`SELECT value FROM settings WHERE key='web_discount'`)
+    const web = { channel: 'web', label: '웹사이트', discount: w[0] ? Number(w[0].value) : 1000 }
+    const { rows } = await q('SELECT * FROM partners WHERE active ORDER BY created_at')
+    return [web, ...rows.map((r) => ({ channel: r.id, label: r.label, discount: r.discount }))]
+  }
+  // 코드 하나가 지금 받아 주는 날짜의 어느 채널 코드인지 찾는다.
+  async function findDaily(code) {
+    if (!secret) return null
+    const dates = activeDates(now())
+    for (const ch of await channels()) for (const d of dates) if (dailyCode(secret, ch.channel, d) === code) return { ...ch, date: d }
+    return null
+  }
+  async function couponChannelOf(code) {
+    if (!code) return null
+    code = String(code).toUpperCase().trim()
+    const d = await findDaily(code)
+    if (d) return d.channel
+    const { rows } = await q('SELECT kind FROM coupons WHERE code=$1', [code])
+    if (rows[0]) return 'single'
+    return validateChecksum(code) ? 'legacy' : null
+  }
+  app.get('/api/coupons/today', wrap(async (req, res) => {
+    const date = activeDates(now())[0]
+    const all = await channels()
+    const isAdmin = adminOk(req)
+    const list = (isAdmin ? all : all.filter((c) => c.channel === 'web')).map((c) => ({ channel: c.channel, label: c.label, code: dailyCode(secret, c.channel, date), discount: c.discount }))
+    res.set('Cache-Control', 'no-store')
+    res.json({ date, codes: list })
+  }))
+  app.put('/api/coupons/web', admin, wrap(async (req, res) => {
+    const n = int(req.body?.discount, NaN)
+    if (!Number.isFinite(n) || n < 0 || n > 1_000_000) throw bad('discount 값이 맞지 않다.')
+    await q(`INSERT INTO settings (key, value) VALUES ('web_discount', $1::jsonb) ON CONFLICT (key) DO UPDATE SET value=EXCLUDED.value`, [JSON.stringify(n)])
+    settingsChanged('coupons')
+    res.json({ discount: n })
+  }))
+  const partnerOut = (r) => ({ id: r.id, label: r.label, discount: r.discount, active: r.active })
+  app.get('/api/partners', admin, wrap(async (_req, res) => res.json((await q('SELECT * FROM partners ORDER BY created_at')).rows.map(partnerOut))))
+  app.post('/api/partners', admin, wrap(async (req, res) => {
+    const b = req.body || {}
+    if (!/^[a-z0-9][a-z0-9-]{1,30}$/.test(b.id || '') || b.id === 'web' || b.id === 'single' || b.id === 'legacy') throw bad('id는 영문 소문자, 숫자, -만 쓰고 web, single, legacy는 쓸 수 없다.')
+    if (!b.label) throw bad('label이 필요하다.')
+    const { rows } = await q(
+      `INSERT INTO partners (id, label, discount, active) VALUES ($1,$2,$3,$4)
+       ON CONFLICT (id) DO UPDATE SET label=EXCLUDED.label, discount=EXCLUDED.discount, active=EXCLUDED.active RETURNING *`,
+      [b.id, String(b.label).slice(0, 40), Math.max(0, int(b.discount)), b.active !== false],
+    )
+    settingsChanged('coupons')
+    res.status(201).json(partnerOut(rows[0]))
+  }))
+  app.patch('/api/partners/:id', admin, wrap(async (req, res) => {
+    const b = req.body || {}
+    const { rows } = await q(
+      `UPDATE partners SET label = COALESCE($2, label), discount = COALESCE($3, discount), active = COALESCE($4, active) WHERE id=$1 RETURNING *`,
+      [req.params.id, b.label ? String(b.label).slice(0, 40) : null, b.discount == null ? null : Math.max(0, int(b.discount)), b.active == null ? null : !!b.active],
+    )
+    if (!rows[0]) throw bad('제휴처를 찾을 수 없다.', 404)
+    settingsChanged('coupons')
+    res.json(partnerOut(rows[0]))
+  }))
+  app.delete('/api/partners/:id', admin, wrap(async (req, res) => {
+    await q('DELETE FROM partners WHERE id=$1', [req.params.id])
+    settingsChanged('coupons')
+    res.json({ ok: true })
+  }))
+
+  // 확인(소모하지 않음). 결과 { ok, discount, label, channel }
   async function couponCheck(code, due) {
     code = String(code || '').toUpperCase().trim()
+    const cap = (n) => (due != null ? Math.min(n, due) : n)
+    const dl = await findDaily(code)
+    if (dl) return { ok: true, discount: cap(dl.discount), label: dl.label, kind: 'daily', channel: dl.channel }
     const { rows } = await q('SELECT * FROM coupons WHERE code=$1 AND active', [code])
     const c = rows[0]
     if (c) {
-      if (c.kind === 'daily' && c.date !== todayKst()) return { ok: false }
+      if (c.kind === 'daily' && c.date !== kstToday()) return { ok: false }
       if (c.max_uses && c.uses >= c.max_uses) return { ok: false }
-      return { ok: true, discount: due != null ? Math.min(c.discount, due) : c.discount, label: c.label, kind: c.kind }
+      return { ok: true, discount: cap(c.discount), label: c.label, kind: c.kind, channel: 'single' }
     }
-    if (validateChecksum(code)) {
+    if (allowLegacy && validateChecksum(code)) {
       const used = await q('SELECT 1 FROM coupon_redemptions WHERE code=$1', [code])
       if (used.rowCount) return { ok: false, used: true }
-      return { ok: true, discount: due ?? 0, label: 'web', kind: 'web' }
+      return { ok: true, discount: due ?? 0, label: 'web', kind: 'web', channel: 'legacy' }
     }
     return { ok: false }
   }
@@ -392,17 +469,33 @@ export function createApp({ pool, deviceKey = process.env.DEVICE_KEY, adminKey =
   app.post('/api/coupons/redeem', device, wrap(async (req, res) => {
     const code = String(req.body?.code || '').toUpperCase().trim()
     const txId = req.body?.txId && UUID.test(req.body.txId) ? req.body.txId : null
+    // 하루 코드는 그날 여러 번 쓸 수 있다(채널은 거래에 남는다).
+    const dl = await findDaily(code)
+    if (dl) return res.json({ ok: true, channel: dl.channel })
     const reg = await q('SELECT 1 FROM coupons WHERE code=$1', [code])
     if (reg.rowCount) {
       const { rows } = await q(`UPDATE coupons SET uses = uses + 1 WHERE code=$1 AND active AND (max_uses = 0 OR uses < max_uses) RETURNING *`, [code])
       if (!rows[0]) throw bad('이미 다 쓴 쿠폰이거나 꺼져 있다.', 409)
       settingsChanged('coupons')
-      return res.json({ ok: true, coupon: couponOut(rows[0]) })
+      return res.json({ ok: true, coupon: couponOut(rows[0]), channel: 'single' })
     }
-    if (!validateChecksum(code)) throw bad('쿠폰 코드가 맞지 않다.', 404)
+    if (!allowLegacy || !validateChecksum(code)) throw bad('쿠폰 코드가 맞지 않다.', 404)
     const r = await q('INSERT INTO coupon_redemptions (code, tx_id) VALUES ($1,$2) ON CONFLICT (code) DO NOTHING', [code, txId])
     if (!r.rowCount) throw bad('이미 사용한 쿠폰이다.', 409)
-    res.json({ ok: true, web: true })
+    res.json({ ok: true, web: true, channel: 'legacy' })
+  }))
+
+  // ---- 내보내기 ----
+  app.get('/api/export', admin, wrap(async (req, res) => {
+    const f = await makeExport(pool, { format: String(req.query.format || 'csv'), range: String(req.query.range || 'today'), kind: String(req.query.kind || 'tx') })
+    res.set({
+      'Content-Type': f.mime,
+      'Content-Disposition': `attachment; filename="export.${f.filename.split('.').pop()}"; filename*=UTF-8''${encodeURIComponent(f.filename)}`,
+      'Content-Length': String(f.body.length),
+      'Cache-Control': 'no-store',
+      'Access-Control-Expose-Headers': 'Content-Disposition',
+    })
+    res.send(f.body)
   }))
 
   // ---- 카메라와 부스 ----

@@ -5,10 +5,16 @@ const { Pool } = pg
 
 export const TZ = 'Asia/Seoul'
 export const BOOTHS = [
-  { id: 'retro', name: '레트로 샷' },
-  { id: 'karaoke', name: '노래방 샷' },
   { id: 'subway', name: '지하철 샷' },
+  { id: 'karaoke', name: '노래방 샷' },
+  { id: 'retro', name: '레트로 샷' },
 ]
+// 승강장 번호: 1 지하철, 2 노래방, 3 레트로
+export const DEFAULT_FRAME_NAMES = {
+  'classic-white': '클래식 화이트', 'classic-black': '클래식 블랙', 'classic-blue': '클래식 블루', reel: '릴 컷', signature: '시그니처 컷',
+  poster: '포스터 컷', crosswalk: '횡단보도 컷', layer: '레이어 컷', stack: '스택 컷', crossroad: '교차로 컷', route: '노선 컷',
+  tape: '테이프 컷', train: '열차 컷', ticket: '승차권', 'ticket-night': '야간 승차권', pill: '노선 알약',
+}
 export const DEFAULT_CAMERA = { mirror: true, zoom: 1, brightness: 1, contrast: 1, warmth: 0, filter: 'original' }
 // @urbanedge/brand의 FRAMES id. 서버는 브랜드 패키지를 가져오지 않으므로 목록을 여기에 둔다(새 기본 프레임이 생기면 한 줄 추가).
 export const DEFAULT_FRAME_IDS = ['classic-white', 'classic-black', 'classic-blue', 'signature', 'ticket', 'ticket-night', 'pill', 'poster', 'route', 'crosswalk', 'reel', 'layer', 'train', 'tape', 'crossroad', 'stack']
@@ -99,6 +105,14 @@ CREATE INDEX IF NOT EXISTS files_booth_ts_idx ON files (booth, ts DESC);
 CREATE TABLE IF NOT EXISTS settings (
   key text PRIMARY KEY,
   value jsonb NOT NULL
+);
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS coupon_channel text;
+CREATE TABLE IF NOT EXISTS partners (
+  id text PRIMARY KEY,
+  label text NOT NULL,
+  discount int NOT NULL DEFAULT 0,
+  active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE TABLE IF NOT EXISTS coupon_redemptions (
   code text PRIMARY KEY,

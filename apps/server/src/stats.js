@@ -1,7 +1,7 @@
 // stats.js: 기간별 매출 통계를 SQL로 계산한다(한국 시간 기준).
 // range: today(시간대별) | week(요일별, 월요일 시작) | month(일별) | year(월별)
 // previous: 직전 같은 기간의 같은 시점까지(어제 같은 시각, 지난주 같은 시점, 지난달 같은 날까지, 작년 같은 날까지).
-import { TZ } from './db.js'
+import { TZ, DEFAULT_FRAME_NAMES } from './db.js'
 
 const UNIT = { today: 'hour', week: 'day', month: 'day', year: 'month' }
 const LABEL = { hour: 'HH24', day: 'MM-DD', month: 'YYYY-MM' }
@@ -47,13 +47,25 @@ export async function stats(pool, range = 'today', opts = {}) {
     )
     return rows
   }
-  const [current, previous, byBooth, byProduct, byMethod] = await Promise.all([
+  const frameNames = Object.fromEntries((await pool.query(`SELECT id, custom FROM frames`)).rows.map((r) => {
+    const n = r.custom?.name
+    return [r.id, typeof n === 'string' ? n : n?.ko || null]
+  }))
+  const withShare = (rows) => {
+    const sum = rows.reduce((a, r) => a + r.revenue, 0)
+    return rows.map((r) => ({ ...r, share: sum ? Math.round((r.revenue / sum) * 1000) / 10 : 0 }))
+  }
+  const [current, previous, byBooth, byProduct, byMethod, byFrameRaw, byChannelRaw] = await Promise.all([
     totals(w.cur_start, w.cur_end),
     totals(w.prev_start, w.prev_end),
     group('booth'),
     group(`coalesce(product,'-')`),
     group('method'),
+    group(`coalesce(frame_id,'-')`),
+    group(`coalesce(coupon_channel,'-')`),
   ])
+  const byFrame = withShare(byFrameRaw.map((r) => ({ ...r, name: r.key === '-' ? '프레임 미선택' : frameNames[r.key] || DEFAULT_FRAME_NAMES[r.key] || r.key })))
+  const byCouponChannel = byChannelRaw.filter((r) => r.key !== '-')
   const { rows: buckets } = await pool.query(
     `SELECT to_char(date_trunc('${unit}', ts AT TIME ZONE $3::text), '${lbl}') AS key, booth,
             count(*)::int AS count, coalesce(sum(amount),0)::int AS revenue
@@ -61,5 +73,5 @@ export async function stats(pool, range = 'today', opts = {}) {
       GROUP BY 1, 2 ORDER BY 1, 2`,
     [w.cur_start, w.cur_end, TZ],
   )
-  return { range, unit, tz: TZ, from: w.cur_start, to: w.cur_end, previousFrom: w.prev_start, previousTo: w.prev_end, current, previous, byBooth, byProduct, byMethod, buckets }
+  return { range, unit, tz: TZ, from: w.cur_start, to: w.cur_end, previousFrom: w.prev_start, previousTo: w.prev_end, current, previous, byBooth, byProduct, byMethod, byFrame, byCouponChannel, buckets }
 }

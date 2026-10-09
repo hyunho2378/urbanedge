@@ -3,6 +3,7 @@ import { Clock, MapPin } from 'lucide-react'
 import { Button } from '@urbanedge/ds'
 import { SITE } from '../../data/site.js'
 import { usePick } from '../../i18n/index.jsx'
+import { B } from '../../layout/B.jsx'
 import { InstagramGlyph } from '../../layout/SocialLinks.jsx'
 import { NaverMark } from '../pages/NaverMark.jsx'
 import { GoogleEmbedFallback } from './fallbacks.jsx'
@@ -51,7 +52,7 @@ export default function Location() {
     <Section id="location" labelledBy="location-title" tone="light">
       <h2 id="location-title" className="t-headline text-text-pri">{pick(COPY.title)}</h2>
       <address className="t-body mt-12 flex flex-wrap items-center gap-x-24 gap-y-8 not-italic text-text-pri">
-        <span className="inline-flex items-center gap-8"><MapPin size={18} aria-hidden="true" className="text-yellow" />{pick(SITE.address)}</span>
+        <span className="inline-flex items-start gap-8"><MapPin size={18} aria-hidden="true" className="mt-4 shrink-0 text-yellow" /><B v={SITE.address} inline /></span>
         <span className="inline-flex items-center gap-8"><Clock size={18} aria-hidden="true" className="text-yellow" />{SITE.hours.open} ~ {SITE.hours.close}</span>
       </address>
 

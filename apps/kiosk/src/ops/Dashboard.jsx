@@ -3,8 +3,10 @@
 // 색은 검정, 흰색, 노랑만 쓴다. 점, 색 테두리, 큰 숫자 강조는 쓰지 않고 줄 정보를 늘려 보여 준다.
 // 전체화면(TV 모드)은 같은 구성을 키우고 한 화면에 맞춘다. /dashboard 페이지는 항상 TV 모드다.
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ChevronRight, History, Maximize2, Minimize2, Trash2 } from 'lucide-react'
+import { ChevronRight, Download, History, LogOut, Maximize2, Trash2 } from 'lucide-react'
+import { allFrames } from '../flow/prints.js'
 import { BOOTHS, METHODS, ops, useOps } from './store.js'
+import { exportSales } from './exportSales.js'
 import { makeHistoryTx } from './history.js'
 import { METHOD_LABEL, STEP_LABEL, Tabs, compact, hhmmss, relTime, useL, useLangCode, won } from './ui.jsx'
 
@@ -150,7 +152,61 @@ function Bars({ series, nowKey, title, unit }) {
   )
 }
 
-export default function Dashboard({ tv: tvForced = false, connected = true, onGo }) {
+const isTyping = (el) => !!el && (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.isContentEditable)
+
+// 내보내기 메뉴: CSV는 이 화면에서 바로 만든다. 나머지는 운영 서버가 만든다.
+function ExportMenu({ range, rows, L }) {
+  const [open, setOpen] = useState(false)
+  const remote = useOps((s) => s.remote)
+  const [msg, setMsg] = useState('')
+  const ref = useRef(null)
+  useEffect(() => {
+    if (!open) return undefined
+    const off = (e) => { if (!ref.current?.contains(e.target)) setOpen(false) }
+    const key = (e) => { if (e.key === 'Escape') { e.stopPropagation(); setOpen(false) } }
+    document.addEventListener('pointerdown', off)
+    document.addEventListener('keydown', key, true)
+    return () => { document.removeEventListener('pointerdown', off); document.removeEventListener('keydown', key, true) }
+  }, [open])
+  const server = !!remote?.connected && typeof ops.download === 'function'
+  const run = async (fmt) => {
+    setMsg('')
+    try {
+      if (fmt === 'csv' && !server) exportSales(rows, range)
+      else await ops.download(fmt, { range, kind: 'sales' })
+      setOpen(false)
+    } catch (e) {
+      setMsg(L('Export failed. Try again.', '내보내지 못했다. 다시 시도해 주세요.'))
+    }
+  }
+  const items = [
+    { id: 'csv', label: 'CSV', ok: true },
+    { id: 'xlsx', label: L('Excel (.xlsx)', '엑셀 (.xlsx)'), ok: server },
+    { id: 'hwpx', label: L('Hangul (.hwpx)', '한글 (.hwpx)'), ok: server },
+    { id: 'pdf', label: 'PDF', ok: server },
+  ]
+  return (
+    <div className="op-menu-wrap" ref={ref}>
+      <button type="button" className="op-btn op-btn-sm" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        <Download size={16} aria-hidden="true" />
+        {L('Export', '내보내기')}
+      </button>
+      {open ? (
+        <div className="op-menu" role="menu" aria-label={L('Export format', '내보내기 형식')}>
+          {items.map((it) => (
+            <button key={it.id} type="button" role="menuitem" disabled={!it.ok} onClick={() => run(it.id)}>
+              {it.label}
+            </button>
+          ))}
+          {!server ? <small>{L('Excel, Hangul and PDF need the server. It is not connected.', '엑셀, 한글, PDF는 서버가 있어야 한다. 지금은 연결되지 않았다.')}</small> : null}
+          {msg ? <small>{msg}</small> : null}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+export default function Dashboard({ tv: tvForced = false, connected = true, onGo, onExit }) {
   const L = useL()
   const lang = useLangCode()
   const [range, setRange] = useState('today')
@@ -176,17 +232,30 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
     document.addEventListener('fullscreenchange', f)
     return () => document.removeEventListener('fullscreenchange', f)
   }, [])
+  // 전체화면에서는 내용 높이를 재서 화면 높이에 맞게 확대 비율을 정한다(너비 기준 1280에서 1.0).
+  const innerRef = useRef(null)
+  const [vp, setVp] = useState(() => `${window.innerWidth}x${window.innerHeight}`)
   useEffect(() => {
-    if (!tv) {
-      setZoom(1)
-      return undefined
-    }
-    const f = () => setZoom(Math.max(1, Math.min(2, window.innerWidth / 1180, window.innerHeight / 860)))
-    f()
+    const f = () => setVp(`${window.innerWidth}x${window.innerHeight}`)
     window.addEventListener('resize', f)
-    return () => window.removeEventListener('resize', f)
-  }, [tv])
-  // 브라우저 전체화면을 먼저 시도하고, 막혀 있으면(iframe 등) 같은 탭 안에서 화면을 가득 채운다. Esc로 끝낸다.
+    document.addEventListener('fullscreenchange', f)
+    return () => { window.removeEventListener('resize', f); document.removeEventListener('fullscreenchange', f) }
+  }, [])
+  useEffect(() => {
+    if (!tv) { setZoom(1); return undefined }
+    const id = requestAnimationFrame(() => {
+      const el = innerRef.current
+      if (!el) return
+      const cap = Math.max(0.9, Math.min(2, window.innerWidth / 1280))
+      const avail = window.innerHeight - 40
+      const h = el.getBoundingClientRect().height
+      if (!h) return
+      const want = Math.max(0.9, Math.min(cap, zoom * (avail / h)))
+      if (Math.abs(want - zoom) / zoom > 0.03) setZoom(want)
+    })
+    return () => cancelAnimationFrame(id)
+  }, [tv, zoom, vp, range, all.length, minute]) // eslint-disable-line react-hooks/exhaustive-deps
+  // 브라우저 전체화면을 먼저 시도하고, 막혀 있으면(iframe 등) 같은 탭 안에서 화면을 가득 채운다.
   const toggleFull = () => {
     if (document.fullscreenElement) return void document.exitFullscreen?.()
     if (pseudo) return setPseudo(false)
@@ -194,12 +263,25 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
     if (!el?.requestFullscreen) return setPseudo(true)
     el.requestFullscreen().catch(() => setPseudo(true))
   }
+  // 나가기: 전체화면이면 전체화면을 끝내고, /dashboard 페이지면 운영 화면으로 돌아간다.
+  const exitFull = () => {
+    if (document.fullscreenElement) return void document.exitFullscreen?.()
+    if (pseudo) return setPseudo(false)
+    onExit?.()
+  }
+  // F: 전체화면 켜고 끄기, Esc: 나가기. 입력칸에 글을 쓰는 중에는 쓰지 않는다.
+  const fnRef = useRef({})
+  fnRef.current = { toggleFull, exitFull, on, tvForced }
   useEffect(() => {
-    if (!pseudo) return undefined
-    const k = (e) => e.key === 'Escape' && setPseudo(false)
+    const k = (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || isTyping(e.target)) return
+      const f = fnRef.current
+      if (e.key === 'f' || e.key === 'F' || e.key === 'ㄹ') { e.preventDefault(); f.toggleFull() }
+      else if (e.key === 'Escape' && (f.on || f.tvForced)) { e.preventDefault(); f.exitFull() }
+    }
     window.addEventListener('keydown', k)
     return () => window.removeEventListener('keydown', k)
-  }, [pseudo])
+  }, [])
 
   const start = useMemo(() => rangeStart(range, new Date()), [range, dayKey]) // eslint-disable-line react-hooks/exhaustive-deps
   const data = useMemo(() => {
@@ -250,6 +332,40 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
     return { m, c: rows.length, v: rows.reduce((a, t) => a + t.amount, 0) }
   })
 
+  // 프레임별 판매: 거래에 붙은 frameId로 묶는다(이름은 프레임 목록에서 찾는다)
+  const frameDefs = useOps((s) => s.frames)
+  const frameName = (id) => {
+    const real = allFrames().find((f) => f.id === id)
+    if (real) return real.name?.[lang] || real.name?.ko || id
+    return frameDefs.find((f) => f.id === id)?.custom?.name || id
+  }
+  const frameRows = useMemo(() => {
+    const m = new Map()
+    for (const t of cur.paid) {
+      const k = t.frameId || null
+      const r = m.get(k) || { id: k, c: 0, v: 0 }
+      r.c += 1
+      r.v += t.amount
+      m.set(k, r)
+    }
+    return [...m.values()].sort((a, b) => b.c - a.c || b.v - a.v)
+  }, [cur])
+  const frameTotal = frameRows.reduce((a, r) => a + r.c, 0)
+  // 쿠폰 사용: 웹사이트 쿠폰과 제휴처별로 묶는다
+  const couponRows = useMemo(() => {
+    const m = new Map()
+    for (const t of cur.paid) {
+      if (!t.coupon) continue
+      const found = coupons.find((c) => c.code === t.coupon)
+      const k = found?.label || L('Website coupon', '웹사이트 쿠폰')
+      const r = m.get(k) || { k, c: 0, v: 0 }
+      r.c += 1
+      r.v += t.discount || 0
+      m.set(k, r)
+    }
+    return [...m.values()].sort((a, b) => b.c - a.c)
+  }, [cur, coupons, lang]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // 확인할 일: 데이터에서 바로 뽑는다
   const todayRefunds = all.filter((t) => t.status === 'refunded' && !t.history && (t.refundedAt || t.ts) >= feedStart)
   const offline = BOOTHS.filter((b) => !booth[b.id].online)
@@ -271,9 +387,10 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
 
   return (
     <div ref={wrap} className={`op-dash ${tv ? 'op-tv' : ''} ${pseudo ? 'op-pseudo' : ''}`}>
-      <div className="op-dash-in" style={tv ? { zoom, '--op-z': zoom, height: `calc(100vh / ${zoom})` } : undefined}>
+      <div ref={innerRef} className="op-dash-in" style={tv ? { zoom } : undefined}>
         <header className="op-dash-head">
           <div>
+            {tv ? <p className="op-hint">{L('Press F or Esc to exit', 'F 또는 Esc로 나가기')}</p> : null}
             <DateLine now={now} />
             <h2 className="op-h2">
               {pageTitle}
@@ -306,10 +423,18 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                 </button>
               )
             ) : null}
-            <button type="button" className="op-btn op-btn-dark op-btn-sm" onClick={toggleFull} aria-pressed={on}>
-              {on ? <Minimize2 size={14} aria-hidden="true" /> : <Maximize2 size={14} aria-hidden="true" />}
-              {on ? L('Exit full screen', '전체화면 끝내기') : L('Full screen', '전체화면')}
-            </button>
+            <ExportMenu range={range} rows={all.filter((t) => t.ts >= start)} L={L} />
+            {tv ? (
+              <button type="button" className="op-exit" onClick={exitFull} aria-label={L('Exit (F or Esc)', '나가기 (F 또는 Esc)')}>
+                <LogOut size={18} aria-hidden="true" />
+                {L('Exit', '나가기')}
+              </button>
+            ) : (
+              <button type="button" className="op-btn op-btn-dark op-btn-sm" onClick={toggleFull} aria-pressed={on}>
+                <Maximize2 size={16} aria-hidden="true" />
+                {L('Full screen (F)', '전체화면 (F)')}
+              </button>
+            )}
           </div>
         </header>
 
@@ -444,8 +569,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
           </section>
         </div>
 
-        <details className="op-more-sec" open={tvForced ? false : undefined}>
-          <summary>{L('Details by product and method', '상품별·결제수단별 자세히')}</summary>
+        <h3 className="op-sec-title">{L('Sales breakdown', '판매 분석')} · {rangeName}</h3>
         <div className="op-r3">
           <section className="op-card" aria-label={L('Sales by product', '상품별 판매')}>
             <Head title={L('Sales by product', '상품별 판매')} />
@@ -480,6 +604,38 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
               </tbody>
             </table>
           </section>
+          <section className="op-card" aria-label={L('Sales by frame', '프레임별 판매')}>
+            <Head title={L('Sales by frame', '프레임별 판매')} />
+            {frameRows.length ? (
+              <table className="op-table op-table-plain">
+                <thead>
+                  <tr>
+                    <th>{L('Frame', '프레임')}</th>
+                    <th className="op-right">{L('Sold', '판매')}</th>
+                    <th className="op-right">{L('Revenue', '매출')}</th>
+                    <th>{L('Share', '비중')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {frameRows.map((r) => (
+                    <tr key={r.id || 'none'}>
+                      <td className="op-strong">{r.id ? frameName(r.id) : L('Not chosen', '미선택')}</td>
+                      <td className="op-num op-right">{r.c}{L('', '건')}</td>
+                      <td className="op-num op-right">{won(r.v)}</td>
+                      <td>
+                        <span className="op-share op-num">
+                          <i style={{ width: `${frameTotal ? (r.c / frameTotal) * 100 : 0}%` }} />
+                          {frameTotal ? Math.round((r.c / frameTotal) * 100) : 0}%
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="op-empty">{L('No frame sales in this period.', '이 기간에 팔린 프레임이 없다.')}</p>
+            )}
+          </section>
           <section className="op-card" aria-label={L('Payment methods', '결제수단')}>
             <Head title={L('Payment methods', '결제수단')} />
             <table className="op-table op-table-plain">
@@ -510,9 +666,18 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                 ))}
               </tbody>
             </table>
+            {couponRows.length ? (
+              <>
+                <h4 className="op-h3">{L('Coupon use by channel', '쿠폰 사용 채널')}</h4>
+                <ul className="op-info-list">
+                  {couponRows.map((r) => (
+                    <Row key={r.k} label={r.k} sub={`${L('Discounted', '할인')} ${won(r.v)}`} value={`${r.c}${L('', '건')}`} />
+                  ))}
+                </ul>
+              </>
+            ) : null}
           </section>
         </div>
-        </details>
       </div>
     </div>
   )

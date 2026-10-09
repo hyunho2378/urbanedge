@@ -48,12 +48,14 @@ export default function CameraPanel() {
             items={BOOTHS.map((b) => ({ id: b.id, label: b.name[lang] || b.name.ko }))}
           />
         </div>
+        <div className="op-cam-vwrap">
         <div className="op-cam-view">
           {stream ? <Live stream={stream} style={css} /> : <img src={SAMPLE[sel]} alt={L('Team photo standing in for the camera', '카메라 대신 보여 주는 팀 사진')} className="op-cam-media" style={css} />}
           <span className={`op-chip op-cam-status ${bs.cameraActive ? 'op-chip-live' : ''}`}>
             P{boothOf(sel).n} · {bs.online ? stepLabel : L('Offline', '연결 끊김')}
           </span>
           {!stream ? <span className="op-chip op-cam-src">{L('Team photo', '팀 사진')}</span> : null}
+        </div>
         </div>
       </div>
 

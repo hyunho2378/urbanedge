@@ -1,11 +1,79 @@
 // ops/Coupons.jsx: 제휴처 일일 코드, 1회용 코드 묶음, 웹사이트 스크래치 쿠폰 안내.
 // 코드는 모두 UE-XXXX-XXXX 형식이고 키오스크의 기존 체크섬 검사를 통과한다(flow/coupon.js makeCoupon).
 // 제휴처 코드는 '제휴처 이름 + 날짜'에서 결정적으로 만들어져 매일 바뀌고, 같은 날에는 누가 만들어도 같다.
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Copy, Check } from 'lucide-react'
 import { COUPON_ALPHABET, makeCoupon } from '../flow/coupon.js'
 import { ops, today, useOps } from './store.js'
 import { Switch, useL, won } from './ui.jsx'
+import { API_URL } from './api.js'
+
+// 오늘의 통합 코드: 서버가 '채널(웹사이트, 제휴처)+날짜'로 만든다. 웹사이트 스크래치 카드와 같은 코드이고 한국 시각 00:00에 바뀐다.
+function useTodayCodes() {
+  const [st, setSt] = useState({ date: '', codes: [], failed: false })
+  useEffect(() => {
+    let dead = false
+    let timer
+    const kst = () => new Date(Date.now() + 9 * 3600e3)
+    const load = async () => {
+      try {
+        let j
+        if (typeof ops.todayCoupons === 'function') j = await ops.todayCoupons()
+        else {
+          const key = import.meta.env?.VITE_ADMIN_KEY
+          const r = await fetch(`${API_URL}/api/coupons/today`, { headers: key ? { 'X-Admin-Key': key } : {} })
+          if (!r.ok) throw new Error(String(r.status))
+          j = await r.json()
+        }
+        const codes = Array.isArray(j) ? j : j?.codes || []
+        if (!dead) setSt({ date: j?.date || '', codes, failed: false })
+      } catch {
+        if (!dead) setSt((x) => ({ ...x, failed: true }))
+      }
+      const n = kst()
+      const next = Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate() + 1) - 9 * 3600e3 - Date.now() + 2000
+      if (!dead) timer = setTimeout(load, Math.max(5000, next))
+    }
+    if (API_URL || typeof ops.todayCoupons === 'function') load()
+    else setSt({ date: '', codes: [], failed: true })
+    return () => { dead = true; clearTimeout(timer) }
+  }, [])
+  return st
+}
+
+function TodayCodes({ L }) {
+  const { date, codes, failed } = useTodayCodes()
+  const [copied, setCopied] = useState('')
+  const copy = async (c) => {
+    try { await navigator.clipboard.writeText(c); setCopied(c); setTimeout(() => setCopied(''), 1500) } catch { setCopied('') }
+  }
+  return (
+    <section className="op-card" aria-label={L('Today’s codes', '오늘의 통합 코드')}>
+      <div className="op-row-between">
+        <h3 className="op-h3">{L('Today’s codes', '오늘의 통합 코드')}</h3>
+        <span className="op-reset op-num">{date ? `${date} · ` : ''}{L('Resets at 00:00 KST', '한국 시각 00:00에 새 코드')}</span>
+      </div>
+      <p className="op-meta">{L('The website scratch card and each partner receipt use these codes. Nobody changes anything by hand.', '웹사이트 스크래치 카드와 제휴처 영수증이 이 코드를 같이 쓴다. 손으로 바꿀 필요가 없다.')}</p>
+      {codes.length ? (
+        <div className="op-code-pair">
+          {codes.map((c) => (
+            <div key={c.channel || c.code} className="op-stack">
+              <p className="op-strong">{c.channel === 'web' ? L('Website coupon', '웹사이트 쿠폰') : c.label}{c.discount ? ` · ${won(c.discount)}` : ''}</p>
+              <div className="op-code-box">
+                <span className="op-code">{c.code}</span>
+                <button type="button" className="op-icon-btn" onClick={() => copy(c.code)} aria-label={`${c.label || c.channel} ${L('copy code', '코드 복사')}`}>
+                  {copied === c.code ? <Check size={18} aria-hidden="true" /> : <Copy size={18} aria-hidden="true" />}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="op-empty">{failed ? L('Could not reach the server for today’s codes.', '서버에서 오늘 코드를 받지 못했다.') : L('Loading…', '불러오는 중')}</p>
+      )}
+    </section>
+  )
+}
 
 function hash(str) {
   let h = 2166136261
@@ -61,6 +129,7 @@ export default function Coupons() {
 
   return (
     <div className="op-stack">
+      <TodayCodes L={L} />
       <div className="op-grid-2">
         <section className="op-card" aria-label={L('Partner daily code', '제휴처 일일 코드')}>
           <h3 className="op-h3">{L('Partner daily code', '제휴처 일일 코드')}</h3>

@@ -14,6 +14,7 @@ import DeviceLab from './pages/DeviceLab.jsx'
 const Simulator = lazy(() => import('./pages/Simulator.jsx'))
 const ScreenOnly = lazy(() => import('./pages/ScreenOnly.jsx'))
 const DashboardPage = lazy(() => import('./ops/DashboardPage.jsx'))
+const DemoPage = lazy(() => import('./demo/DemoPage.jsx'))
 
 function readOptions() {
   const q = new URLSearchParams(window.location.search)
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="/" element={<Simulator options={options} />} />
         <Route path="/screen" element={<ScreenRoute options={options} />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/demo" element={<DemoPage />} />
         <Route path="/device" element={<DeviceLab />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

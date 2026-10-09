@@ -1,0 +1,37 @@
+# Render Blueprint: UrbanEdge 운영 API(apps/server) + Postgres.
+# Render 대시보드에서 New > Blueprint로 이 저장소를 고르면 아래 두 개가 만들어진다.
+# 키(DEVICE_KEY, ADMIN_KEY)는 Render가 무작위로 만든다. 값은 대시보드의 Environment에서 확인해 키오스크 빌드(Vercel)에 넣는다.
+databases:
+  - name: urbanedge-db
+    databaseName: urbanedge
+    plan: free
+    region: oregon
+
+services:
+  - type: web
+    name: urbanedge-api
+    runtime: node
+    region: oregon
+    plan: free
+    # 모노레포 루트에서 서버 워크스페이스만 설치한다(웹, 키오스크 의존성은 설치하지 않는다).
+    buildCommand: npm ci --workspace=@urbanedge/server --include-workspace-root=false
+    startCommand: npm run start --workspace=@urbanedge/server
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NODE_ENV
+        value: production
+      - key: TZ
+        value: Asia/Seoul
+      - key: DATABASE_URL
+        fromDatabase:
+          name: urbanedge-db
+          property: connectionString
+      - key: DEVICE_KEY
+        generateValue: true
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: https://urbanedge-kiosk.vercel.app,https://urbanedge-web.vercel.app

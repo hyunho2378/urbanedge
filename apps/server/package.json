@@ -1,0 +1,19 @@
+{
+  "name": "@urbanedge/server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "UrbanEdge 운영 API: 결제, 상품, 쿠폰, 카메라 설정, 매출 통계 (Express + Postgres)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "compression": "^1.8.2",
+    "express": "^4.21.2",
+    "pg": "^8.13.1"
+  }
+}

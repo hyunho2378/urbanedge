@@ -310,20 +310,29 @@ export function useKioskController(options = {}) {
     (code) => {
       const p = live.current.pay
       if (p.method !== 'coupon' || p.status !== 'waiting') return false
-      const r = ops.checkCoupon(code)
+      const commit = (r) => {
+        if (live.current.pay.method !== 'coupon' || live.current.pay.status !== 'waiting') return
+        ops.useCoupon(code)
+        const disc = Math.min(r.discount || 0, live.current.price)
+        if (disc >= live.current.price) {
+          patchPay({ coupon: code, discount: disc, couponError: false })
+          finishPay(true)
+        } else {
+          // 일부 할인: 쿠폰을 붙인 채 카드 결제로 남은 금액을 받는다.
+          patchPay({ coupon: code, discount: disc, couponError: false, method: 'card', status: 'waiting', view: 'type', reader: null, partial: true })
+        }
+      }
+      // 서버가 연결되어 있으면 서버가 쿠폰을 확인한다(한 번만 쓰는 코드와 날짜 코드는 서버 기준). 서버에 닿지 못하면 이 화면의 목록으로 확인한다.
+      if (ops.remote.enabled) {
+        ops.checkCouponAsync(code, live.current.price).then((r) => (r.ok ? commit(r) : patchPay({ couponError: true })))
+        return true
+      }
+      const r = ops.checkCoupon(code, live.current.price)
       if (!r.ok) {
         patchPay({ couponError: true })
         return false
       }
-      ops.useCoupon(code)
-      const disc = Math.min(r.discount || 0, live.current.price)
-      if (disc >= live.current.price) {
-        patchPay({ coupon: code, discount: disc, couponError: false })
-        finishPay(true)
-      } else {
-        // 일부 할인: 쿠폰을 붙인 채 카드 결제로 남은 금액을 받는다.
-        patchPay({ coupon: code, discount: disc, couponError: false, method: 'card', status: 'waiting', view: 'type', reader: null, partial: true })
-      }
+      commit(r)
       return true
     },
     [patchPay, finishPay],

@@ -57,7 +57,7 @@ function Fare({ ctrl }) {
   const total = Math.max(0, ctrl.price - disc)
   const coupon = ctrl.pay.coupon
   return (
-    <div className="absolute" style={{ left: 120, top: 252, width: 600 }}>
+    <div className="absolute" style={{ left: 120, top: 236, width: 600 }}>
       <T n={COPY.pay.order} as="p" className="kt-label text-text-meta" />
       <div className="mt-16 rounded-xl bg-bg-panel" style={{ padding: 32 }}>
         {p ? (
@@ -272,7 +272,7 @@ export default function Pay({ ctrl }) {
   return (
     <div className="absolute inset-0 bg-bg-base">
       <Fare ctrl={ctrl} />
-      <div className="absolute" style={{ left: 840, top: typing ? 236 : 240, width: 1016 }}>
+      <div className="absolute" style={{ left: 840, top: 236, width: 1016 }}>
         {right}
       </div>
       {typing ? (

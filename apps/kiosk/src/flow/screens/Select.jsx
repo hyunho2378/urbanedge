@@ -76,14 +76,14 @@ export default function Select({ ctrl }) {
         {frame && <Zoomable height={680} label={t(COPY.common.zoomOpen)} render={(h) => <StripView frame={frame} photos={photos} date={ctrl.date} roomId={ctrl.room} message={ctrl.message} height={h} scale={1} className="k-lift" label={COPY.select.tray.en} />} />}
       </div>
 
-      <div className="absolute" style={{ left: 760, top: 236, width: 1096 }}>
-        <T n={S < n ? COPY.select.titlePick : COPY.select.titleArrange} v={{ n: S }} as="h1" className="kt-headline" />
+      <div className="absolute" style={{ left: 840, top: 236, width: 1016 }}>
+        <T n={S < n ? COPY.select.titlePick : COPY.select.titleArrange} v={{ n: S }} as="h1" className="kt-title" />
         <T n={COPY.select.hint} as="p" className="kt-body mt-12 text-text-sec" />
       </div>
 
-      <div className="absolute" style={{ left: 760, top: 420 }}>
+      <div className="absolute" style={{ left: 840, top: 452 }}>
         <T n={COPY.select.tray} as="p" className="kt-label mb-16 text-text-meta" />
-        <ul className="flex flex-wrap gap-16" style={{ width: 1096 }} data-tray="">
+        <ul className="flex flex-wrap gap-16" style={{ width: 1016 }} data-tray="">
           {shots.map((s, i) => {
             const at = arrangement.indexOf(i)
             return (
@@ -103,7 +103,7 @@ export default function Select({ ctrl }) {
           })}
         </ul>
         <T n={COPY.select.stripOrder} as="p" className="kt-label mb-16 mt-40 text-text-meta" />
-        <ul className="flex flex-wrap gap-16" style={{ width: 1096 }}>
+        <ul className="flex flex-wrap gap-16" style={{ width: 1016 }}>
           {arrangement.map((v, s) => (
             <li key={s}>
               <div

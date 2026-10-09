@@ -1,0 +1,15 @@
+{
+  "name": "@urbanedge/agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "키오스크 옆에서 도는 로컬 에이전트: 카메라, 프린터, 영수증, 카드 단말기(VAN) 어댑터를 127.0.0.1:8790 HTTP와 WebSocket으로 노출한다.",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node test/agent.test.mjs"
+  },
+  "dependencies": {
+    "iconv-lite": "^0.7.3",
+    "ws": "^8.18.0"
+  }
+}

@@ -1,0 +1,172 @@
+{
+  "health": {
+    "pass": true,
+    "info": {
+      "ok": true,
+      "agent": "urbanedge-agent",
+      "version": "0.1.0",
+      "van": "mock",
+      "platform": "darwin",
+      "time": "2026-10-09T05:38:19.128Z"
+    }
+  },
+  "CORS 거부(허용 목록 밖 origin)": {
+    "pass": true,
+    "info": {
+      "ok": false,
+      "error": "origin_not_allowed"
+    }
+  },
+  "CORS 허용(키오스크 origin)": {
+    "pass": true
+  },
+  "camera/devices 응답 형태": {
+    "pass": true,
+    "info": {
+      "webcam": {
+        "ok": false,
+        "error": "camera_permission_killed",
+        "message": "macOS가 이 프로세스의 카메라 접근을 차단해 종료시켰다. 터미널 앱(카메라 권한 부여)에서 에이전트를 직접 실행해야 한다."
+      },
+      "dslr": {
+        "ok": false,
+        "error": "gphoto2_missing",
+        "message": "DSLR 제어 도구 gphoto2가 없다. macOS는 brew install gphoto2, Windows는 digiCamControl 또는 Canon EDSDK가 필요하다."
+      },
+      "ffmpeg": false,
+      "imagesnap": false
+    }
+  },
+  "camera/capture 결과": {
+    "ok": false,
+    "error": "camera_permission_killed",
+    "message": "macOS가 카메라 접근을 막고 프로세스를 종료했다. 카메라 권한이 있는 터미널에서 실행해야 한다."
+  },
+  "camera/capture 응답(성공 또는 이유 있는 실패)": {
+    "pass": true,
+    "info": {
+      "ok": false,
+      "error": "camera_permission_killed",
+      "message": "macOS가 카메라 접근을 막고 프로세스를 종료했다. 카메라 권한이 있는 터미널에서 실행해야 한다."
+    }
+  },
+  "printers(lpstat)": {
+    "pass": true,
+    "info": {
+      "ok": true,
+      "printers": [],
+      "default": null,
+      "raw": "lpstat: 추가된 대상이 없습니다."
+    }
+  },
+  "print dryRun 명령줄": {
+    "pass": true,
+    "info": {
+      "ok": true,
+      "dryRun": true,
+      "file": "/Users/juhyunho/.aside/runtime/tmp/ue-agent/print-1791524304515.png",
+      "command": "lp -d DNP_DS620 -n 2 -o media=Custom.4x6in -o fit-to-page /Users/juhyunho/.aside/runtime/tmp/ue-agent/print-1791524304515.png"
+    }
+  },
+  "print: PNG가 아니면 거절": {
+    "pass": true
+  },
+  "CUPS 필터로 PNG→PDF 변환(프린터 없이 인쇄 파이프라인 증명)": {
+    "pass": true,
+    "info": {
+      "ok": true,
+      "outFile": "/Users/juhyunho/Desktop/00. 26-2학기/04.UIA/경주 포럼/urbanedge/apps/agent/test/print-proof.pdf",
+      "bytes": 15188
+    }
+  },
+  "pdf 확인": "/Users/juhyunho/Desktop/00. 26-2학기/04.UIA/경주 포럼/urbanedge/apps/agent/test/print-proof.pdf: PDF document, version 1.3, 1 pages",
+  "lp 실제 호출(프린터 없음)": {
+    "ok": false,
+    "file": "/Users/juhyunho/.aside/runtime/tmp/ue-agent/print-1791524305006.png",
+    "command": "lp -n 1 -o fit-to-page /Users/juhyunho/.aside/runtime/tmp/ue-agent/print-1791524305006.png",
+    "stdout": "",
+    "stderr": "/usr/bin/lp: 오류 - 기본 대상이 없습니다."
+  },
+  "print: 프린터가 없으면 실패를 정직하게 보고": {
+    "pass": true,
+    "info": {
+      "ok": false,
+      "file": "/Users/juhyunho/.aside/runtime/tmp/ue-agent/print-1791524305006.png",
+      "command": "lp -n 1 -o fit-to-page /Users/juhyunho/.aside/runtime/tmp/ue-agent/print-1791524305006.png",
+      "stdout": "",
+      "stderr": "/usr/bin/lp: 오류 - 기본 대상이 없습니다."
+    }
+  },
+  "receipt ESC/POS 바이트 생성": {
+    "pass": true,
+    "info": {
+      "ok": true,
+      "file": "/Users/juhyunho/.aside/runtime/tmp/ue-agent/receipt-1791524305043.bin",
+      "bytes": 336,
+      "sent": false,
+      "preview": "1b401b61011b4501557262616e4564676520c8b2b8aeb4dcb1e60a1b45001b61"
+    }
+  },
+  "CP949 한글 인코딩 (합계 = c7d5 b0e8)": {
+    "pass": true,
+    "info": "c7d5b0e8"
+  },
+  "receipt 네트워크 프린터 연결 실패를 보고": {
+    "pass": true,
+    "info": {
+      "ok": false,
+      "file": "/Users/juhyunho/.aside/runtime/tmp/ue-agent/receipt-1791524305046.bin",
+      "error": "ECONNREFUSED",
+      "message": "connect ECONNREFUSED 127.0.0.1:9",
+      "preview": "1b401b61011b4501557262616e456467650a1b45001b61002d2d2d2d2d2d2d2d"
+    }
+  },
+  "pay(mock) 승인 필드": {
+    "pass": true,
+    "info": {
+      "ok": true,
+      "method": "card",
+      "amount": 5000,
+      "installment": 0,
+      "installmentLabel": "일시불",
+      "issuer": "삼성카드",
+      "cardMasked": "5371-22**-****-5590",
+      "cardLast4": "5590",
+      "approvalNo": "76740433",
+      "approvedAt": "2026-10-09T05:38:25.450Z",
+      "tid": "UE-MOCK-0001",
+      "merchantNo": "0000000000",
+      "txRef": "d4ebf5e1-4971-46b8-a0df-49893c48a18a"
+    }
+  },
+  "pay: 응답에 원번호(PAN) 없음": {
+    "pass": true
+  },
+  "pay 할부 3개월": {
+    "pass": true
+  },
+  "pay: 금액 오류 거절": {
+    "pass": true
+  },
+  "pay/cancel(mock)": {
+    "pass": true
+  },
+  "pay(kicc 뼈대): 미설정이면 NOT_CONFIGURED": {
+    "pass": true,
+    "info": {
+      "ok": false,
+      "code": "NOT_CONFIGURED",
+      "message": "kicc 로컬 모듈 주소(port)가 설정되지 않았다. VAN 계약 후 받은 모듈의 호스트와 포트를 넣는다."
+    }
+  },
+  "cash: 미구현을 정직하게 보고(501)": {
+    "pass": true
+  },
+  "WebSocket /events: hello와 pay 이벤트": {
+    "pass": true,
+    "info": [
+      "hello",
+      "pay"
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-// App.jsx: 라우팅. 컨트롤러는 앱 최상단에서 한 번만 만들어 두 경로가 같은 상태를 쓴다.
+// App.jsx: 라우팅. /는 운영 데모(키오스크 1대 또는 3대와 운영 화면), /screen은 키오스크 화면 한 대다.
 // 언어 전환은 페이지를 다시 마운트하지 않고 컨트롤러의 lang만 바꾼다. 영문이 기본이다.
 // DS의 LangContext에 ctrl.lang을 내려 주므로 <Bi>와 useLangValue()가 기기, 투어, 패널, 화면 안에서 같은 값을 쓴다.
 // 문서 언어(html lang)는 en으로 고정한다. 바꾸면 :lang(ko) 행간 규칙이 영문 칸까지 바꿔 한영 전환 때 레이아웃이 움직인다.
@@ -26,19 +26,26 @@ function readOptions() {
   return o
 }
 
-export default function App() {
-  const options = useMemo(readOptions, [])
+// /screen은 키오스크 한 대를 위한 컨트롤러를 만든다. /(운영 데모)는 기기마다 자기 컨트롤러를 만든다(Simulator.jsx).
+function ScreenRoute({ options }) {
   const ctrl = useKioskController(options)
   return (
     <LangContext.Provider value={ctrl.lang}>
-      <Suspense fallback={<div className="min-h-dvh bg-bg-base" aria-busy="true" />}>
-        <Routes>
-          <Route path="/" element={<Simulator ctrl={ctrl} />} />
-          <Route path="/screen" element={<ScreenOnly ctrl={ctrl} />} />
-          <Route path="/device" element={<DeviceLab />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
+      <ScreenOnly ctrl={ctrl} />
     </LangContext.Provider>
+  )
+}
+
+export default function App() {
+  const options = useMemo(readOptions, [])
+  return (
+    <Suspense fallback={<div className="min-h-dvh bg-bg-base" aria-busy="true" />}>
+      <Routes>
+        <Route path="/" element={<Simulator options={options} />} />
+        <Route path="/screen" element={<ScreenRoute options={options} />} />
+        <Route path="/device" element={<DeviceLab />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   )
 }

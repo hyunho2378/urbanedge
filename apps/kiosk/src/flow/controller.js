@@ -1,11 +1,29 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { STEPS, STEP_IDS } from './steps.js'
-import { FLOW, CAMERA_STEPS, PRICE } from './config.js'
+import { FLOW, CAMERA_STEPS } from './config.js'
 import { useCamera, samplesReady } from './camera.js'
 import { DEFAULT_RETOUCH } from './retouch.js'
 import { composeSheet, copiesOf, defaultFrameFor, ensureFonts, frameById, framesFor, overlayStamps, slotCount } from './prints.js'
 import { ROOMS } from './rooms.js'
-import { DEMO_COUPON, validateCoupon } from './coupon.js'
+import { DEMO_COUPON } from './coupon.js'
+import { ops, useOps, enabledFrameIds } from '../ops/store.js'
+
+// 촬영 컷과 인화본을 운영 화면 저장 폴더용 작은 JPEG(폭 320)로 줄인다.
+function thumb(canvas, w = 320) {
+  const c = document.createElement('canvas')
+  c.width = w
+  c.height = Math.round((canvas.height / canvas.width) * w)
+  c.getContext('2d').drawImage(canvas, 0, 0, c.width, c.height)
+  return c.toDataURL('image/jpeg', 0.72)
+}
+// 운영 화면에서 켠 프레임만 쓴다. 켠 프레임이 하나도 없으면 전부 쓴다.
+const framesOn = (cuts) => {
+  const on = enabledFrameIds()
+  const all = framesFor(cuts)
+  const f = all.filter((x) => on.has(x.id))
+  return f.length ? f : all
+}
+const defaultOn = (cuts) => framesOn(cuts)[0] || defaultFrameFor(cuts)
 
 // controller.js: 키오스크 상태 컨트롤러 계약. K2(flow)가 실제 구현으로 교체한다.
 // K1(device, Simulator 페이지)은 아래 반환 필드만 사용한다. 필드 이름과 의미를 바꾸지 않는다.
@@ -34,7 +52,7 @@ import { DEMO_COUPON, validateCoupon } from './coupon.js'
 
 const INITIAL_SHOOT = { index: 0, phase: 'idle', count: 0 }
 // reader: null | 'in'(카드가 투입구에 들어감 / 휴대폰이 단말기에 닿음) | 'out'(승인 뒤 카드를 빼는 중)
-const INITIAL_PAY = { method: null, status: 'choose', coupon: null, couponError: false, cash: 0, view: 'type', reader: null }
+const INITIAL_PAY = { method: null, status: 'choose', coupon: null, couponError: false, cash: 0, view: 'type', reader: null, discount: 0 }
 const idx = (id) => STEP_IDS.indexOf(id)
 
 function zoneFor(step, introPage, pay) {
@@ -60,10 +78,13 @@ export const INTRO_PAGES = 1
 
 export function useKioskController(options = {}) {
   const speed = options.speed ?? 1
+  // booth: 운영 저장소에 기록할 부스 id. 없으면 고른 방(room)을 쓴다.
+  const boothOpt = options.booth || null
+  const price = useOps((s) => s.price)
   const [step, setStepState] = useState(options.step || 'attract')
   const [dir, setDir] = useState('forward')
   const [lang, setLang] = useState(options.lang || 'en')
-  const [room, setRoom] = useState(options.room || ROOMS[0].id)
+  const [room, setRoom] = useState(options.room || options.booth || ROOMS[0].id)
   const [cameraMode, setCameraMode] = useState(options.cameraMode || 'sample')
   const [introPage, setIntroPage] = useState(0)
   const [cuts, setCutsState] = useState(null)
@@ -83,11 +104,13 @@ export function useKioskController(options = {}) {
   const [coach, setCoach] = useState({ seen: {}, off: false })
   const [date, setDate] = useState(() => new Date())
 
-  const camera = useCamera({ wanted: CAMERA_STEPS.includes(step), mode: cameraMode })
+  const booth = boothOpt || room
+  const camera = useCamera({ wanted: CAMERA_STEPS.includes(step), mode: cameraMode, booth })
+  const txRef = useRef(null)
 
   // 비동기 흐름이 항상 최신 값을 읽도록 참조를 두고, 세터는 참조도 바로 갱신한다.
   const live = useRef({})
-  live.current = { ...live.current, step, cuts, frameId, retouch, shots, arrangement, stamps, message, room, lang, camera, speed, printDone, printUrl, introPage, pay, date }
+  live.current = { ...live.current, booth, price, step, cuts, frameId, retouch, shots, arrangement, stamps, message, room, lang, camera, speed, printDone, printUrl, introPage, pay, date }
   const sync = (patch) => {
     live.current = { ...live.current, ...patch }
   }
@@ -116,7 +139,7 @@ export function useKioskController(options = {}) {
       setShots([])
       setArrangementState([])
       const cur = frameById(live.current.frameId)
-      if (!cur || cur.cuts !== n) setFrame(defaultFrameFor(n).id)
+      if (!cur || cur.cuts !== n) setFrame(defaultOn(n).id)
     },
     [setFrame],
   )
@@ -205,7 +228,12 @@ export function useKioskController(options = {}) {
     setPay(next)
   }, [])
 
-  const setPayMethod = useCallback((m) => patchPay({ method: m, status: 'waiting', couponError: false, cash: 0, view: 'type', coupon: null, reader: null }), [patchPay])
+  // 쿠폰 일부 할인 뒤에는 쿠폰과 할인액을 유지한 채 다른 수단으로 남은 금액을 낸다.
+  const setPayMethod = useCallback((m) => {
+    const p = live.current.pay
+    const keep = p.coupon && p.discount > 0 && m !== 'coupon' ? { coupon: p.coupon, discount: p.discount } : { coupon: null, discount: 0 }
+    patchPay({ method: m, status: 'waiting', couponError: false, cash: 0, view: 'type', reader: null, ...keep })
+  }, [patchPay])
   const payBack = useCallback(() => patchPay({ ...INITIAL_PAY }), [patchPay])
   const payRetry = useCallback(() => patchPay({ status: 'waiting', couponError: false, cash: 0, reader: null }), [patchPay])
   const setCouponView = useCallback((v) => patchPay({ view: v }), [patchPay])
@@ -217,6 +245,12 @@ export function useKioskController(options = {}) {
         const card = live.current.pay.method === 'card'
         // 카드는 승인 뒤 투입구에서 다시 올라온다(reader 'out'). 실패하면 바로 빠진다.
         patchPay({ status: ok ? 'success' : 'failed', reader: card && ok ? 'out' : null })
+        if (ok) {
+          const P = live.current.pay
+          const disc = Math.min(P.discount || 0, live.current.price)
+          const method = P.method === 'samsung' ? 'samsungpay' : P.method
+          txRef.current = ops.recordPayment({ booth: live.current.booth, method, amount: live.current.price - disc, discount: disc, coupon: P.coupon })
+        }
       }, FLOW.payMs)
     },
     [patchPay, later],
@@ -232,9 +266,10 @@ export function useKioskController(options = {}) {
     const p = live.current.pay
     if (p.method !== 'cash' || p.status !== 'waiting') return
     // 지폐는 5,000원 한 장, 이어서 1,000원씩 들어간다(합계 7,000원). cash는 0부터 1 비율이다.
-    const paid = Math.round(p.cash * PRICE.base)
-    const bill = paid < 5000 ? 5000 : 1000
-    const cash = Math.min(1, (paid + bill) / PRICE.base)
+    const due = Math.max(0, live.current.price - (p.discount || 0))
+    const paid = Math.round(p.cash * due)
+    const bill = due - paid >= 5000 ? 5000 : 1000
+    const cash = Math.min(1, (paid + bill) / due)
     patchPay({ cash })
     if (cash >= 1) later(() => finishPay(true), 300)
   }, [patchPay, finishPay, later])
@@ -242,12 +277,20 @@ export function useKioskController(options = {}) {
     (code) => {
       const p = live.current.pay
       if (p.method !== 'coupon' || p.status !== 'waiting') return false
-      if (!validateCoupon(code)) {
+      const r = ops.checkCoupon(code)
+      if (!r.ok) {
         patchPay({ couponError: true })
         return false
       }
-      patchPay({ coupon: code, couponError: false })
-      finishPay(true)
+      ops.useCoupon(code)
+      const disc = Math.min(r.discount || 0, live.current.price)
+      if (disc >= live.current.price) {
+        patchPay({ coupon: code, discount: disc, couponError: false })
+        finishPay(true)
+      } else {
+        // 일부 할인: 쿠폰을 붙인 채 카드 결제로 남은 금액을 받는다.
+        patchPay({ coupon: code, discount: disc, couponError: false, method: 'card', status: 'waiting', view: 'type', reader: null, partial: true })
+      }
       return true
     },
     [patchPay, finishPay],
@@ -265,7 +308,7 @@ export function useKioskController(options = {}) {
 
   const composeUrl = useCallback(async (over = {}) => {
     const L = { ...live.current, ...over }
-    const f = frameById(L.frameId) || defaultFrameFor(L.cuts || 4)
+    const f = frameById(L.frameId) || defaultOn(L.cuts || 4)
     const photos = L.arrangement.map((i) => (i != null && L.shots[i] ? L.shots[i].canvas : null)).filter(Boolean)
     await ensureFonts()
     const base = await composeSheet({ frameId: f.id, photos, date: L.date, roomId: L.room, message: L.message })
@@ -277,6 +320,7 @@ export function useKioskController(options = {}) {
     await samplesReady()
     const L = live.current
     const arr = Array.from({ length: n }, (_, k) => L.camera.capture(k, L.retouch))
+    arr.forEach((sh) => ops.recordFile({ booth: L.booth, url: thumb(sh.canvas), kind: 'shot' }))
     sync({ shots: arr })
     setShots(arr)
     return arr
@@ -285,6 +329,7 @@ export function useKioskController(options = {}) {
   // ---------- 이동 ----------
 
   const reset = useCallback(() => {
+    txRef.current = null
     timers.current.forEach(clearTimeout)
     timers.current = []
     sync({ cuts: null, frameId: null, shots: [], arrangement: [], stamps: [], message: '', pay: INITIAL_PAY, printDone: false, printUrl: null })
@@ -333,7 +378,7 @@ export function useKioskController(options = {}) {
       }
       if (i >= idx('frame')) {
         const f = frameById(live.current.frameId)
-        if (!f || f.cuts !== c) setFrame(defaultFrameFor(c).id)
+        if (!f || f.cuts !== c) setFrame(defaultOn(c).id)
       }
       if (i > idx('pay') && live.current.pay.status !== 'success') patchPay({ method: 'card', status: 'success' })
       if (id === 'pay' && live.current.pay.status === 'success') patchPay({ ...INITIAL_PAY })
@@ -474,6 +519,8 @@ export function useKioskController(options = {}) {
         setFlashing(true)
         const L = live.current
         const shot = L.camera.capture(i, L.retouch)
+        ops.recordFile({ booth: L.booth, url: thumb(shot.canvas), kind: 'shot' })
+        ops.boothState(L.booth, { lastShot: Date.now() })
         const nextShots = [...live.current.shots, shot]
         sync({ shots: nextShots })
         setShots(nextShots)
@@ -514,6 +561,8 @@ export function useKioskController(options = {}) {
         composeUrl().then((r) => {
           if (dead) return
           sync({ printDone: true, printUrl: r.url })
+          ops.recordFile({ booth: live.current.booth, url: thumb(r.canvas, 360), kind: 'print' })
+          if (txRef.current) ops.patchTx(txRef.current, { cuts: live.current.cuts, frameId: live.current.frameId })
           setFinalStrip(r.canvas)
           setPrintUrl(r.url)
           setPrintDone(true)
@@ -553,6 +602,15 @@ export function useKioskController(options = {}) {
   })()
   const canBack = !['attract', 'shoot', 'print', 'finish', 'cuts'].includes(step)
   const cameraActive = CAMERA_STEPS.includes(step) && ['live', 'sample', 'fallback'].includes(camera.status)
+
+  // 운영 화면에 부스 상태를 알린다(단계, 언어, 카메라).
+  useEffect(() => {
+    ops.boothState(booth, { step, lang, cameraActive, online: true })
+  }, [booth, step, lang, cameraActive])
+  // 촬영을 시작하면 결제 기록에 컷 수와 프레임을 붙인다.
+  useEffect(() => {
+    if (step === 'guide' && txRef.current) ops.patchTx(txRef.current, { cuts, frameId })
+  }, [step, cuts, frameId])
 
   return {
     step,
@@ -619,6 +677,8 @@ export function useKioskController(options = {}) {
     skipCoach,
     coachOff: coach.off,
     demoCoupon: DEMO_COUPON,
-    framesForCuts: framesFor,
+    framesForCuts: framesOn,
+    booth,
+    price,
   }
 }

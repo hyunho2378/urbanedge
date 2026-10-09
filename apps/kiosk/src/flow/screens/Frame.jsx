@@ -3,13 +3,16 @@ import { T, useT } from '../../components/lang.jsx'
 import { FrameCarousel } from '../../components/FrameCarousel.jsx'
 import { StripView, stripAspect } from '../../components/StripView.jsx'
 import { COPY } from '../copy.js'
-import { framesFor, frameById } from '../prints.js'
+import { frameById } from '../prints.js'
+import { useOps } from '../../ops/store.js'
 
 // 5. frame v3: 가운데 프레임 하나가 초점이다. 옆으로 밀면 가운데에 온 프레임이 선택되고, 이름과 장수가 오른쪽 위에 바뀌어 나온다.
 const H = 430
 export default function Frame({ ctrl }) {
   const t = useT()
-  const items = useMemo(() => framesFor(ctrl.cuts || 4), [ctrl.cuts])
+  // 운영 화면에서 프레임을 켜고 끄면 바로 반영된다.
+  const onFrames = useOps((s) => s.frames)
+  const items = useMemo(() => ctrl.framesForCuts(ctrl.cuts || 4), [ctrl, ctrl.cuts, onFrames])
   const active = frameById(ctrl.frameId) || items[0]
   const itemW = Math.round(H * (2 / 3))
   return (

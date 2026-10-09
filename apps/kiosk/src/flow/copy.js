@@ -73,7 +73,9 @@ export const COPY = {
   pay: {
     title: { en: 'Payment method', ko: '결제 수단' },
     fare: { en: 'Total', ko: '결제 금액' },
-    amount: { en: '7,000 KRW', ko: '7,000원' },
+    amount: { en: '{price} KRW', ko: '{price}원' },
+    due: { en: 'Left to pay: {price} KRW', ko: '남은 금액 {price}원' },
+    couponPartial: { en: 'Coupon applied. Pay the rest by card.', ko: '쿠폰이 적용되었습니다. 남은 금액은 카드로 결제하세요.' },
     methodsLabel: { en: 'Payment methods', ko: '결제 수단' },
     methods: {
       card: { title: { en: 'Card', ko: '카드' }, body: { en: 'Insert', ko: '꽂기' } },
@@ -95,7 +97,7 @@ export const COPY = {
     readerHint: { en: 'Under the screen, on the right', ko: '화면 아래 오른쪽' },
     simTap: { en: 'Tap', ko: '대기' },
     processing: { en: 'Approving', ko: '승인 중' },
-    cashTitle: { en: 'Insert 7,000 KRW in bills', ko: '지폐 7,000원을 넣으세요' },
+    cashTitle: { en: 'Insert {price} KRW in bills', ko: '지폐 {price}원을 넣으세요' },
     cashHint: { en: 'Bill slot: under the screen', ko: '지폐 투입구는 화면 아래' },
     simBill: { en: 'Insert bill', ko: '지폐 넣기' },
     couponTitle: { en: 'Coupon code', ko: '쿠폰 코드 입력' },

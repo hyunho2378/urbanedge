@@ -7,7 +7,6 @@ import { CardReader } from '../../components/CardReader.jsx'
 import { StripView } from '../../components/StripView.jsx'
 import { CodeKeypad } from '../../components/OnScreenKeyboard.jsx'
 import { COPY } from '../copy.js'
-import { PRICE } from '../config.js'
 import { defaultFrameFor } from '../prints.js'
 
 // 6. pay v3: 왼쪽은 요금(7,000원, 인화 2장, 고른 프레임), 오른쪽은 지금 해야 할 일 하나.
@@ -28,9 +27,10 @@ function Fare({ ctrl }) {
     <div className="absolute" style={{ left: 120, top: 236, width: 600 }}>
       <T n={COPY.pay.fare} as="p" className="kt-label text-text-meta" />
       <p className={cx('kt-headline kt-num mt-8', coupon && 'text-text-meta line-through')}>
-        <T n={COPY.pay.amount} inline />
+        <T n={COPY.pay.amount} v={{ price: won(ctrl.price) }} inline />
       </p>
       {coupon ? <T n={COPY.pay.couponLine} v={{ code: coupon }} as="p" className="kt-strong mt-8 text-yellow" /> : null}
+      {coupon && ctrl.pay.discount < ctrl.price ? <T n={COPY.pay.due} v={{ price: won(ctrl.price - ctrl.pay.discount) }} as="p" className="kt-strong mt-8" /> : null}
       <div className="relative mt-48" style={{ height: 380 }} aria-hidden="true">
         <div className="absolute" style={{ left: 28, top: 10, transform: 'rotate(-4deg)' }}>
           <StripView frame={frame} date={ctrl.date} roomId={ctrl.room} height={360} className="k-lift opacity-60" />
@@ -85,13 +85,13 @@ function Cash({ ctrl }) {
   const pct = ctrl.pay.cash
   return (
     <div>
-      <T n={COPY.pay.cashTitle} as="h1" className="kt-headline" />
+      <T n={COPY.pay.cashTitle} v={{ price: won(Math.max(0, ctrl.price - (ctrl.pay.discount || 0))) }} as="h1" className="kt-headline" />
       <T n={COPY.pay.cashHint} as="p" className="kt-body mt-16 text-text-sec" />
       <div className="relative mt-64 overflow-hidden rounded-pill bg-bg-raised" style={{ width: 880, height: 24 }} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct * 100)}>
         <div className="absolute inset-0 origin-left bg-yellow transition-transform duration-slow ease-out" style={{ transform: `scaleX(${pct})` }} />
       </div>
       <p className="kt-subhead kt-num mt-24">
-        {won(Math.round(PRICE.base * pct))} <span className="kt-body text-text-meta">/ {won(PRICE.base)}</span>
+        {won(Math.round(Math.max(0, ctrl.price - (ctrl.pay.discount || 0)) * pct))} <span className="kt-body text-text-meta">/ {won(Math.max(0, ctrl.price - (ctrl.pay.discount || 0)))}</span>
       </p>
     </div>
   )

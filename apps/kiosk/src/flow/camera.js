@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { paintRetouched, DEFAULT_RETOUCH } from './retouch.js'
+import { ops, cameraCss } from '../ops/store.js'
 
 // camera.js: 카메라 소스. live이면 getUserMedia 웹캠, 실패하거나 sample이면 팀 인화 사진(public/img/team).
 // 미리보기와 촬영은 세로 3:4다. 인화 칸에 들어가는 비율과 같아서 보이는 대로 인화된다.
@@ -79,16 +80,58 @@ function drawScene(ctx, w, h, t, idx, alpha = 1, mirror = false) {
   ctx.restore()
 }
 
-export function useCamera({ wanted, mode }) {
+// 웹캠 스트림은 키오스크 여러 대가 한 탭에서 같이 쓴다(3대 데모). 참조 수를 세어 마지막 사용자가 놓을 때 끈다.
+const shared = { stream: null, video: null, pending: null, users: 0 }
+function acquireStream() {
+  shared.users++
+  if (shared.video) return Promise.resolve(shared.video)
+  if (shared.pending) return shared.pending
+  const md = typeof navigator !== 'undefined' ? navigator.mediaDevices : null
+  if (!md || !md.getUserMedia) return Promise.reject(new Error('no media'))
+  shared.pending = md
+    .getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false })
+    .then(async (stream) => {
+      const v = document.createElement('video')
+      v.muted = true
+      v.playsInline = true
+      v.srcObject = stream
+      try {
+        await v.play()
+      } catch {
+        /* 자동 재생이 막혀도 프레임은 읽힌다 */
+      }
+      shared.stream = stream
+      shared.video = v
+      shared.pending = null
+      if (shared.users <= 0) releaseStream(true)
+      return v
+    })
+    .catch((e) => {
+      shared.pending = null
+      throw e
+    })
+  return shared.pending
+}
+function releaseStream(force = false) {
+  if (!force) shared.users = Math.max(0, shared.users - 1)
+  if (shared.users > 0 || !shared.stream) return
+  shared.stream.getTracks().forEach((t) => t.stop())
+  shared.stream = null
+  shared.video = null
+}
+
+// booth가 있으면 운영 화면의 부스별 카메라 설정(좌우 반전, 확대, 밝기, 대비, 색온도, 필터)을 미리보기와 촬영에 같이 쓴다.
+export function useCamera({ wanted, mode, booth = null }) {
   const [status, setStatus] = useState('off') // off | starting | live | sample | fallback
   const videoRef = useRef(null)
-  const streamRef = useRef(null)
+  const holding = useRef(false)
 
   const stop = useCallback(() => {
-    if (streamRef.current) streamRef.current.getTracks().forEach((t) => t.stop())
-    streamRef.current = null
+    if (holding.current) releaseStream()
+    if (holding.current && booth) ops.setStream(booth, null)
+    holding.current = false
     videoRef.current = null
-  }, [])
+  }, [booth])
 
   useEffect(() => {
     loadSamples()
@@ -104,37 +147,18 @@ export function useCamera({ wanted, mode }) {
     }
     let dead = false
     setStatus('starting')
-    const md = typeof navigator !== 'undefined' ? navigator.mediaDevices : null
-    if (!md || !md.getUserMedia) {
-      setStatus('fallback')
-      return undefined
-    }
     // 권한 창이 열린 채 응답이 없으면 2초 뒤 샘플로 먼저 보여준다. 이후 허용되면 웹캠으로 바뀐다.
     const timer = setTimeout(() => {
       if (!dead) setStatus((s) => (s === 'starting' ? 'fallback' : s))
     }, 2000)
-    md.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false })
-      .then(async (stream) => {
-        if (dead) {
-          stream.getTracks().forEach((t) => t.stop())
-          return
-        }
+    holding.current = true
+    acquireStream()
+      .then((v) => {
+        if (dead) return
         clearTimeout(timer)
-        const v = document.createElement('video')
-        v.muted = true
-        v.playsInline = true
-        v.srcObject = stream
-        try {
-          await v.play()
-        } catch {
-          /* 자동 재생이 막혀도 프레임은 읽힌다 */
-        }
-        if (dead) {
-          stream.getTracks().forEach((t) => t.stop())
-          return
-        }
-        streamRef.current = stream
         videoRef.current = v
+        // 운영 화면 카메라가 같은 스트림을 보여 줄 수 있게 부스별로 알린다.
+        if (booth) ops.setStream(booth, shared.stream)
         setStatus('live')
       })
       .catch(() => {
@@ -147,10 +171,34 @@ export function useCamera({ wanted, mode }) {
       clearTimeout(timer)
       stop()
     }
-  }, [wanted, mode, stop])
+  }, [wanted, mode, stop, booth])
+
+  const boothRef = useRef(booth)
+  boothRef.current = booth
 
   // 현재 소스를 w x h에 가득 채워 그린다. 웹캠은 거울처럼 좌우 반전한다.
   const drawSource = useCallback((ctx, w, h, t, idx) => {
+    const set = boothRef.current ? ops.get().camera[boothRef.current] : null
+    if (set) {
+      // 운영 화면 설정: 필터는 보정 필터 뒤에 잇고, 확대는 가운데 기준, 좌우 반전은 웹캠 기본(거울)에서 켜고 끈다.
+      const base = ctx.filter && ctx.filter !== 'none' ? ctx.filter : ''
+      ctx.save()
+      ctx.filter = `${base} ${cameraCss(set).filter}`.trim()
+      ctx.translate(w / 2, h / 2)
+      ctx.scale(set.zoom || 1, set.zoom || 1)
+      ctx.translate(-w / 2, -h / 2)
+      if (!set.mirror) {
+        ctx.translate(w, 0)
+        ctx.scale(-1, 1)
+      }
+      drawRaw(ctx, w, h, t, idx)
+      ctx.restore()
+      return
+    }
+    drawRaw(ctx, w, h, t, idx)
+  }, [])
+
+  const drawRaw = (ctx, w, h, t, idx) => {
     const v = videoRef.current
     if (v && v.readyState >= 2 && v.videoWidth) {
       const k = Math.max(w / v.videoWidth, h / v.videoHeight)
@@ -172,7 +220,7 @@ export function useCamera({ wanted, mode }) {
     const frac = (t % SCENE_MS) / SCENE_MS
     drawScene(ctx, w, h, t, n)
     if (frac > 0.88) drawScene(ctx, w, h, t, n + 1, (frac - 0.88) / 0.12)
-  }, [])
+  }
 
   const draw = useCallback(
     (ctx, w, h, t, retouch) => {

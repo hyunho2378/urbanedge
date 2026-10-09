@@ -7,7 +7,7 @@
 import { useSyncExternalStore } from 'react'
 import { allFrames } from '../flow/prints.js'
 import { validateCoupon as checksumOk } from '../flow/coupon.js'
-import { api, apiEnabled, ApiError, openStream, createQueue } from './api.js'
+import { api, apiEnabled, ApiError, openStream, createQueue, downloadFile } from './api.js'
 
 export const BOOTHS = [
   { id: 'subway', n: 1, name: { en: 'Subway Shot', ko: '지하철 샷' } },
@@ -49,6 +49,8 @@ function initial() {
     hasSample: false,
     // 서버 연결 상태(운영 화면이 표시에 쓸 수 있다)
     remote: { enabled: apiEnabled, connected: false, hydrated: false, queued: 0, failing: false, lastError: null },
+    // 프레임별 판매(서버 없이 이 탭의 거래로 계산). 서버가 있으면 /api/stats의 byFrame을 쓴다.
+    frameSales: [],
     // 운영 화면에서 보고 있는 부스
     selectedBooth: 'subway',
     // 부스별 웹캠 MediaStream(키오스크가 실시간 카메라를 쓸 때만 채운다)
@@ -59,8 +61,31 @@ function initial() {
 let state = initial()
 const subs = new Set()
 const emit = () => subs.forEach((f) => f())
+// 프레임별 판매(서버 없이 동작할 때 이 탭의 거래로 계산한다). 서버가 있으면 /api/stats의 byFrame을 쓴다.
+export function computeFrameSales(tx, frames) {
+  const names = {}
+  for (const f of allFrames()) names[f.id] = f.name?.ko || f.id
+  for (const f of frames || []) if (f.custom?.name) names[f.id] = typeof f.custom.name === 'string' ? f.custom.name : f.custom.name.ko || f.id
+  const m = new Map()
+  let sum = 0
+  for (const t of tx) {
+    if (t.status !== 'paid') continue
+    const k = t.frameId || '-'
+    const r = m.get(k) || { key: k, name: k === '-' ? '프레임 미선택' : names[k] || k, count: 0, revenue: 0 }
+    r.count += 1
+    r.revenue += t.amount || 0
+    sum += t.amount || 0
+    m.set(k, r)
+  }
+  return [...m.values()].sort((a, b) => b.revenue - a.revenue).map((r) => ({ ...r, share: sum ? Math.round((r.revenue / sum) * 1000) / 10 : 0 }))
+}
+let fsKey = null
 const set = (fn) => {
   state = { ...state, ...fn(state) }
+  if (state.tx !== fsKey?.tx || state.frames !== fsKey?.frames) {
+    fsKey = { tx: state.tx, frames: state.frames }
+    state = { ...state, frameSales: computeFrameSales(state.tx, state.frames) }
+  }
   emit()
   scheduleBroadcast()
 }
@@ -277,6 +302,32 @@ export const ops = {
   useCoupon: (code) => {
     set((s) => ({ coupons: s.coupons.map((c) => (c.code === code ? { ...c, uses: c.uses + 1 } : c)) }))
     push('POST', '/api/coupons/redeem', { code }, 'device')
+  },
+
+  // ---- 내보내기와 오늘의 코드 ----
+  // format: csv | xlsx | hwpx | pdf. kind: 'tx'(거래내역) | 'summary'(요약). 'sales'는 'tx'로 본다. 서버가 없으면 csv만 이 탭의 거래로 만든다.
+  download: async (format, { range = 'today', kind = 'tx' } = {}) => {
+    const k = kind === 'summary' ? 'summary' : 'tx'
+    if (queue) return downloadFile(`/api/export?format=${encodeURIComponent(format)}&range=${encodeURIComponent(range)}&kind=${k}`, `UrbanEdge_${range}.${format}`)
+    if (format !== 'csv') throw new Error('엑셀, 한글, PDF 내보내기는 서버에 연결되어 있을 때 쓸 수 있다.')
+    const head = ['시각', '부스', '상품', '프레임', '결제수단', '쿠폰', '쿠폰채널', '금액', '할인', '상태']
+    const cell = (v) => (/[",\r\n]/.test(String(v ?? '')) ? `"${String(v ?? '').replace(/"/g, '""')}"` : String(v ?? ''))
+    const lines = [head.join(',')]
+    for (const t of state.tx) lines.push([new Date(t.ts).toLocaleString('sv-SE'), t.booth, t.product || '', t.frameId || '', t.method, t.coupon || '', t.couponChannel || '', t.amount, t.discount || 0, t.status === 'refunded' ? '환불' : '결제'].map(cell).join(','))
+    const url = URL.createObjectURL(new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }))
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `UrbanEdge_${range}.csv`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 10_000)
+    return a.download
+  },
+  // 서버의 오늘 코드 { date, codes: [{ channel, label, code, discount }] }. 관리자 키가 있으면 제휴처 코드까지 온다.
+  todayCoupons: async () => {
+    if (!apiEnabled) throw new Error('서버에 연결되어 있지 않다.')
+    return api('GET', '/api/coupons/today', undefined, 'admin')
   },
 
   // ---- 운영 화면이 부르는 것 ----

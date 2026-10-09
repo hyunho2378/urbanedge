@@ -102,3 +102,27 @@ export function createQueue({ onChange } = {}) {
     },
   }
 }
+
+// 서버가 만든 파일을 내려받는다(관리자 키). 파일 이름은 서버가 보낸 한글 이름(Content-Disposition filename*)을 쓴다.
+export async function downloadFile(path, fallbackName = 'export') {
+  const headers = {}
+  if (env.VITE_ADMIN_KEY) headers['X-Admin-Key'] = env.VITE_ADMIN_KEY
+  const res = await fetch(API_URL + path, { headers })
+  if (!res.ok) {
+    let msg = `HTTP ${res.status}`
+    try { msg = (await res.json())?.error || msg } catch { /* 본문 없음 */ }
+    throw new ApiError(res.status, msg)
+  }
+  const cd = res.headers.get('Content-Disposition') || ''
+  const star = /filename\*=UTF-8''([^;]+)/i.exec(cd)
+  const name = star ? decodeURIComponent(star[1]) : (/filename="?([^";]+)"?/i.exec(cd) || [])[1] || fallbackName
+  const url = URL.createObjectURL(await res.blob())
+  const a = document.createElement('a')
+  a.href = url
+  a.download = name
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 10_000)
+  return name
+}

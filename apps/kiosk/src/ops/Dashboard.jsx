@@ -306,7 +306,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                 </button>
               )
             ) : null}
-            <button type="button" className="op-btn op-btn-sm" onClick={toggleFull} aria-pressed={on}>
+            <button type="button" className="op-btn op-btn-dark op-btn-sm" onClick={toggleFull} aria-pressed={on}>
               {on ? <Minimize2 size={14} aria-hidden="true" /> : <Maximize2 size={14} aria-hidden="true" />}
               {on ? L('Exit full screen', '전체화면 끝내기') : L('Full screen', '전체화면')}
             </button>
@@ -444,6 +444,8 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
           </section>
         </div>
 
+        <details className="op-more-sec" open={tvForced ? false : undefined}>
+          <summary>{L('Details by product and method', '상품별·결제수단별 자세히')}</summary>
         <div className="op-r3">
           <section className="op-card" aria-label={L('Sales by product', '상품별 판매')}>
             <Head title={L('Sales by product', '상품별 판매')} />
@@ -510,6 +512,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
             </table>
           </section>
         </div>
+        </details>
       </div>
     </div>
   )

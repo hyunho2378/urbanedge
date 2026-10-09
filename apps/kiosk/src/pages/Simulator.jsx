@@ -97,7 +97,7 @@ function AutoControl({ lang }) {
         type="button"
         aria-pressed={a.on}
         onClick={() => (a.on ? autoRun.stop() : autoRun.start())}
-        className={cx('flex h-32 items-center gap-8 rounded-pill px-16 font-ui text-body-sm font-semibold transition-colors duration-fast', a.on ? 'bg-yellow text-black' : 'bg-black text-white hover:bg-[#222]')}
+        className={cx('flex h-32 items-center gap-8 rounded-pill px-16 font-ui text-body-sm font-semibold transition-colors duration-fast', a.on ? 'bg-yellow text-black' : 'bg-[#F4F4EF] text-black hover:bg-yellow')}
       >
         {a.on ? pickLang(lang, 'Stop', '정지') : pickLang(lang, 'Auto run', '자동 운영')}
       </button>

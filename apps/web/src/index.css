@@ -17,3 +17,40 @@
   color: rgb(var(--ue-text-pri));
 }
 .ue-light .text-yellow { color: rgb(17 17 17); }
+
+/* 횡단보도 모티프: 어반엣지 메인 포스터처럼 검정과 흰색 띠를 번갈아 쓴다. 노랑은 포인트로만 남긴다.
+   토큰: --ue-zebra-dark / --ue-zebra-light(RGB 3채널), --ue-zebra-w(띠 폭), --ue-zebra-h(띠 두께).
+   .ue-zebra는 가로 띠, .ue-zebra-v는 세로 띠. 리듬은 폭의 두 배(검정 한 칸 + 흰색 한 칸)다. */
+:root {
+  --ue-zebra-dark: 17 17 17;
+  --ue-zebra-light: 255 255 255;
+  --ue-zebra-w: 24px;
+  --ue-zebra-h: 8px;
+}
+@media (max-width: 640px) {
+  :root { --ue-zebra-w: 16px; }
+}
+.ue-zebra {
+  display: block;
+  width: 100%;
+  height: var(--ue-zebra-h);
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgb(var(--ue-zebra-dark)) 0,
+    rgb(var(--ue-zebra-dark)) var(--ue-zebra-w),
+    rgb(var(--ue-zebra-light)) var(--ue-zebra-w),
+    rgb(var(--ue-zebra-light)) calc(var(--ue-zebra-w) * 2)
+  );
+}
+.ue-zebra-v {
+  display: block;
+  width: var(--ue-zebra-h);
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgb(var(--ue-zebra-dark)) 0,
+    rgb(var(--ue-zebra-dark)) var(--ue-zebra-w),
+    rgb(var(--ue-zebra-light)) var(--ue-zebra-w),
+    rgb(var(--ue-zebra-light)) calc(var(--ue-zebra-w) * 2)
+  );
+}

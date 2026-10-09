@@ -1,25 +1,25 @@
 import { Link } from 'react-router-dom'
-import { UrbanEdgeWordmark } from '@urbanedge/brand'
 import { SITE, FOOT_LINKS } from '../data/site.js'
 import { usePick } from '../i18n/index.jsx'
-import LogoMark from './LogoMark.jsx'
+import Wordmark from './Wordmark.jsx'
+import ZebraBar from './ZebraBar.jsx'
 import { ExtLink } from './ExtLink.jsx'
 import { InstagramGlyph, NaverGlyph } from './SocialLinks.jsx'
 import { Wrap } from './Wrap.jsx'
 import { B } from './B.jsx'
 
-// 푸터: 작게. 로고, 링크 한 줄, 주소와 영업시간 한 줄, 저작권.
+// 푸터: 작게. 위쪽 가장자리는 횡단보도 띠. 워드마크(심볼 없음), 링크 한 줄, 주소와 영업시간 한 줄, 저작권.
 export default function Footer() {
   const pick = usePick()
   const link = 'inline-flex min-h-40 items-center gap-8 text-body-sm text-text-sec transition-colors duration-fast ease-out hover:text-text-pri hover:underline'
 
   return (
     <footer className="ue-light relative">
-      <Wrap className="py-24 md:py-32">
+      <ZebraBar />
+      <Wrap className="pb-72 pt-24 md:py-32">
         <div className="flex flex-col gap-16 md:flex-row md:items-center md:justify-between">
-          <Link to="/" aria-label={pick({ en: 'UrbanEdge, home', ko: '어반엣지 홈' })} className="flex items-center gap-10">
-            <LogoMark className="size-32" />
-            <UrbanEdgeWordmark className="h-14 w-auto text-text-pri" aria-hidden="true" role="presentation" />
+          <Link to="/" aria-label={pick({ en: 'UrbanEdge, home', ko: '어반엣지 홈' })} className="flex items-center rounded-md py-8">
+            <Wordmark className="h-14 w-auto text-text-pri sm:h-16" />
           </Link>
           <div className="flex flex-wrap gap-x-20">
             {FOOT_LINKS.map((n) => <Link key={n.to} to={n.to} className={link}><B v={n.label} inline /></Link>)}
@@ -29,7 +29,7 @@ export default function Footer() {
           </div>
         </div>
         <p className="t-caption mt-16 text-text-meta">
-          <B v={SITE.address} inline /> · {SITE.hours.open} ~ {SITE.hours.close} · &copy; 2026 UrbanEdge
+          {pick(SITE.address)} · {SITE.hours.open} ~ {SITE.hours.close} · &copy; 2026 UrbanEdge
         </p>
       </Wrap>
     </footer>

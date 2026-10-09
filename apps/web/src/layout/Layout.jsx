@@ -2,6 +2,7 @@ import { Suspense, useEffect, useLayoutEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { NAV, FOOT_LINKS, SITE } from '../data/site.js'
 import { useLang, usePick } from '../i18n/index.jsx'
+import CouponFab from './CouponFab.jsx'
 import Footer from './Footer.jsx'
 import Header from './Header.jsx'
 import RouteBoundary from './RouteBoundary.jsx'
@@ -31,7 +32,7 @@ function useRouteTitle() {
     document.title =
       pathname === '/'
         ? `${SITE.name} | ${pick({ en: 'No subway in Gyeongju. So we built one.', ko: '경주 황리단길 무인 셀프 사진관' })}`
-        : `${item ? pick(item.label) : '404'} | ${SITE.name}`
+        : `${seg === '/brand' ? pick({ en: 'Brand', ko: '브랜드' }) : item ? pick(item.label) : '404'} | ${SITE.name}`
   }, [pathname, lang, pick])
 }
 
@@ -61,6 +62,7 @@ export default function Layout() {
         </RouteBoundary>
       </main>
       <Footer />
+      <CouponFab />
     </div>
   )
 }

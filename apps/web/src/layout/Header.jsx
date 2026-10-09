@@ -2,18 +2,18 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import { cx } from '@urbanedge/ds'
-import { UrbanEdgeWordmark } from '@urbanedge/brand'
 import { NAV } from '../data/site.js'
 import { usePick } from '../i18n/index.jsx'
 import LangToggle from './LangToggle.jsx'
 import { lockScroll, unlockScroll } from './scroll.js'
-import LogoMark from './LogoMark.jsx'
+import Wordmark from './Wordmark.jsx'
+import ZebraBar from './ZebraBar.jsx'
 import { Wrap } from './Wrap.jsx'
 import { B } from './B.jsx'
 
 const FOCUSABLE = 'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
-// 헤더: UE 심볼 + 워드마크, 내비게이션, KR/EN 토글. 하단 노선 라인 위를 노란 표시 막대가 활성 항목으로 미끄러진다.
+// 헤더: 워드마크(심볼 없음), 내비게이션 4개, KR/EN 토글. 아래 가장자리는 횡단보도 띠이고, 그 위를 노란 표시 막대가 활성 항목으로 미끄러진다.
 // 홈은 히어로 위에서 투명하게 시작해 스크롤하면 불투명해지고, 하위 페이지는 처음부터 불투명하다.
 export default function Header() {
   const { pathname } = useLocation()
@@ -108,16 +108,15 @@ export default function Header() {
       <div className="relative h-header-m lg:h-header">
         <span aria-hidden="true" className={cx('absolute inset-0 bg-gradient-to-b from-bg-base/85 to-transparent transition-opacity duration-base ease-out', solid ? 'opacity-0' : 'opacity-100')} />
         <span aria-hidden="true" className={cx('absolute inset-0 bg-bg-base transition-opacity duration-base ease-out', solid ? 'opacity-100' : 'opacity-0')} />
-        <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-px bg-yellow/50" />
-        <Wrap className="relative flex h-full items-center gap-16 lg:gap-24">
+        <ZebraBar className="absolute inset-x-0 bottom-0" />
+        <Wrap className="relative flex h-full items-center gap-16 pb-8 lg:gap-24">
           <div className="flex min-w-0 flex-1 items-center">
             <Link
               to="/"
-              aria-label={pick({ en: 'UrbanEdge Metrography, home', ko: '어반엣지 메트로그래피 홈' })}
-              className="ue-press flex items-center gap-10 rounded-md"
+              aria-label={pick({ en: 'UrbanEdge, home', ko: '어반엣지 홈' })}
+              className="ue-press flex items-center rounded-md py-8"
             >
-              <LogoMark className="size-36" />
-              <UrbanEdgeWordmark className="hidden h-16 w-auto text-text-pri md:block" aria-hidden="true" role="presentation" />
+              <Wordmark className="h-14 w-auto text-text-pri sm:h-20" />
             </Link>
           </div>
 
@@ -142,7 +141,7 @@ export default function Header() {
             </ul>
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute bottom-0 left-0 h-4 rounded-t-sm bg-yellow transition-[transform,opacity] duration-slow ease-out"
+              className="pointer-events-none absolute bottom-0 left-0 h-4 rounded-sm bg-yellow transition-[transform,opacity] duration-slow ease-out"
               style={{ width: bar.w, transform: `translateX(${bar.x}px)`, opacity: bar.show ? 1 : 0 }}
             />
           </nav>
@@ -175,10 +174,10 @@ export default function Header() {
           data-lenis-prevent
           className="fixed inset-0 z-overlay flex animate-fade-in flex-col overflow-y-auto bg-bg-base lg:hidden"
         >
-          <div className="relative flex h-header-m shrink-0 items-center justify-between px-page">
-            <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-px bg-yellow/50" />
-            <Link to="/" className="ue-press flex items-center gap-10 rounded-md" aria-label={pick({ en: 'Home', ko: '홈' })}>
-              <LogoMark className="size-36" />
+          <div className="relative flex h-header-m shrink-0 items-center justify-between px-page pb-8">
+            <ZebraBar className="absolute inset-x-0 bottom-0" />
+            <Link to="/" className="ue-press flex items-center rounded-md py-8" aria-label={pick({ en: 'UrbanEdge, home', ko: '어반엣지 홈' })}>
+              <Wordmark className="h-14 w-auto text-text-pri sm:h-20" />
             </Link>
             <button
               ref={closeBtn}

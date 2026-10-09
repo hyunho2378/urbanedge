@@ -17,7 +17,6 @@ import { autoRun, autoSpeed, MULTS, useAutoPilot, useAutoRun } from '../ops/sim.
 import './simulator.css'
 
 const BOOTH_IDS = ['retro', 'karaoke', 'subway']
-const DOT = { yellow: 'bg-line-yellow', red: 'bg-line-red', green: 'bg-line-green', blue: 'bg-line-blue' }
 const roomOf = (id) => ROOMS.find((r) => r.id === id) || ROOMS[0]
 
 function useSize(ref) {
@@ -47,7 +46,7 @@ function KioskUnit({ booth, width, options, focused, onFocus, showOutline }) {
       }}
       onFocusCapture={onFocus}
       data-booth={booth}
-      className={cx('relative rounded-lg transition-shadow duration-fast', showOutline && focused && 'ring-2 ring-yellow ring-offset-4 ring-offset-bg-base')}
+      className="relative"
       style={{ width }}
     >
       <LangContext.Provider value={ctrl.lang}>
@@ -64,16 +63,15 @@ function KioskUnit({ booth, width, options, focused, onFocus, showOutline }) {
 function BoothLabel({ id, lang, active }) {
   const r = roomOf(id)
   return (
-    <span className={cx('inline-flex items-center gap-8 font-ui text-body-sm font-semibold', active ? 'text-text-pri' : 'text-text-sec')}>
-      <span className={cx('grid h-20 w-20 place-items-center rounded-pill text-[11px] font-bold text-black', DOT[r.color])}>{r.n}</span>
-      {pickLang(lang, r.title.en, r.title.ko)}
+    <span className={cx('font-ui text-body-sm font-bold', active ? 'text-yellow' : 'text-white')}>
+      {r.n} {pickLang(lang, r.title.en, r.title.ko)}
     </span>
   )
 }
 
 function Segmented({ value, onChange, items, label }) {
   return (
-    <div role="radiogroup" aria-label={label} className="flex h-32 items-center rounded-pill border border-hairline p-2">
+    <div role="radiogroup" aria-label={label} className="flex h-32 items-center gap-4">
       {items.map((it) => (
         <button
           key={it.value}
@@ -81,7 +79,7 @@ function Segmented({ value, onChange, items, label }) {
           role="radio"
           aria-checked={value === it.value}
           onClick={() => onChange(it.value)}
-          className={cx('h-full rounded-pill px-12 font-ui text-body-sm font-semibold transition-colors duration-fast', value === it.value ? 'bg-yellow text-text-onYellow' : 'text-text-sec hover:text-text-pri')}
+          className={cx('h-full rounded-pill px-12 font-ui text-body-sm font-bold transition-colors duration-fast', value === it.value ? 'bg-yellow text-black' : 'text-white hover:bg-white hover:text-black')}
         >
           {it.label}
         </button>
@@ -99,9 +97,8 @@ function AutoControl({ lang }) {
         type="button"
         aria-pressed={a.on}
         onClick={() => (a.on ? autoRun.stop() : autoRun.start())}
-        className={cx('flex h-32 items-center gap-8 rounded-pill px-16 font-ui text-body-sm font-semibold transition-colors duration-fast', a.on ? 'bg-yellow text-text-onYellow' : 'border border-hairline text-text-pri hover:border-hairlineStrong')}
+        className={cx('flex h-32 items-center gap-8 rounded-pill px-16 font-ui text-body-sm font-semibold transition-colors duration-fast', a.on ? 'bg-yellow text-black' : 'bg-white text-black hover:bg-yellow')}
       >
-        <span aria-hidden="true" className={cx('h-8 w-8 rounded-pill', a.on ? 'bg-black' : 'bg-text-meta')} />
         {a.on ? pickLang(lang, 'Stop', '정지') : pickLang(lang, 'Auto run', '자동 운영')}
       </button>
       <Segmented label={pickLang(lang, 'Speed', '배속')} value={a.mult} onChange={autoRun.setMult} items={MULTS.map((m) => ({ value: m, label: `${m}x` }))} />
@@ -127,29 +124,36 @@ export default function Simulator({ options = {} }) {
     setParams(q, { replace: true })
   }
 
-  const leftRef = useRef(null)
-  const { w: lw, h: lh } = useSize(leftRef)
-  const gap = 16
-  const rowGap = 28 // 기기 아래 트레이와 다리가 상자 밖으로 조금 나온다
-  const labelH = 40
-  // 3대: 세로로 석 줄. 기기 아래쪽(트레이와 다리)은 잘라 화면과 카메라와 카드 단말기만 보여 주면 화면이 가장 크게 남는다.
-  const CROP = 0.64
-  const rowGap3 = 12
-  let layout = { cols: 1, w: 0 }
-  if (units === 1) {
-    layout = { cols: 1, w: Math.max(0, Math.min(lw - 32, (lh - 32 - labelH) / RATIO)) }
-  } else {
-    const rowH = (lh - 16 - 2 * rowGap3) / 3 - 32
-    layout = { cols: 1, w: Math.max(0, Math.min(lw - 32, rowH / (RATIO * CROP))) }
+  const bodyRef = useRef(null)
+  const { w: bw, h: bh } = useSize(bodyRef)
+  const PAD = 16
+  const LABEL = 24
+  const TABS = 32
+  const GAP3 = 12
+  let w = 0
+  let devH = 0
+  if (bw > 0 && bh > 0) {
+    if (units === 1) {
+      // 한 대: 폭은 화면의 36%까지, 높이에 맞춰 줄인다.
+      const availH = bh - 2 * PAD - TABS - 8
+      w = Math.floor(Math.min(bw * 0.36 - 2 * PAD, availH / RATIO))
+      devH = Math.floor(w * RATIO)
+    } else {
+      // 세 대: 열 폭을 채우고 줄 높이에 맞게 아래쪽(트레이와 다리)을 잘라 낸다. 화면이 잘리지 않도록 최소 50%는 남긴다.
+      const rowH = Math.floor((bh - 2 * PAD - 3 * LABEL - 2 * GAP3) / 3)
+      w = Math.floor(Math.min(bw * 0.3 - 2 * PAD, rowH / (RATIO * 0.5)))
+      devH = Math.min(rowH, Math.floor(w * RATIO))
+    }
   }
+  const colW = w > 0 ? w + 2 * PAD : 0
   const L = opsLang
   const fsQ = new URLSearchParams({ room: units === 1 ? single : selected || 'subway', lang: options.lang || 'en' })
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-bg-base text-text-pri">
-      <header className="flex h-56 shrink-0 items-center gap-16 border-b border-hairline px-20">
+    <div className="flex h-dvh flex-col overflow-hidden bg-black text-white">
+      <header className="flex h-48 shrink-0 items-center gap-16 bg-black px-16 text-white">
         <p className="font-display text-body font-bold">
-          UrbanEdge <span className="font-ui font-semibold text-text-sec">{pickLang(L, 'Ops demo', '운영 데모')}</span>
+          UrbanEdge <span className="font-ui font-semibold text-yellow">{pickLang(L, 'Ops demo', '운영 데모')}</span>
         </p>
         <Segmented
           label={pickLang(L, 'Number of kiosks', '키오스크 대수')}
@@ -163,17 +167,17 @@ export default function Simulator({ options = {} }) {
         <AutoControl lang={L} />
         <div className="ml-auto flex items-center gap-12">
           <Segmented label={pickLang(L, 'Ops language', '운영 화면 언어')} value={L} onChange={setOpsLang} items={[{ value: 'ko', label: 'KO' }, { value: 'en', label: 'EN' }]} />
-          <Link to={`/screen?${fsQ.toString()}`} className="ue-press px-8 font-ui text-body-sm font-semibold text-text-sec hover:text-text-pri">
+          <Link to={`/screen?${fsQ.toString()}`} className="ue-press px-8 font-ui text-body-sm font-bold text-white hover:text-yellow">
             {pickLang(L, 'Full screen', '전체 화면')}
           </Link>
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1">
-        <section ref={leftRef} aria-label={pickLang(L, 'Kiosks', '키오스크')} className={cx('flex min-h-0 shrink-0 flex-col items-center justify-center px-16', units === 1 ? 'w-[44%]' : 'w-[48%]')}>
+      <div ref={bodyRef} className="flex min-h-0 flex-1">
+        <section aria-label={pickLang(L, 'Kiosks', '키오스크')} className="flex min-h-0 shrink-0 flex-col bg-black" style={{ width: colW || '34%', padding: PAD }}>
           {units === 1 ? (
             <>
-              <div role="tablist" aria-label={pickLang(L, 'Booth', '부스')} className="mb-8 flex h-32 items-center gap-8">
+              <div role="tablist" aria-label={pickLang(L, 'Booth', '부스')} className="mb-8 flex h-32 items-center gap-4">
                 {BOOTH_IDS.map((id) => (
                   <button
                     key={id}
@@ -181,24 +185,27 @@ export default function Simulator({ options = {} }) {
                     role="tab"
                     aria-selected={single === id}
                     onClick={() => setSingle(id)}
-                    className={cx('h-32 rounded-pill border px-12 transition-colors duration-fast', single === id ? 'border-yellow' : 'border-hairline hover:border-hairlineStrong')}
+                    className={cx('h-32 rounded-pill px-12 transition-colors duration-fast', single === id ? 'bg-yellow' : 'hover:bg-white/10')}
                   >
-                    <BoothLabel id={id} lang={L} active={single === id} />
+                    <span className={cx('font-ui text-body-sm font-bold', single === id ? 'text-black' : 'text-white')}>
+                      {roomOf(id).n} {pickLang(L, roomOf(id).title.en, roomOf(id).title.ko)}
+                    </span>
                   </button>
                 ))}
               </div>
-              {layout.w > 0 && <KioskUnit key={single} booth={single} width={Math.floor(layout.w)} options={kOpts} focused onFocus={() => {}} />}
+              {w > 0 && <KioskUnit key={single} booth={single} width={w} options={kOpts} focused onFocus={() => {}} />}
             </>
           ) : (
-            <div className="flex flex-col items-center" style={{ rowGap: rowGap3 }}>
-              {layout.w > 0 &&
+            <div className="flex flex-col" style={{ rowGap: GAP3 }}>
+              {w > 0 &&
                 BOOTH_IDS.map((id) => (
-                  <div key={id} className="flex flex-col items-center">
-                    <button type="button" onClick={() => ops.selectBooth(id)} aria-pressed={selected === id} className="flex items-center" style={{ height: 32 }}>
+                  <div key={id} className="flex flex-col">
+                    <button type="button" onClick={() => ops.selectBooth(id)} aria-pressed={selected === id} className="flex items-center text-left" style={{ height: LABEL }}>
                       <BoothLabel id={id} lang={L} active={selected === id} />
                     </button>
-                    <div className={cx('overflow-hidden rounded-lg transition-shadow duration-fast', selected === id && 'ring-2 ring-yellow ring-offset-4 ring-offset-bg-base')} style={{ width: Math.floor(layout.w), height: Math.floor(layout.w * RATIO * CROP) }}>
-                      <KioskUnit booth={id} width={Math.floor(layout.w)} options={kOpts} focused={selected === id} onFocus={() => ops.get().selectedBooth !== id && ops.selectBooth(id)} />
+                    <div className="relative overflow-hidden rounded-lg" style={{ width: w, height: devH }}>
+                      <KioskUnit booth={id} width={w} options={kOpts} focused={selected === id} onFocus={() => ops.get().selectedBooth !== id && ops.selectBooth(id)} />
+                      {selected === id && <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-lg" style={{ boxShadow: 'inset 0 0 0 4px rgb(var(--ue-yellow))' }} />}
                     </div>
                   </div>
                 ))}
@@ -206,7 +213,7 @@ export default function Simulator({ options = {} }) {
           )}
         </section>
 
-        <section aria-label={pickLang(L, 'Operations', '운영 화면')} className="min-h-0 min-w-0 flex-1 border-l border-hairline">
+        <section aria-label={pickLang(L, 'Operations', '운영 화면')} className="min-h-0 min-w-0 flex-1">
           <LangContext.Provider value={L}>
             <OpsPanel lang={L} />
           </LangContext.Provider>

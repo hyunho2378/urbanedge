@@ -23,3 +23,13 @@
   from { opacity: 0; transform: translateY(6px) scale(0.98); }
   to { opacity: 1; transform: none; }
 }
+
+/* 글자 크기 하한: 본문 17px(모바일 16px 이상), 캡션과 라벨 14px 이상 */
+.t-body, .t-strong { font-size: 16px; }
+.t-lead { font-size: 18px; }
+.t-caption, .t-label { font-size: 14px; }
+@media (min-width: 768px) {
+  .t-body, .t-strong { font-size: 18px; }
+  .t-lead { font-size: 21px; }
+  .t-caption, .t-label { font-size: 15px; }
+}

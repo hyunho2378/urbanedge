@@ -5,7 +5,7 @@ import EraCard from '../components/brand/EraCard.jsx'
 import TrainSvg from '../components/home/TrainSvg.jsx'
 import { usePageTitle } from '../components/pages/usePageTitle.js'
 import { ROOMS } from '../data/site.js'
-import { BRAND_TITLE, IDENTITY, SLOGAN, TIME_PLATFORM } from '../data/story.js'
+import { BRAND_TITLE, IDENTITY, SLOGAN, TIME_PLATFORM, byTimeOrder } from '../data/story.js'
 import { usePick } from '../i18n/index.jsx'
 import { B } from '../layout/B.jsx'
 import Wordmark from '../layout/Wordmark.jsx'
@@ -73,7 +73,7 @@ export default function Brand() {
           <h2 id="brand-time" className={h2}><B v={TIME_PLATFORM.title} inline /></h2>
           <p className="t-lead mt-12 max-w-read text-text-sec"><B v={TIME_PLATFORM.lead} /></p>
           <ol className="mt-32 md:mt-48 md:grid md:grid-cols-3">
-            {ROOMS.map((r) => (
+            {byTimeOrder(ROOMS).map((r) => (
               <EraCard key={r.id} room={r} />
             ))}
           </ol>

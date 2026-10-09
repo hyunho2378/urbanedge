@@ -22,8 +22,8 @@ export const IDENTITY = [
     id: 'journey',
     title: { en: 'Chronological Journey', ko: '시공간의 압축' },
     body: {
-      en: 'From the analog feel of 1968 to the romance of 2008 and the modern 2000s, you experience how Korean trains and subways evolved, and the youth of each era, with your whole body.',
-      ko: '1968년의 아날로그 감성부터 2008년의 낭만, 2000년대 현대에 이르기까지 한국 전철과 지하철의 진화와 각 시대의 청춘을 온몸으로 체험한다.',
+      en: 'From the modern 2000s back through the romance of 2008 to the analog feel of 1968, you experience how Korean trains and subways evolved, and the youth of each era, with your whole body.',
+      ko: '2000년대 현대에서 2008년의 낭만, 1968년의 아날로그 감성까지 거슬러 오르며 한국 전철과 지하철의 진화와 각 시대의 청춘을 온몸으로 체험한다.',
     },
   },
 ]
@@ -32,12 +32,12 @@ export const IDENTITY = [
 export const TIME_PLATFORM = {
   title: { en: 'Time Platform', ko: '시간의 승강장' },
   lead: {
-    en: 'The deeper you go inside, the more time moves from past to present: a time-travel boarding experience.',
-    ko: '안쪽으로 깊숙이 들어갈수록 과거에서 현재로 시간이 이동한다. 시간 이동형 탑승 경험이다.',
+    en: 'The deeper you go inside, the further time runs backward, from today to the past: a time-reversing boarding experience.',
+    ko: '공간 안쪽으로 들어갈수록 현재에서 과거로 시간이 거슬러 올라가는 시간 역행형 탑승 경험이다.',
   },
   short: {
-    en: 'Walk in and time moves from 1968 toward today.',
-    ko: '들어갈수록 1968년에서 지금으로 시간이 흐른다.',
+    en: 'Walk in and time runs backward, from today to 1968.',
+    ko: '들어갈수록 지금에서 1968년으로 시간이 거꾸로 흐른다.',
   },
 }
 
@@ -45,7 +45,7 @@ export const TIME_PLATFORM = {
 export const ERA = {
   retro: {
     year: { en: '1968', ko: '1968' },
-    line: { en: 'Platform 1', ko: '1호선 플랫폼' },
+    line: { en: 'Platform 3', ko: '3호선 플랫폼' },
     concept: { en: 'The start of analog, and its romance', ko: '아날로그의 시작과 낭만' },
     experience: {
       en: 'The nostalgia of Gyeongju’s first station and early Korean railways. Warm-toned light and vintage train props make it feel like going back in time.',
@@ -63,7 +63,7 @@ export const ERA = {
   },
   subway: {
     year: { en: '2000s', ko: '2000년대' },
-    line: { en: 'Platform 3', ko: '3호선 플랫폼' },
+    line: { en: 'Platform 1', ko: '1호선 플랫폼' },
     concept: { en: 'Refined daily life, clear records', ko: '세련된 일상과 선명한 기록' },
     experience: {
       en: 'Modeled on the cleanest, most trend-setting subway of today. Metallic materials and clear signage give you a sharp, well-finished souvenir photo.',
@@ -141,3 +141,7 @@ export const JOURNEY = [
     },
   },
 ]
+
+// 시간 역행 순서: 현재에서 과거로. 데이터 순서와 관계없이 이 순서로 보여 준다.
+export const TIME_ORDER = ['subway', 'karaoke', 'retro']
+export const byTimeOrder = (rooms) => [...rooms].sort((a, b) => TIME_ORDER.indexOf(a.id) - TIME_ORDER.indexOf(b.id))

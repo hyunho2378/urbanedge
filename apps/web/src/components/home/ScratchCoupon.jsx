@@ -4,6 +4,7 @@ import { cx } from '@urbanedge/ds'
 import { SITE } from '../../data/site.js'
 import { usePick } from '../../i18n/index.jsx'
 import { B } from '../../layout/B.jsx'
+import { useTodayCode } from '../../data/todayCode.js'
 
 // CSS 변수(RGB 3채널)를 canvas용 색 문자열로 읽는다. 소스에 색 리터럴을 쓰지 않기 위해서다.
 const cssRgb = (name, alpha = 1) => {
@@ -25,6 +26,8 @@ export default function ScratchCoupon({ className }) {
   const canvas = useRef(null)
   const state = useRef({ down: false, last: null, strokes: 0 })
   const [copied, setCopied] = useState(false)
+  const today = useTodayCode(SITE.coupon.code)
+  const code = today.code || SITE.coupon.code
   const markRevealed = useCallback(() => setRevealed(true), [])
   const url = (typeof window !== 'undefined' ? window.location.origin : 'https://urbanedge-web.vercel.app') + '/'
   const text = pick({ en: 'UrbanEdge, a photo studio in Hwangridan-gil, Gyeongju', ko: '경주 황리단길 사진관 어반엣지' })
@@ -151,7 +154,7 @@ export default function ScratchCoupon({ className }) {
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(SITE.coupon.code)
+      await navigator.clipboard.writeText(code)
     } catch {
       /* 클립보드가 막힌 환경에서는 표시만 한다 */
     }
@@ -168,8 +171,9 @@ export default function ScratchCoupon({ className }) {
             <>
               <p className="t-label text-text-meta"><B v={{ en: 'Coupon', ko: '쿠폰' }} inline /></p>
               <p className="t-title tracking-wide text-yellow" aria-live="polite">
-                {revealed ? SITE.coupon.code : pick({ en: 'Scratch to reveal', ko: '긁어서 확인' })}
+                {revealed ? code : pick({ en: 'Scratch to reveal', ko: '긁어서 확인' })}
               </p>
+              <p className="t-caption text-text-sec"><B v={{ en: "Today's code. It resets every day.", ko: '오늘의 코드. 매일 새로 바뀐다.' }} inline /></p>
               {linkCopied && !revealed && <p className="t-caption text-text-sec"><B v={{ en: 'Link copied. Paste it to a friend.', ko: '링크를 복사했다. 친구에게 붙여 넣어 보내면 된다.' }} inline /></p>}
             </>
           ) : (

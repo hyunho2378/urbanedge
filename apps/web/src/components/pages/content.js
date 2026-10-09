@@ -1,6 +1,6 @@
 // content.js: W2 하위 페이지가 공유하는 데이터와 문구.
 // 영문은 영어로 먼저 쓰고, 한국어는 따로 쓴다(docs/VOICE.md). 사실은 data/site.js와 현장 사진에서 확인된 것만 쓴다.
-// 시스템은 Gyeongju Metro(GY)이고 역은 GY-01 UrbanEdge 하나다. 유료 촬영 방 세 곳이 승강장 1부터 3이고 시간 순서(1 Retro 1968, 2 Karaoke 2008, 3 Subway 2000년대)다. 가상의 관광 경험이며 공공 교통이 아니다.
+// 시스템은 Gyeongju Metro(GY)이고 역은 GY-01 UrbanEdge 하나다. 유료 촬영 방 세 곳이 승강장 1부터 3이고 시간을 거슬러 가는 순서(1 Subway 2000년대, 2 Karaoke 2008, 3 Retro 1968)다. 가상의 관광 경험이며 공공 교통이 아니다.
 
 // 시스템은 Gyeongju Metro(코드 GY)이고, 실제 역은 GY-01 UrbanEdge(황리단길) 하나다. 방 네 곳이 역 안의 승강장 1부터 4다.
 // 가상의 관광 경험이며 실제 교통시설이나 공식 역이 아니다. 화면에는 항상 "Imaginary Metro · Travel Experience" 고지를 둔다.
@@ -139,7 +139,7 @@ const ALL = [
   },
   {
     id: 'subway',
-    no: 3,
+    no: 1,
     accent: 'yellow',
     era: { en: '2000s · The Present', ko: '2000년대 · 현재' },
     name: 'SUBWAY SHOT',
@@ -195,7 +195,7 @@ const ALL = [
   },
   {
     id: 'retro',
-    no: 1,
+    no: 3,
     accent: 'green',
     era: { en: '1968 · The Roots', ko: '1968 · 뿌리' },
     name: 'RETRO SHOT',
@@ -224,7 +224,7 @@ const ALL = [
 ].map((s) => ({ ...s, photoList: s.photos.map(make) }))
 
 export const EXIT1 = ALL.find((s) => s.id === 'entrance')
-// 승강장 번호는 시간 순서(1 Retro, 2 Karaoke, 3 Subway)다. 정의 순서와 무관하게 번호 순으로 낸다.
+// 승강장 번호는 시간을 거슬러 가는 순서(1 Subway, 2 Karaoke, 3 Retro)다. 정의 순서와 무관하게 번호 순으로 낸다.
 export const PLATFORMS = ALL.filter((s) => s.id !== 'entrance').sort((a, b) => a.no - b.no)
 export const STATIONS = PLATFORMS
 export const findStation = (id) => PLATFORMS.find((s) => s.id === id)

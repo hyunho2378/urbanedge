@@ -49,7 +49,7 @@ const tiles = (x, y, n, w, h, skip = 0) =>
 
 // 각 포즈: [뼈대, 소품(뒤), 소품(앞)]
 const POSES = {
-  // Platform 3 Subway Shot
+  // Platform 1 Subway Shot
   'strap-hang': [
     mk({ head: [116, 62], sh: [[96, 98], [140, 100]], arms: [[[88, 134], [90, 168]], [[160, 74], [158, 52]]], legs: [[[104, 226], [96, 280]], [[136, 226], [146, 280]]] }),
     <g key="b" className={Y} strokeWidth="3.4">
@@ -108,7 +108,7 @@ const POSES = {
     </g>,
     null,
   ],
-  // Platform 1 Retro Shot
+  // Platform 3 Retro Shot
   'stool-sit': [
     mk({ head: [120, 104], sh: [[98, 138], [142, 138]], hip: [[102, 214], [138, 214]], arms: [[[80, 172], [96, 206]], [[160, 172], [144, 206]]], legs: [[[96, 242], [90, 282]], [[144, 242], [150, 282]]] }),
     <g key="b" className={Y} strokeWidth="3.4">

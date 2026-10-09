@@ -102,26 +102,28 @@ export const ENTRANCE = {
   photo: { src: '/img/place/naver-14.jpg', alt: { en: 'Black cones, yellow caution tape and a checkerboard floor at the entrance', ko: '검은 고깔과 노란 경고 테이프, 체커보드 바닥이 놓인 입구' } },
 }
 
-// 승강장 3곳(Platform 1부터 3, GY-01 UrbanEdge 안). 번호는 시간 순서다: 1 Retro(1968), 2 Karaoke(2008), 3 Subway(2000년대 현재). 방 id와 색은 그대로다. era는 시대 태그(화면에 아직 쓰지 않는다). 사진은 public/img 아래 실제 파일이다(place는 네이버 플레이스, ig는 인스타그램 공개 사진). concept, pose, why는 사진에서 확인한 것만 쓴다.
+// 승강장 3곳(Platform 1부터 3, GY-01 UrbanEdge 안). 번호는 시간을 거슬러 가는 순서다: 1 Subway(2000년대 현재), 2 Karaoke(2008), 3 Retro(1968). 방 id와 색은 그대로다. era는 시대 태그(화면에 아직 쓰지 않는다). 사진은 public/img 아래 실제 파일이다(place는 네이버 플레이스, ig는 인스타그램 공개 사진). concept, pose, why는 사진에서 확인한 것만 쓴다.
 const P = (n, alt) => ({ src: `/img/place/naver-${n}.jpg`, alt })
 export const ROOMS = [
   {
-    id: 'retro', platform: 1, name: 'RETRO SHOT', code: '1', color: 'green',
-    era: { en: '1968 · The Roots', ko: '1968 · 뿌리' },
-    title: { en: 'Retro Shot', ko: '레트로 샷' },
-    summary: { en: 'A brown curtain and two wooden stools', ko: '갈색 커튼과 나무 의자 두 개가 있는 레트로 부스' },
+    id: 'subway', platform: 1, name: 'SUBWAY SHOT', code: '1', color: 'yellow',
+    era: { en: '2000s · The Present', ko: '2000년대 · 현재' },
+    title: { en: 'Subway Shot', ko: '지하철 샷' },
+    summary: { en: 'Steel train doors, grab rails and an overhead strap', ko: '스테인리스 열차 문과 손잡이 봉, 천장 손잡이 줄이 있는 지하철 객실 세트' },
     concept: {
-      en: 'The old photo booth, rebuilt: a heavy brown curtain and two wooden stools. Sit close, because there is no room for personal space and that is the point.',
-      ko: '옛날 증명사진 부스를 다시 만든 공간이다. 갈색 커튼과 나무 의자 두 개뿐이라 서로 바싹 붙어 앉게 된다.',
+      en: 'Brushed-steel doors, a grab rail and a hanging strap: a Seoul commute without the rush. Step into the doorway and the whole shot is already framed for you.',
+      ko: '스테인리스 문과 손잡이 봉, 천장의 손잡이 줄로 꾸민 지하철 객실이다. 문 앞에 서기만 해도 출근길 장면이 그대로 완성된다.',
     },
-    pose: { en: 'Squeeze onto the stools, cheek to cheek, and look straight at the lens.', ko: '의자에 붙어 앉아 볼을 맞대고 렌즈를 정면으로 본다.' },
-    why: { en: 'A plain curtain keeps all the attention on faces, which is why the close-ups from this room look so good.', ko: '배경이 단순해서 얼굴에 시선이 모이고 클로즈업 컷이 잘 나온다.' },
-    photo: P('33', { en: 'Two wooden stools in front of a brown curtain in the Retro Shot room', ko: '갈색 커튼 앞에 놓인 나무 의자 두 개' }),
+    pose: { en: 'Hold the strap with one hand and stare out the window like the train just left.', ko: '한 손으로 손잡이 줄을 잡고 방금 떠난 열차를 바라보는 표정을 짓는다.' },
+    why: { en: 'Cool steel and white tile give a clean backdrop, so a coat or a bright bag does the talking.', ko: '차가운 스테인리스와 흰 타일이 배경을 깔끔하게 받쳐 줘서 외투나 가방 색이 먼저 눈에 들어온다.' },
+    photo: P('23', { en: 'Steel train doors under a strap rail in the Subway Shot room', ko: '손잡이 줄 아래 스테인리스 열차 문이 있는 지하철 샷 방' }),
     photos: [
-      P('11', { en: 'The curtain, the stools and a gold box', ko: '커튼과 나무 의자, 금색 상자' }),
-      { src: '/img/ig/ig-05.jpg', alt: { en: 'A four-cut strip shot in this room', ko: '이 방에서 찍은 4컷 스트립' } },
+      P('13', { en: 'Steel doors with a round-cornered window', ko: '둥근 모서리 창이 달린 스테인리스 문' }),
+      P('21', { en: 'The subway room seen from the doorway', ko: '문가에서 본 지하철 방' }),
+      { src: '/img/ig/ig-04.jpg', alt: { en: 'A four-cut strip shot in this room', ko: '이 방에서 찍은 4컷 스트립' } },
     ],
-  },  {
+  },
+  {
     id: 'karaoke', platform: 2, name: 'KARAOKE SHOT', code: '2', color: 'red',
     era: { en: '2008 · The Memory', ko: '2008 · 추억' },
     title: { en: 'Karaoke Shot', ko: '노래방 샷' },
@@ -140,21 +142,20 @@ export const ROOMS = [
     ],
   },
   {
-    id: 'subway', platform: 3, name: 'SUBWAY SHOT', code: '3', color: 'yellow',
-    era: { en: '2000s · The Present', ko: '2000년대 · 현재' },
-    title: { en: 'Subway Shot', ko: '지하철 샷' },
-    summary: { en: 'Steel train doors, grab rails and an overhead strap', ko: '스테인리스 열차 문과 손잡이 봉, 천장 손잡이 줄이 있는 지하철 객실 세트' },
+    id: 'retro', platform: 3, name: 'RETRO SHOT', code: '3', color: 'green',
+    era: { en: '1968 · The Roots', ko: '1968 · 뿌리' },
+    title: { en: 'Retro Shot', ko: '레트로 샷' },
+    summary: { en: 'A brown curtain and two wooden stools', ko: '갈색 커튼과 나무 의자 두 개가 있는 레트로 부스' },
     concept: {
-      en: 'Brushed-steel doors, a grab rail and a hanging strap: a Seoul commute without the rush. Step into the doorway and the whole shot is already framed for you.',
-      ko: '스테인리스 문과 손잡이 봉, 천장의 손잡이 줄로 꾸민 지하철 객실이다. 문 앞에 서기만 해도 출근길 장면이 그대로 완성된다.',
+      en: 'The old photo booth, rebuilt: a heavy brown curtain and two wooden stools. Sit close, because there is no room for personal space and that is the point.',
+      ko: '옛날 증명사진 부스를 다시 만든 공간이다. 갈색 커튼과 나무 의자 두 개뿐이라 서로 바싹 붙어 앉게 된다.',
     },
-    pose: { en: 'Hold the strap with one hand and stare out the window like the train just left.', ko: '한 손으로 손잡이 줄을 잡고 방금 떠난 열차를 바라보는 표정을 짓는다.' },
-    why: { en: 'Cool steel and white tile give a clean backdrop, so a coat or a bright bag does the talking.', ko: '차가운 스테인리스와 흰 타일이 배경을 깔끔하게 받쳐 줘서 외투나 가방 색이 먼저 눈에 들어온다.' },
-    photo: P('23', { en: 'Steel train doors under a strap rail in the Subway Shot room', ko: '손잡이 줄 아래 스테인리스 열차 문이 있는 지하철 샷 방' }),
+    pose: { en: 'Squeeze onto the stools, cheek to cheek, and look straight at the lens.', ko: '의자에 붙어 앉아 볼을 맞대고 렌즈를 정면으로 본다.' },
+    why: { en: 'A plain curtain keeps all the attention on faces, which is why the close-ups from this room look so good.', ko: '배경이 단순해서 얼굴에 시선이 모이고 클로즈업 컷이 잘 나온다.' },
+    photo: P('33', { en: 'Two wooden stools in front of a brown curtain in the Retro Shot room', ko: '갈색 커튼 앞에 놓인 나무 의자 두 개' }),
     photos: [
-      P('13', { en: 'Steel doors with a round-cornered window', ko: '둥근 모서리 창이 달린 스테인리스 문' }),
-      P('21', { en: 'The subway room seen from the doorway', ko: '문가에서 본 지하철 방' }),
-      { src: '/img/ig/ig-04.jpg', alt: { en: 'A four-cut strip shot in this room', ko: '이 방에서 찍은 4컷 스트립' } },
+      P('11', { en: 'The curtain, the stools and a gold box', ko: '커튼과 나무 의자, 금색 상자' }),
+      { src: '/img/ig/ig-05.jpg', alt: { en: 'A four-cut strip shot in this room', ko: '이 방에서 찍은 4컷 스트립' } },
     ],
   },
 ]

@@ -78,3 +78,6 @@
 body:has(.rx) footer { display: none; }
 
 @media (min-width: 760px) and (max-aspect-ratio: 1/1) { .rx { padding-inline: 2rem; } .rx__side { gap: .75rem; } .rx__choices { flex-wrap: wrap; overflow: visible; -webkit-mask-image: none; mask-image: none; } .rx__choice { min-height: 2.5rem; font-size: .875rem; } .rx__info { height: 13rem; padding: 1rem; } .rx__desc { font-size: .9375rem; } }
+
+/* 쿠폰 FAB(48px + 여백 16px)가 설명 카드 위에 겹치지 않도록 아래를 비워 둔다. */
+.rx { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)) !important; }

@@ -7,15 +7,15 @@ export const SYSTEM = { code: 'GY', name: { en: 'Gyeongju Metro', ko: '경주 �
 export const STATION = { id: 'urbanedge', code: 'GY-01', name: { en: 'UrbanEdge', ko: '어반엣지' }, place: { en: 'Hwangridan-gil', ko: '황리단길' } }
 
 export const PLATFORMS = [
-  { id: 'subway', n: 1, color: 'yellow', title: { en: 'Subway Shot', ko: '지하철 샷' }, era: { en: '2000s · The Present', ko: '2000년대 · 현재' } },
-  { id: 'karaoke', n: 2, color: 'red', title: { en: 'Karaoke Shot', ko: '노래방 샷' }, era: { en: '2008 · The Memory', ko: '2008 · 추억' } },
-  { id: 'retro', n: 3, color: 'green', title: { en: 'Retro Shot', ko: '레트로 샷' }, era: { en: '1968 · The Roots', ko: '1968 · 뿌리' } },
+  { id: 'subway', n: 1, color: 'yellow', title: { en: 'Subway Shot', ko: '지하철 샷' }, era: { en: '2000s: The Present', ko: '2000년대: 현재' } },
+  { id: 'karaoke', n: 2, color: 'red', title: { en: 'Karaoke Shot', ko: '노래방 샷' }, era: { en: '2008: The Memory', ko: '2008: 추억' } },
+  { id: 'retro', n: 3, color: 'green', title: { en: 'Retro Shot', ko: '레트로 샷' }, era: { en: '1968: The Roots', ko: '1968: 뿌리' } },
 ]
 
 export const platformOf = (id) => PLATFORMS.find((p) => p.id === id) ?? null
 
 // 가상 서사 고지. 실제 교통시설이나 공식 역이 아니다(NAMING.md).
-export const NOTICE = { en: 'Imaginary Metro · Travel Experience', ko: '가상의 지하철 여행 경험' }
+export const NOTICE = { en: 'Imaginary Metro, Travel Experience', ko: '가상의 지하철 여행 경험' }
 
 // 승강장 태그: "Platform 2 Karaoke Shot" / "2번 승강장 노래방 샷". 승강장이 없으면 시스템 이름.
 export function platformTag(id, lang) {

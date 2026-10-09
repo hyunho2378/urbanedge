@@ -7,9 +7,9 @@ export const LINE = { code: 'GY', color: 'yellow', name: { en: 'Gyeongju Metro',
 export const STATION = { code: 'GY-01', name: 'URBANEDGE', title: { en: 'UrbanEdge', ko: '어반엣지' }, full: { en: 'GY-01 UrbanEdge', ko: 'GY-01 어반엣지역' }, place: { en: 'Hwangridan-gil', ko: '황리단길' } }
 
 const P = [
-  ['subway', 'SUBWAY SHOT', { en: 'Subway Shot', ko: '지하철 샷' }, 'yellow', { en: '2000s · The Present', ko: '2000년대 · 현재' }],
-  ['karaoke', 'KARAOKE SHOT', { en: 'Karaoke Shot', ko: '노래방 샷' }, 'red', { en: '2008 · The Memory', ko: '2008 · 추억' }],
-  ['retro', 'RETRO SHOT', { en: 'Retro Shot', ko: '레트로 샷' }, 'green', { en: '1968 · The Roots', ko: '1968 · 뿌리' }],
+  ['subway', 'SUBWAY SHOT', { en: 'Subway Shot', ko: '지하철 샷' }, 'yellow', { en: '2000s: The Present', ko: '2000년대: 현재' }],
+  ['karaoke', 'KARAOKE SHOT', { en: 'Karaoke Shot', ko: '노래방 샷' }, 'red', { en: '2008: The Memory', ko: '2008: 추억' }],
+  ['retro', 'RETRO SHOT', { en: 'Retro Shot', ko: '레트로 샷' }, 'green', { en: '1968: The Roots', ko: '1968: 뿌리' }],
 ]
 
 // 승강장(방) 3곳

@@ -27,7 +27,7 @@ export default function Footer() {
           </div>
         </div>
         <p className="t-caption mt-16 text-text-meta">
-          {pick(SITE.address)} · {SITE.hours.open} ~ {SITE.hours.close} · &copy; 2026 UrbanEdge
+          {pick(SITE.address)}, {SITE.hours.open} ~ {SITE.hours.close}, &copy; 2026 UrbanEdge
         </p>
       </Wrap>
     </footer>

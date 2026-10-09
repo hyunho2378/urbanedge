@@ -72,7 +72,7 @@ async function drawCard({ lang, url }) {
   g.fillText('경북 경주시 포석로1079번길 6', P, 586)
   g.font = `500 36px ${FONT}`
   g.fillStyle = grey
-  g.fillText(lang === 'ko' ? '황리단길 · 검은 외관, 체커보드 문턱' : '6, Poseok-ro 1079beon-gil, Gyeongju', P, 642)
+  g.fillText(lang === 'ko' ? '황리단길, 검은 외관, 체커보드 문턱' : '6, Poseok-ro 1079beon-gil, Gyeongju', P, 642)
   g.fillStyle = ink
   g.font = `700 48px ${FONT}`
   g.fillText(`${SITE.hours.open} – ${SITE.hours.close}`, P, 742)

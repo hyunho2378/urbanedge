@@ -3,7 +3,7 @@
 // 시스템은 Gyeongju Metro(GY)이고 역은 GY-01 UrbanEdge 하나다. 유료 촬영 방 세 곳이 승강장 1부터 3이고 시간을 거슬러 가는 순서(1 Subway 2000년대, 2 Karaoke 2008, 3 Retro 1968)다. 가상의 관광 경험이며 공공 교통이 아니다.
 
 // 시스템은 Gyeongju Metro(코드 GY)이고, 실제 역은 GY-01 UrbanEdge(황리단길) 하나다. 방 네 곳이 역 안의 승강장 1부터 4다.
-// 가상의 관광 경험이며 실제 교통시설이나 공식 역이 아니다. 화면에는 항상 "Imaginary Metro · Travel Experience" 고지를 둔다.
+// 가상의 관광 경험이며 실제 교통시설이나 공식 역이 아니다. 화면에는 항상 "Imaginary Metro, Travel Experience" 고지를 둔다.
 import { ROOM_NETWORK } from '@urbanedge/ds'
 
 export const METRO = { code: 'GY', name: 'Gyeongju Metro', nameKo: '경주 메트로' }
@@ -141,7 +141,7 @@ const ALL = [
     id: 'subway',
     no: 1,
     accent: 'yellow',
-    era: { en: '2000s · The Present', ko: '2000년대 · 현재' },
+    era: { en: '2000s: The Present', ko: '2000년대: 현재' },
     name: 'SUBWAY SHOT',
     title: { en: 'Subway Shot', ko: '지하철 샷' },
     vibe: { en: 'Doors closing. Hold on.', ko: '닫히는 문 앞의 승객' },
@@ -169,7 +169,7 @@ const ALL = [
     id: 'karaoke',
     no: 2,
     accent: 'red',
-    era: { en: '2008 · The Memory', ko: '2008 · 추억' },
+    era: { en: '2008: The Memory', ko: '2008: 추억' },
     name: 'KARAOKE SHOT',
     title: { en: 'Karaoke Shot', ko: '노래방 샷' },
     vibe: { en: 'Brown tile, mirror ball, one more song', ko: '한 곡만 더 부르는 갈색 타일 방' },
@@ -197,7 +197,7 @@ const ALL = [
     id: 'retro',
     no: 3,
     accent: 'green',
-    era: { en: '1968 · The Roots', ko: '1968 · 뿌리' },
+    era: { en: '1968: The Roots', ko: '1968: 뿌리' },
     name: 'RETRO SHOT',
     title: { en: 'Retro Shot', ko: '레트로 샷' },
     vibe: { en: 'A photo studio from some other decade', ko: '다른 시대의 사진관' },

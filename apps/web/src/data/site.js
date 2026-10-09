@@ -38,8 +38,8 @@ export const STATION = {
 export const MOTTO = { en: 'Explore Gyeongju, One Station at a Time.', ko: '한 정거장씩 경주를 탐험한다' }
 // 가상 서사 고지. 화면에 눈에 띄게 둔다(docs/NAMING.md).
 export const DISCLAIMER = {
-  en: 'Imaginary Metro · Travel Experience',
-  ko: 'Imaginary Metro · Travel Experience (가상의 지하철 관광 경험)',
+  en: 'Imaginary Metro, Travel Experience',
+  ko: 'Imaginary Metro, Travel Experience (가상의 지하철 관광 경험)',
 }
 
 // 노선도의 정거장. GY-01만 실제 부스가 있다. 나머지는 컨셉 설명용 후보 관광지(Concept stop)이며 열렸다고 말하지 않는다.
@@ -107,7 +107,7 @@ const P = (n, alt) => ({ src: `/img/place/naver-${n}.jpg`, alt })
 export const ROOMS = [
   {
     id: 'subway', platform: 1, name: 'SUBWAY SHOT', code: '1', color: 'yellow',
-    era: { en: '2000s · The Present', ko: '2000년대 · 현재' },
+    era: { en: '2000s: The Present', ko: '2000년대: 현재' },
     title: { en: 'Subway Shot', ko: '지하철 샷' },
     summary: { en: 'Steel train doors, grab rails and an overhead strap', ko: '스테인리스 열차 문과 손잡이 봉, 천장 손잡이 줄이 있는 지하철 객실 세트' },
     concept: {
@@ -125,7 +125,7 @@ export const ROOMS = [
   },
   {
     id: 'karaoke', platform: 2, name: 'KARAOKE SHOT', code: '2', color: 'red',
-    era: { en: '2008 · The Memory', ko: '2008 · 추억' },
+    era: { en: '2008: The Memory', ko: '2008: 추억' },
     title: { en: 'Karaoke Shot', ko: '노래방 샷' },
     summary: { en: 'Brown tile, glitter wall and a pegboard of props', ko: '갈색 타일과 반짝이는 벽, 소품이 걸린 페그보드가 있는 노래방 부스' },
     concept: {
@@ -143,7 +143,7 @@ export const ROOMS = [
   },
   {
     id: 'retro', platform: 3, name: 'RETRO SHOT', code: '3', color: 'green',
-    era: { en: '1968 · The Roots', ko: '1968 · 뿌리' },
+    era: { en: '1968: The Roots', ko: '1968: 뿌리' },
     title: { en: 'Retro Shot', ko: '레트로 샷' },
     summary: { en: 'A brown curtain and two wooden stools', ko: '갈색 커튼과 나무 의자 두 개가 있는 레트로 부스' },
     concept: {

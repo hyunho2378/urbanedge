@@ -73,9 +73,9 @@ export default function Hero() {
             >
               <span aria-hidden="true" className={cx('size-12 shrink-0 rounded-pill', DOT[room.color])} />
               <span key={room.id} className="min-w-0 flex-1 truncate font-ui text-body-sm font-semibold" style={reduced ? undefined : { animation: 'ue-island-in 360ms ease-out' }}>
-                {room.platform} · {pick(room.title)}
+                {room.platform} {pick(room.title)}
               </span>
-              <span className="shrink-0 font-label text-caption text-text-sec">{room.era ? pick(room.era).split(' · ')[0] : ''}</span>
+              <span className="shrink-0 font-label text-caption text-text-sec">{room.era ? pick(room.era).split(':')[0] : ''}</span>
             </button>
             <div className="px-16 pb-16" style={{ opacity: open ? 1 : 0, transition: reduced ? 'none' : `opacity 240ms ease-out ${open ? '160ms' : '0ms'}`, pointerEvents: open ? 'auto' : 'none' }} aria-hidden={!open}>
               <img src={room.photo.src} alt="" draggable="false" className="h-96 w-full rounded-lg object-cover" />

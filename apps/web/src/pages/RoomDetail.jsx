@@ -85,7 +85,7 @@ function PlatformView({ st }) {
                 <li key={i} className="flex items-center gap-16 text-text-pri">
                   {i > 0 && (
                     <span aria-hidden="true" className={accent.text}>
-                      ·
+                      /
                     </span>
                   )}
                   <Tx inline {...p} role="subhead" />

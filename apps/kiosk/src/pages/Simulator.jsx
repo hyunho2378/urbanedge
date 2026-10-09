@@ -14,6 +14,8 @@ import OpsPanel from '../ops/OpsPanel.jsx'
 import { autoRun, autoSpeed, MULTS, useAutoPilot, useAutoRun } from '../ops/sim.js'
 import './simulator.css'
 
+const BEZEL = 6
+const FRAME = 2 * (BEZEL + 3)
 const BOOTH_IDS = [...ROOMS].sort((a, b) => a.n - b.n).map((r) => r.id)
 const roomOf = (id) => ROOMS.find((r) => r.id === id) || ROOMS[0]
 
@@ -45,10 +47,10 @@ function KioskUnit({ booth, width, options, focused, onFocus, showOutline }) {
       onFocusCapture={onFocus}
       data-booth={booth}
       className="relative"
-      style={{ width }}
+      style={{ width, boxSizing: 'border-box', padding: BEZEL, borderRadius: 20, background: '#000', border: `${focused ? 3 : 2}px solid ${focused ? '#FFD400' : '#FFFFFF'}` }}
     >
       <LangContext.Provider value={ctrl.lang}>
-        <div className="overflow-hidden" style={{ borderRadius: 20 }}>
+        <div className="overflow-hidden" style={{ borderRadius: 14 }}>
           <Stage label={pickLang(ctrl.lang, `Kiosk screen, ${roomOf(booth).title.en}`, `키오스크 화면, ${roomOf(booth).title.ko}`)}>
             <KioskScreen ctrl={ctrl} />
           </Stage>
@@ -107,7 +109,7 @@ function AutoControl({ lang }) {
 export default function Simulator({ options = {} }) {
   const [params, setParams] = useSearchParams()
   const units = params.get('units') === '3' ? 3 : 1
-  const [opsLang, setOpsLang] = useState(params.get('opslang') === 'en' ? 'en' : 'ko')
+  const opsLang = 'ko'
   const selected = useOps((s) => s.selectedBooth)
   const [single, setSingle] = useState(BOOTH_IDS.includes(options.room) ? options.room : 'subway')
   const kOpts = { lang: options.lang, cameraMode: options.cameraMode, speed: options.speed }
@@ -135,13 +137,13 @@ export default function Simulator({ options = {} }) {
     if (units === 1) {
       colW = Math.max(300, Math.round(bw * 0.28))
       const availH = bh - 2 * PAD - TABS - 8
-      w = Math.floor(Math.min(colW - 2 * PAD, (availH * 16) / 9))
+      w = Math.floor(Math.min(colW - 2 * PAD, ((availH - FRAME) * 16) / 9 + FRAME))
     } else {
       colW = Math.max(300, Math.round(bw * 0.24))
       const rowH = Math.floor((bh - 2 * PAD - 3 * LABEL - 2 * GAP3) / 3)
-      w = Math.floor(Math.min(colW - 2 * PAD, (rowH * 16) / 9))
+      w = Math.floor(Math.min(colW - 2 * PAD, ((rowH - FRAME) * 16) / 9 + FRAME))
     }
-    devH = Math.floor((w * 9) / 16)
+    devH = Math.floor(((w - FRAME) * 9) / 16) + FRAME
   }
   const L = opsLang
   const fsQ = new URLSearchParams({ room: units === 1 ? single : selected || 'subway', lang: options.lang || 'en' })
@@ -163,7 +165,6 @@ export default function Simulator({ options = {} }) {
         />
         <AutoControl lang={L} />
         <div className="ml-auto flex items-center gap-12">
-          <Segmented label={pickLang(L, 'Ops language', '운영 화면 언어')} value={L} onChange={setOpsLang} items={[{ value: 'ko', label: 'KO' }, { value: 'en', label: 'EN' }]} />
           <Link to={`/screen?${fsQ.toString()}`} className="ue-press px-8 font-ui text-body-sm font-bold text-white hover:text-[#FFD400]">
             {pickLang(L, 'Full screen', '전체 화면')}
           </Link>
@@ -190,7 +191,7 @@ export default function Simulator({ options = {} }) {
                   </button>
                 ))}
               </div>
-              {w > 0 && <KioskUnit key={single} booth={single} width={w} options={kOpts} focused onFocus={() => {}} />}
+              {w > 0 && <KioskUnit key={single} booth={single} width={w} options={kOpts} focused={false} onFocus={() => {}} />}
             </>
           ) : (
             <div className="flex flex-col" style={{ rowGap: GAP3 }}>
@@ -202,7 +203,6 @@ export default function Simulator({ options = {} }) {
                     </button>
                     <div className="relative" style={{ width: w, height: devH, borderRadius: 20 }}>
                       <KioskUnit booth={id} width={w} options={kOpts} focused={selected === id} onFocus={() => ops.get().selectedBooth !== id && ops.selectBooth(id)} />
-                      {selected === id && <span aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ borderRadius: 20, boxShadow: 'inset 0 0 0 3px #FFD400' }} />}
                     </div>
                   </div>
                 ))}

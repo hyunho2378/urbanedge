@@ -35,6 +35,10 @@ function initial() {
     booth: Object.fromEntries(BOOTHS.map((b) => [b.id, { step: 'attract', lang: 'en', cameraActive: false, lastShot: null, online: true, error: null }])),
     // 샘플 데이터가 섞여 있는지(대시보드에 '샘플' 표시를 붙이는 데 쓴다)
     hasSample: false,
+    // 운영 화면에서 보고 있는 부스
+    selectedBooth: 'subway',
+    // 부스별 웹캠 MediaStream(키오스크가 실시간 카메라를 쓸 때만 채운다)
+    stream: {},
   }
 }
 
@@ -86,6 +90,8 @@ export const ops = {
   toggleFrame: (id) => set((s) => ({ frames: s.frames.map((f) => (f.id === id ? { ...f, enabled: !f.enabled } : f)) })),
   addFrame: (custom) => set((s) => ({ frames: [...s.frames, { id: custom.id, enabled: true, custom }] })),
   setBoothOnline: (booth, online) => ops.boothState(booth, { online }),
+  selectBooth: (id) => set(() => ({ selectedBooth: id })),
+  setStream: (booth, stream) => set((s) => ({ stream: { ...s.stream, [booth]: stream } })),
   loadSample: (rows) => set((s) => ({ tx: [...s.tx, ...rows.map((r) => ({ ...r, sample: true }))].sort((a, b) => b.ts - a.ts), hasSample: true })),
   clearSample: () => set((s) => ({ tx: s.tx.filter((t) => !t.sample), hasSample: false })),
 }

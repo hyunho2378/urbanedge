@@ -259,7 +259,8 @@ ops.subscribe(() => {
   for (const t of ops.get().tx.slice(0, 8)) {
     if (seenTx.has(t.id)) continue
     seenTx.add(t.id)
-    if (auto.on && !t.sim) ops.patchTx(t.id, { sim: true })
+    // 구독자는 recordPayment 안의 set() 도중에 불린다. 그 자리에서 바로 PATCH하면 POST보다 먼저 서버에 가서 404가 되므로, POST가 줄에 들어간 다음에 보낸다.
+    if (auto.on && !t.sim) queueMicrotask(() => ops.patchTx(t.id, { sim: true }))
   }
 })
 

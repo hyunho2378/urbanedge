@@ -1,6 +1,6 @@
 # UrbanEdge 운영 API (apps/server)
 
-키오스크 3대와 운영 화면(카메라, POS, 쿠폰, 상품·가격, 대시보드)이 함께 쓰는 서버다.
+키오스크 3대와 운영 화면(카메라, POS, 쿠폰, 상품과 가격, 대시보드)이 함께 쓰는 서버다.
 Node 20, Express, Postgres. 결제, 상품, 프레임, 쿠폰, 카메라 설정, 매출 통계, 실시간 알림(SSE)을 맡는다.
 
 실제 카드 단말기(VAN)와 연결하는 부분은 이 서버에 없다. 이 서버는 키오스크가 "결제가 끝났다"고 알려 주면 기록하고 집계한다.
@@ -65,12 +65,12 @@ Vite 환경 변수는 화면 코드에 그대로 들어간다. 시연 빌드용 
 | `PATCH /api/tx/:id` | 기기 | 컷 수, 프레임 붙이기 |
 | `POST /api/tx/:id/refund` | 관리자 | 환불 |
 | `GET /api/tx?from&to&booth&method&limit` | 열림 | 거래 목록(from, to는 밀리초 또는 날짜) |
-| `GET /api/stats?range=today|week|month|year` | 열림 | 합계, 직전 기간 비교, 부스·상품·결제수단별, 시간·일·월 구간별(한국 시간) |
+| `GET /api/stats?range=today|week|month|year` | 열림 | 합계, 직전 기간 비교, 부스별, 상품별, 결제수단별, 시간별, 일별, 월별 구간(한국 시간) |
 | `POST /api/history/backfill`, `DELETE /api/history` | 관리자 | 지난 기록 넣기, 지우기(origin='history') |
 | `DELETE /api/sim` | 관리자 | 자동 운영으로 들어간 거래만 지우기 |
 | `GET/POST/PATCH/DELETE /api/products` | 쓰기는 관리자 | 상품 |
 | `PUT /api/price` | 관리자 | 기본 가격 |
-| `PUT /api/frames/:id`, `POST /api/frames` | 관리자 | 프레임 켜기·끄기, 추가 |
+| `PUT /api/frames/:id`, `POST /api/frames` | 관리자 | 프레임 켜기와 끄기, 추가 |
 | `GET/POST /api/coupons`, `POST /api/coupons/batch`, `PATCH /api/coupons/:code/toggle` | 쓰기는 관리자 | 쿠폰 |
 | `POST /api/coupons/check`, `POST /api/coupons/redeem` | 기기 | 확인, 사용. 웹사이트 쿠폰(UE-, 체크섬)은 코드마다 한 번만 쓸 수 있다. |
 | `PUT /api/camera/:booth` | 관리자 | 카메라 설정(범위를 넘는 값은 범위 안으로 맞춘다) |
@@ -113,3 +113,16 @@ API_URL=http://localhost:8787 node apps/server/test/smoke.mjs   # 전체 시험
 - 의존성: exceljs, pdfkit, kordoc. kordoc의 선택 의존성(onnxruntime 등 약 300MB)은 서버에 필요 없으므로 Render 빌드 명령에 `--omit=optional`을 붙인다:
   `npm ci --workspace=@urbanedge/server --include-workspace-root=false --omit=optional`
 - 시험: `PG_POOL_MAX=1 DATABASE_URL=... PGSSL=off node test/daily.mjs` (가짜 시계로 하루 코드 회전, 프레임별 매출, 4가지 내보내기). `test/smoke.mjs`는 서버를 `ALLOW_LEGACY=1`로 띄워 실행한다.
+
+
+## 결제 상세 (tx.pay)
+
+`POST /api/tx`는 `pay` 객체를 함께 받는다. VAN 승인 응답과 같은 모양이다. 카드번호는 앞 4자리와 뒤 4자리만 받고, 전체 번호로 보이는 값은 400으로 거절한다.
+
+| kind | 필드 |
+|---|---|
+| `card`, `samsungpay` | `brand`(신한카드 등 11종), `masked`(`5412 **** **** 1234`), `approval`(숫자 8자리), `installment`(`일시불`), `vanTid` |
+| `cash` | `received`, `change` |
+| `coupon` | `code`(`UE-XXXX-XXXX`), `channel` |
+
+카드나 현금 결제에 쿠폰을 같이 쓴 경우에도 `code`와 `channel`을 넣는다. `transactions.pay`는 jsonb 열이며 서버를 켤 때 자동으로 만들어진다. csv, xlsx, hwpx, pdf 내보내기에 카드사, 카드번호, 승인번호, 할부, 받은금액, 거스름돈, 쿠폰코드 열이 들어간다.

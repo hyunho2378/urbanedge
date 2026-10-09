@@ -7,6 +7,7 @@ import { CardReader } from '../../components/CardReader.jsx'
 import { StripView } from '../../components/StripView.jsx'
 import { CodeKeypad } from '../../components/OnScreenKeyboard.jsx'
 import { COPY } from '../copy.js'
+import { brandLabel, installmentLabel } from '../payDetails.js'
 import { defaultFrameFor, frameById } from '../prints.js'
 
 // 6. pay v3: 왼쪽은 요금(7,000원, 인화 2장, 고른 프레임), 오른쪽은 지금 해야 할 일 하나.
@@ -205,14 +206,17 @@ function Receipt({ ctrl }) {
   const now = new Date()
   const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
   const R = COPY.pay.receipt
-  const rows = [
-    [R.method, t(R.methods[pay.method] || R.methods.card)],
-    [R.time, hhmm],
-  ]
+  const d = pay.detail || {}
+  const lang = ctrl.lang
+  const rows = [[R.method, t(R.methods[pay.method] || R.methods.card)]]
+  if (d.brand) rows.push([R.issuer, brandLabel(d.brand, lang)], [R.number, d.masked], [R.approval, d.approval], [R.installment, installmentLabel(d.installment, lang)])
+  if (d.kind === 'cash') rows.push([R.received, `${won(d.received)}${lang === 'en' ? ' KRW' : '원'}`], [R.change, `${won(d.change)}${lang === 'en' ? ' KRW' : '원'}`])
+  if (d.code) rows.push([R.code, d.code])
+  rows.push([R.time, hhmm])
   return (
-    <dl className="mt-32 rounded-xl bg-bg-panel" style={{ width: 640, padding: '16px 40px' }}>
+    <dl className="mt-32 rounded-xl bg-bg-panel" style={{ width: 640, padding: '12px 40px' }}>
       {rows.map(([k, v], i) => (
-        <div key={i} className="kt-body flex items-baseline justify-between" style={{ height: 64 }}>
+        <div key={i} className="kt-body flex items-baseline justify-between" style={{ height: rows.length > 3 ? 52 : 64 }}>
           <dt className="text-text-sec"><T n={k} inline /></dt>
           <dd className="kt-num m-0">{v}</dd>
         </div>

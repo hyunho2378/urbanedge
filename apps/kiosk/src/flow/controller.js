@@ -6,6 +6,7 @@ import { DEFAULT_RETOUCH } from './retouch.js'
 import { composeSheet, copiesOf, defaultFrameFor, ensureFonts, frameById, framesFor, overlayStamps, slotCount } from './prints.js'
 import { ROOMS } from './rooms.js'
 import { DEMO_COUPON } from './coupon.js'
+import { makeCardPay, makeCashPay, makeCouponPay } from './payDetails.js'
 import { ops, useOps, enabledFrameIds } from '../ops/store.js'
 
 // 촬영 컷과 인화본을 운영 화면 저장 폴더용 작은 JPEG(폭 320)로 줄인다.
@@ -282,7 +283,18 @@ export function useKioskController(options = {}) {
           const P = live.current.pay
           const disc = Math.min(P.discount || 0, live.current.price)
           const method = P.method === 'samsung' ? 'samsungpay' : P.method
-          txRef.current = ops.recordPayment({ booth: live.current.booth, method, amount: live.current.price - disc, discount: disc, coupon: P.coupon, product: live.current.product ? live.current.product.id : null, cuts: live.current.product ? live.current.product.cuts : null })
+          // VAN 승인 응답과 같은 모양의 결제 상세: 카드사, 마스킹 카드번호, 승인번호, 할부 / 받은 금액, 거스름돈 / 쿠폰 코드
+          const due = live.current.price - disc
+          const code = P.coupon || null
+          const channel = P.couponChannel || null
+          const detail =
+            P.method === 'coupon'
+              ? makeCouponPay({ code, channel })
+              : P.method === 'cash'
+                ? makeCashPay({ received: Math.round((P.cash || 1) * due), due })
+                : makeCardPay({ kind: method, booth: live.current.booth, lang: live.current.lang, code, channel })
+          patchPay({ detail })
+          txRef.current = ops.recordPayment({ booth: live.current.booth, method, amount: due, discount: disc, coupon: P.coupon, product: live.current.product ? live.current.product.id : null, cuts: live.current.product ? live.current.product.cuts : null, pay: detail })
         }
       }, FLOW.payMs)
     },
@@ -315,11 +327,11 @@ export function useKioskController(options = {}) {
         ops.useCoupon(code)
         const disc = Math.min(r.discount || 0, live.current.price)
         if (disc >= live.current.price) {
-          patchPay({ coupon: code, discount: disc, couponError: false })
+          patchPay({ coupon: code, couponChannel: r.channel || null, discount: disc, couponError: false })
           finishPay(true)
         } else {
           // 일부 할인: 쿠폰을 붙인 채 카드 결제로 남은 금액을 받는다.
-          patchPay({ coupon: code, discount: disc, couponError: false, method: 'card', status: 'waiting', view: 'type', reader: null, partial: true })
+          patchPay({ coupon: code, couponChannel: r.channel || null, discount: disc, couponError: false, method: 'card', status: 'waiting', view: 'type', reader: null, partial: true })
         }
       }
       // 서버가 연결되어 있으면 서버가 쿠폰을 확인한다(한 번만 쓰는 코드와 날짜 코드는 서버 기준). 서버에 닿지 못하면 이 화면의 목록으로 확인한다.

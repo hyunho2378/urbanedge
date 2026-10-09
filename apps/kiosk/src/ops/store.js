@@ -10,9 +10,9 @@ import { validateCoupon as checksumOk } from '../flow/coupon.js'
 import { api, apiEnabled, ApiError, openStream, createQueue } from './api.js'
 
 export const BOOTHS = [
-  { id: 'retro', n: 1, name: { en: 'Retro Shot', ko: '레트로 샷' } },
+  { id: 'subway', n: 1, name: { en: 'Subway Shot', ko: '지하철 샷' } },
   { id: 'karaoke', n: 2, name: { en: 'Karaoke Shot', ko: '노래방 샷' } },
-  { id: 'subway', n: 3, name: { en: 'Subway Shot', ko: '지하철 샷' } },
+  { id: 'retro', n: 3, name: { en: 'Retro Shot', ko: '레트로 샷' } },
 ]
 export const METHODS = ['card', 'samsungpay', 'cash', 'coupon']
 export const CAMERA_FILTERS = ['original', 'mono', 'film', 'warm', 'cool']

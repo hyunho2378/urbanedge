@@ -12,15 +12,15 @@
 | --- | --- | --- | --- |
 | 시스템 | Gyeongju Metro | 경주 메트로 | GY |
 | 첫 역(실제 부스) | UrbanEdge Station, Hwangridan-gil | 어반엣지역, 황리단길 | GY-01 |
-| 승강장 1 | Platform 1, Retro Shot (1968 · The Roots) | 1번 승강장, 레트로 샷 (1968 · 뿌리) | 1 |
+| 승강장 1 | Platform 1, Subway Shot (2000s · The Present) | 1번 승강장, 지하철 샷 (2000년대 · 현재) | 1 |
 | 승강장 2 | Platform 2, Karaoke Shot (2008 · The Memory) | 2번 승강장, 노래방 샷 (2008 · 추억) | 2 |
-| 승강장 3 | Platform 3, Subway Shot (2000s · The Present) | 3번 승강장, 지하철 샷 (2000년대 · 현재) | 3 |
+| 승강장 3 | Platform 3, Retro Shot (1968 · The Roots) | 3번 승강장, 레트로 샷 (1968 · 뿌리) | 3 |
 | 출구 | Exit 1 | 1번 출구 | |
 | 승차권 | Metro Ticket | 승차권 | |
 | 수집 | Metro Pass | 메트로 패스 | |
 | 완료 카드 | Journey Complete | 여정 완료 | |
 
-방(Toilet 포함)이 아니라 역이 이름이 된다. 역 안내판은 항상 "GY-01 UrbanEdge / 어반엣지"이며 방 이름은 승강장 태그로 붙는다("카라오케역" 같은 방 이름 역 금지). 화장실 방은 더 이상 없다. 승강장 번호는 시간 순서(1 Retro, 2 Karaoke, 3 Subway)다. 승강장 강조색은 방마다 고정이다: 초록(Retro), 빨강(Karaoke), 노랑(Subway). 공중전화 방(파랑)은 없어졌다. 방 id(retro, karaoke, subway)와 URL은 번호와 무관하게 그대로다.
+방(Toilet 포함)이 아니라 역이 이름이 된다. 역 안내판은 항상 "GY-01 UrbanEdge / 어반엣지"이며 방 이름은 승강장 태그로 붙는다("카라오케역" 같은 방 이름 역 금지). 화장실 방은 더 이상 없다. 승강장 번호는 시간을 거슬러 가는 순서(1 Subway 2000년대 현재, 2 Karaoke 2008, 3 Retro 1968)다. 안으로 들어갈수록 과거다. 승강장 강조색은 방마다 고정이다: 초록(Retro), 빨강(Karaoke), 노랑(Subway). 공중전화 방(파랑)은 없어졌다. 방 id(retro, karaoke, subway)와 URL은 번호와 무관하게 그대로다.
 
 ## 후보 역(컨셉 설명용)
 

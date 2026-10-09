@@ -63,7 +63,7 @@ function KioskUnit({ booth, width, options, focused, onFocus, showOutline }) {
 function BoothLabel({ id, lang, active }) {
   const r = roomOf(id)
   return (
-    <span className={cx('font-ui text-body-sm font-bold', active ? 'rounded-pill bg-yellow px-8 text-black' : 'text-black')}>
+    <span className={cx('font-ui text-body-sm font-bold', active ? 'rounded-pill bg-[#FFD400] px-8 text-black' : 'text-black')}>
       {r.n} {pickLang(lang, r.title.en, r.title.ko)}
     </span>
   )
@@ -79,7 +79,7 @@ function Segmented({ value, onChange, items, label }) {
           role="radio"
           aria-checked={value === it.value}
           onClick={() => onChange(it.value)}
-          className={cx('h-full rounded-pill px-12 font-ui text-body-sm font-bold transition-colors duration-fast', value === it.value ? 'bg-yellow text-black' : 'bg-white text-black hover:bg-yellow')}
+          className={cx('h-full rounded-pill px-12 font-ui text-body-sm font-bold transition-colors duration-fast', value === it.value ? 'bg-[#FFD400] text-black' : 'bg-white text-black hover:bg-[#FFD400]')}
         >
           {it.label}
         </button>
@@ -97,7 +97,7 @@ function AutoControl({ lang }) {
         type="button"
         aria-pressed={a.on}
         onClick={() => (a.on ? autoRun.stop() : autoRun.start())}
-        className={cx('flex h-32 items-center gap-8 rounded-pill px-16 font-ui text-body-sm font-semibold transition-colors duration-fast', a.on ? 'bg-yellow text-black' : 'bg-white text-black hover:bg-yellow')}
+        className={cx('flex h-32 items-center gap-8 rounded-pill px-16 font-ui text-body-sm font-semibold transition-colors duration-fast', a.on ? 'bg-[#FFD400] text-black' : 'bg-white text-black hover:bg-[#FFD400]')}
       >
         {a.on ? pickLang(lang, 'Stop', '정지') : pickLang(lang, 'Auto run', '자동 운영')}
       </button>
@@ -167,7 +167,7 @@ export default function Simulator({ options = {} }) {
         <AutoControl lang={L} />
         <div className="ml-auto flex items-center gap-12">
           <Segmented label={pickLang(L, 'Ops language', '운영 화면 언어')} value={L} onChange={setOpsLang} items={[{ value: 'ko', label: 'KO' }, { value: 'en', label: 'EN' }]} />
-          <Link to={`/screen?${fsQ.toString()}`} className="ue-press px-8 font-ui text-body-sm font-bold text-black hover:bg-yellow">
+          <Link to={`/screen?${fsQ.toString()}`} className="ue-press px-8 font-ui text-body-sm font-bold text-black hover:bg-[#FFD400]">
             {pickLang(L, 'Full screen', '전체 화면')}
           </Link>
         </div>
@@ -185,7 +185,7 @@ export default function Simulator({ options = {} }) {
                     role="tab"
                     aria-selected={single === id}
                     onClick={() => setSingle(id)}
-                    className={cx('h-32 rounded-pill px-12 transition-colors duration-fast', single === id ? 'bg-yellow' : 'bg-white hover:bg-yellow')}
+                    className={cx('h-32 rounded-pill px-12 transition-colors duration-fast', single === id ? 'bg-[#FFD400]' : 'bg-white hover:bg-[#FFD400]')}
                   >
                     <span className={cx('font-ui text-body-sm font-bold', 'text-black')}>
                       {roomOf(id).n} {pickLang(L, roomOf(id).title.en, roomOf(id).title.ko)}
@@ -205,7 +205,7 @@ export default function Simulator({ options = {} }) {
                     </button>
                     <div className="relative overflow-hidden rounded-lg" style={{ width: w, height: devH }}>
                       <KioskUnit booth={id} width={w} options={kOpts} focused={selected === id} onFocus={() => ops.get().selectedBooth !== id && ops.selectBooth(id)} />
-                      {selected === id && <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-lg" style={{ boxShadow: 'inset 0 0 0 4px rgb(var(--ue-yellow))' }} />}
+                      {selected === id && <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-lg" style={{ boxShadow: 'inset 0 0 0 4px #FFD400' }} />}
                     </div>
                   </div>
                 ))}

@@ -79,7 +79,7 @@ function Segmented({ value, onChange, items, label }) {
           role="radio"
           aria-checked={value === it.value}
           onClick={() => onChange(it.value)}
-          className={cx('h-full rounded-pill px-12 font-ui text-body-sm font-bold transition-colors duration-fast', value === it.value ? 'bg-yellow text-black' : 'bg-[#F4F4EF] text-black hover:bg-yellow')}
+          className={cx('h-full rounded-pill px-12 font-ui text-body-sm font-bold transition-colors duration-fast', value === it.value ? 'bg-yellow text-black' : 'bg-white text-black hover:bg-yellow')}
         >
           {it.label}
         </button>
@@ -97,7 +97,7 @@ function AutoControl({ lang }) {
         type="button"
         aria-pressed={a.on}
         onClick={() => (a.on ? autoRun.stop() : autoRun.start())}
-        className={cx('flex h-32 items-center gap-8 rounded-pill px-16 font-ui text-body-sm font-semibold transition-colors duration-fast', a.on ? 'bg-yellow text-black' : 'bg-[#F4F4EF] text-black hover:bg-yellow')}
+        className={cx('flex h-32 items-center gap-8 rounded-pill px-16 font-ui text-body-sm font-semibold transition-colors duration-fast', a.on ? 'bg-yellow text-black' : 'bg-white text-black hover:bg-yellow')}
       >
         {a.on ? pickLang(lang, 'Stop', '정지') : pickLang(lang, 'Auto run', '자동 운영')}
       </button>
@@ -150,7 +150,7 @@ export default function Simulator({ options = {} }) {
   const fsQ = new URLSearchParams({ room: units === 1 ? single : selected || 'subway', lang: options.lang || 'en' })
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-[#FAFAF7] text-black">
+    <div className="flex h-dvh flex-col overflow-hidden bg-white text-black">
       <header className="flex h-48 shrink-0 items-center gap-16 bg-white px-16 text-black">
         <p className="font-display text-body font-bold">
           UrbanEdge <span className="font-ui font-semibold text-black">{pickLang(L, 'Ops demo', '운영 데모')}</span>
@@ -174,7 +174,7 @@ export default function Simulator({ options = {} }) {
       </header>
 
       <div ref={bodyRef} className="flex min-h-0 flex-1">
-        <section aria-label={pickLang(L, 'Kiosks', '키오스크')} className="flex min-h-0 shrink-0 flex-col bg-[#FAFAF7]" style={{ width: colW || '34%', padding: PAD }}>
+        <section aria-label={pickLang(L, 'Kiosks', '키오스크')} className="flex min-h-0 shrink-0 flex-col bg-white" style={{ width: colW || '34%', padding: PAD }}>
           {units === 1 ? (
             <>
               <div role="tablist" aria-label={pickLang(L, 'Booth', '부스')} className="mb-8 flex h-32 items-center gap-4">
@@ -185,7 +185,7 @@ export default function Simulator({ options = {} }) {
                     role="tab"
                     aria-selected={single === id}
                     onClick={() => setSingle(id)}
-                    className={cx('h-32 rounded-pill px-12 transition-colors duration-fast', single === id ? 'bg-yellow' : 'bg-[#F4F4EF] hover:bg-yellow')}
+                    className={cx('h-32 rounded-pill px-12 transition-colors duration-fast', single === id ? 'bg-yellow' : 'bg-white hover:bg-yellow')}
                   >
                     <span className={cx('font-ui text-body-sm font-bold', 'text-black')}>
                       {roomOf(id).n} {pickLang(L, roomOf(id).title.en, roomOf(id).title.ko)}

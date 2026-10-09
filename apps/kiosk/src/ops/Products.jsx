@@ -79,7 +79,7 @@ export default function Products() {
           </table>
         </div>
         <p className="op-meta">
-          {L('Lowest price on sale', '판매 중 가장 낮은 가격')}: <span className="op-num">{products.some((p) => p.enabled) ? won(Math.min(...products.filter((p) => p.enabled).map((p) => p.price))) : '—'}</span>
+          {L('Lowest price on sale', '판매 중 가장 낮은 가격')}: <span className="op-num">{products.some((p) => p.enabled) ? won(Math.min(...products.filter((p) => p.enabled).map((p) => p.price))) : '없음'}</span>
         </p>
       </section>
 

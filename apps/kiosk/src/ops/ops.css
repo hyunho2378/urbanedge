@@ -402,6 +402,7 @@
 .op-table th { position: static; background: transparent; }
 .op-ell { max-width: 16ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .op-rel { margin-left: 8px; font-weight: 400; }
+.op-card td .op-rel { display: block; margin-left: 0; }
 .op-tr-btn:focus-visible td, .op-tr-btn:focus-within td { background: var(--op-yellow); }
 .op-tr-btn:focus-visible { outline: none; }
 .op-pay { display: flex; flex-direction: column; line-height: 1.3; }

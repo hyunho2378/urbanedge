@@ -59,7 +59,7 @@ function DateLine({ now }) {
 }
 
 function pctText(cur, prev) {
-  if (!prev) return '—'
+  if (!prev) return '기록 없음'
   const pct = Math.round(((cur - prev) / prev) * 100)
   return `${pct > 0 ? '+' : ''}${pct}%`
 }
@@ -311,7 +311,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
   const feed = useMemo(() => all.filter((t) => t.ts >= feedStart && !t.history).slice(0, tv ? 4 : 8), [all, feedStart, tv])
 
   const mLabel = (m) => METHOD_LABEL[m]?.[lang] || METHOD_LABEL[m]?.ko || m
-  const methodLine = METHODS.map((m) => ({ m, c: cur.paid.filter((t) => t.method === m).length })).filter((x) => x.c).map((x) => `${mLabel(x.m)} ${x.c}`).join(', ') || '—'
+  const methodLine = METHODS.map((m) => ({ m, c: cur.paid.filter((t) => t.method === m).length })).filter((x) => x.c).map((x) => `${mLabel(x.m)} ${x.c}`).join(', ') || '없음'
   const dayOfMonth = nd.getDate()
   const dayOfYear = Math.max(1, Math.floor((now - rangeStart('year')) / 86400000) + 1)
 
@@ -470,7 +470,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
           <section className="op-card" aria-label={chartTitle}>
             <Head title={chartTitle} link={L('Sales', '거래와 환불')} onLink={() => onGo?.('pos')} />
             <p className="op-sub-line op-num">
-              {L('Highest', '가장 많은 때')} {series.reduce((m, s) => (s.v > m.v ? s : m), { v: 0, label: '—' }).label}
+              {L('Highest', '가장 많은 때')} {series.reduce((m, s) => (s.v > m.v ? s : m), { v: 0, label: '없음' }).label}
               {series.some((s) => s.v) ? unit : ''}, {L('Total', '합계')} {won(series.reduce((a, s) => a + s.v, 0))}
             </p>
             <Bars series={series} nowKey={nowKey} title={chartTitle} unit={unit} />
@@ -524,7 +524,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                           </button>
                         </td>
                         <td>{s.online ? step : <span className="op-pill">{L('Offline', '연결 끊김')}</span>}</td>
-                        <td className="op-num">{b.last ? <>{hhmmss(b.last.ts)}<span className="op-rel">{relTime(b.last.ts, now, lang)}</span></> : '—'}</td>
+                        <td className="op-num">{b.last ? <>{hhmmss(b.last.ts)}<span className="op-rel">{relTime(b.last.ts, now, lang)}</span></> : '없음'}</td>
                         <td className="op-num op-right">
                           {b.todayN}
                           {L('', '건')}
@@ -558,7 +558,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                   <tbody>
                     {feed.map((t) => {
                       const pr = products.find((x) => x.id === t.product)
-                      const label = pr ? pr.name[lang] || pr.name.ko : t.cuts ? `${t.cuts}${L(' cuts', '컷')}` : '—'
+                      const label = pr ? pr.name[lang] || pr.name.ko : t.cuts ? `${t.cuts}${L(' cuts', '컷')}` : '없음'
                       const b = BOOTHS.find((x) => x.id === t.booth)
                       return (
                         <tr key={t.id} className={`${now - t.ts < 4000 ? 'op-new' : ''} ${t.status === 'refunded' ? 'op-refunded' : ''}`}>
@@ -566,7 +566,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                           <td>P{b?.n} {b ? b.name[lang] || b.name.ko : ''}</td>
                           <td className="op-strong op-ell" title={label}>{label}</td>
                           <td className="op-ell" title={payShort(t)}>{payShort(t)}</td>
-                          <td className="op-mono">{t.coupon || '—'}</td>
+                          <td className="op-mono">{t.coupon || '없음'}</td>
                           <td className="op-num op-right">{won(t.amount)}</td>
                           <td>{t.status === 'refunded' ? <span className="op-pill">{L('Refunded', '환불됨')}</span> : L('Paid', '완료')}</td>
                         </tr>
@@ -602,7 +602,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
           <ol className="op-flist">
             {frameRows.map((r, i) => (
               <li key={r.id || 'none'} className={`op-frow ${r.c ? '' : 'op-frow-zero'}`}>
-                <span className="op-frank op-num">{r.c ? i + 1 : '—'}</span>
+                <span className="op-frank op-num">{r.c ? i + 1 : ''}</span>
                 <span className="op-fname op-strong" title={r.id ? frameName(r.id) : ''}>{r.id ? frameName(r.id) : L('No frame chosen', '프레임 미선택')}</span>
                 <span className="op-fbar" aria-hidden="true"><i style={{ width: `${(r.c / frameMax) * 100}%` }} /></span>
                 <span className="op-fcount op-num">{r.c}{L('', '건')}</span>

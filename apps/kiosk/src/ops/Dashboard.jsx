@@ -246,11 +246,11 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
     const id = requestAnimationFrame(() => {
       const el = innerRef.current
       if (!el) return
-      const cap = Math.max(0.9, Math.min(2, window.innerWidth / 1280))
+      const cap = Math.max(0.8, Math.min(2, window.innerWidth / 1280))
       const avail = window.innerHeight - 40
       const h = el.getBoundingClientRect().height
       if (!h) return
-      const want = Math.max(0.9, Math.min(cap, zoom * (avail / h)))
+      const want = Math.max(0.8, Math.min(cap, zoom * (avail / h)))
       if (Math.abs(want - zoom) / zoom > 0.03) setZoom(want)
     })
     return () => cancelAnimationFrame(id)
@@ -308,7 +308,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
   const rangeName = { today: L('Today', '오늘'), week: L('This week', '이번 주'), month: L('This month', '이번 달'), year: L('This year', '올해') }[range]
 
   const feedStart = rangeStart('today', nd)
-  const feed = useMemo(() => all.filter((t) => t.ts >= feedStart && !t.history).slice(0, tv ? 5 : 8), [all, feedStart, tv])
+  const feed = useMemo(() => all.filter((t) => t.ts >= feedStart && !t.history).slice(0, tv ? 4 : 8), [all, feedStart, tv])
 
   const mLabel = (m) => METHOD_LABEL[m]?.[lang] || METHOD_LABEL[m]?.ko || m
   const methodLine = METHODS.map((m) => ({ m, c: cur.paid.filter((t) => t.method === m).length })).filter((x) => x.c).map((x) => `${mLabel(x.m)} ${x.c}`).join(' · ') || '—'
@@ -351,6 +351,9 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
     return [...m.values()].sort((a, b) => b.c - a.c || b.v - a.v)
   }, [cur])
   const frameTotal = frameRows.reduce((a, r) => a + r.c, 0)
+  // 많이 팔린 순으로 보여 주고, 나머지는 '그 외'로 묶어 카드가 길어지지 않게 한다
+  const frameLimit = tv ? 5 : 10
+  const frameShown = frameRows.length > frameLimit ? [...frameRows.slice(0, frameLimit - 1), { id: '__rest', c: frameRows.slice(frameLimit - 1).reduce((a, r) => a + r.c, 0), v: frameRows.slice(frameLimit - 1).reduce((a, r) => a + r.v, 0), n: frameRows.length - frameLimit + 1 }] : frameRows
   // 쿠폰 사용: 웹사이트 쿠폰과 제휴처별로 묶는다
   const couponRows = useMemo(() => {
     const m = new Map()
@@ -617,9 +620,9 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                   </tr>
                 </thead>
                 <tbody>
-                  {frameRows.map((r) => (
+                  {frameShown.map((r) => (
                     <tr key={r.id || 'none'}>
-                      <td className="op-strong">{r.id ? frameName(r.id) : L('Not chosen', '미선택')}</td>
+                      <td className="op-strong">{r.id === '__rest' ? `${L('Others', '그 외')} ${r.n}${L(' frames', '종')}` : r.id ? frameName(r.id) : L('Not chosen', '미선택')}</td>
                       <td className="op-num op-right">{r.c}{L('', '건')}</td>
                       <td className="op-num op-right">{won(r.v)}</td>
                       <td>

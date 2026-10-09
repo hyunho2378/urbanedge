@@ -359,3 +359,34 @@
 .op-reset { font-size: 15px; font-weight: 600; }
 .op-page { overflow: auto; }
 .op-page .op-dash { height: auto; min-height: 100%; }
+/* 표가 좁은 카드 안에서 카드 밖으로 밀리지 않게 한다 */
+@container opd (min-width: 1000px) { .op-r3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container opd (min-width: 1500px) { .op-r3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.op-r3 .op-card, .op-r2 .op-card { overflow-x: auto; }
+.op-share { min-width: 0; }
+.op-r3 .op-table th, .op-r3 .op-table td, .op-r2 .op-table th, .op-r2 .op-table td { padding-left: 12px; padding-right: 12px; }
+.op-r3 .op-table-plain th:first-child, .op-r3 .op-table-plain td:first-child, .op-r2 .op-table-plain th:first-child, .op-r2 .op-table-plain td:first-child { padding-left: 16px; }
+
+/* 전체화면(TV): 넓은 화면에서는 3열, 2열, 3열로 한 화면에 모은다 */
+@container opd (min-width: 1000px) {
+  .op-tv .op-r1 { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 0.9fr); }
+  .op-tv .op-r1 > :last-child { grid-column: auto; }
+  .op-tv .op-r2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
+  .op-tv .op-r3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.op-tv .op-dash-in, .op-tv .op-r1, .op-tv .op-r2, .op-tv .op-r3 { gap: 14px; }
+.op-tv .op-card { padding: 14px 18px; gap: 6px; }
+.op-tv .op-sec-title { display: none; }
+.op-tv .op-info { padding: 4px 0; }
+.op-tv .op-card-inv .op-info-list > li:nth-child(n+4) { display: none; }
+.op-tv .op-sum-label, .op-tv .op-sum-sub { margin: 0; }
+.op-tv .op-table { border-spacing: 0 2px; }
+.op-tv .op-table td { padding: 6px 12px; }
+.op-tv .op-table th { padding: 4px 12px; }
+.op-tv .op-chart { margin-bottom: 16px; padding-top: 14px; }
+.op-tv .op-chart-bars { height: 96px; }
+.op-tv .op-h2 { font-size: 22px; }
+.op-tv .op-hint { margin: 0; }
+.op-tv .op-dash-head { gap: 4px 16px; }
+.op-tv .op-r3 .op-card .op-h3:nth-of-type(2) { display: none; }
+.op-tv .op-r3 .op-info-list { display: none; }

@@ -15,5 +15,6 @@
         }
       ]
     }
-  ]
+  ],
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ../../packages"
 }

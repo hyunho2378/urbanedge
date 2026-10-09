@@ -13,6 +13,7 @@ import { useKioskController } from '../flow/controller.js'
 import { ROOMS } from '../flow/rooms.js'
 import { ops, useOps } from '../ops/store.js'
 import OpsPanel from '../ops/OpsPanel.jsx'
+import { autoRun, autoSpeed, MULTS, useAutoPilot, useAutoRun } from '../ops/sim.js'
 import './simulator.css'
 
 const BOOTH_IDS = ['retro', 'karaoke', 'subway']
@@ -35,10 +36,15 @@ function useSize(ref) {
 
 // 기기 한 대: 자기 컨트롤러, 자기 언어. 누르면 부스를 고른다.
 function KioskUnit({ booth, width, options, focused, onFocus, showOutline }) {
-  const ctrl = useKioskController({ ...options, booth, room: booth })
+  const auto = useAutoRun()
+  const ctrl = useKioskController({ ...options, speed: autoSpeed(options.speed ?? 1, auto), booth, room: booth })
+  const pause = useAutoPilot(ctrl, booth)
   return (
     <div
-      onPointerDownCapture={onFocus}
+      onPointerDownCapture={() => {
+        pause()
+        onFocus()
+      }}
       onFocusCapture={onFocus}
       data-booth={booth}
       className={cx('relative rounded-lg transition-shadow duration-fast', showOutline && focused && 'ring-2 ring-yellow ring-offset-4 ring-offset-bg-base')}
@@ -80,6 +86,25 @@ function Segmented({ value, onChange, items, label }) {
           {it.label}
         </button>
       ))}
+    </div>
+  )
+}
+
+// 자동 운영 켜기/끄기와 배속. 켜면 화면의 키오스크들이 손님처럼 흐름을 돌고 결제가 대시보드에 실시간으로 쌓인다.
+function AutoControl({ lang }) {
+  const a = useAutoRun()
+  return (
+    <div className="flex items-center gap-8">
+      <button
+        type="button"
+        aria-pressed={a.on}
+        onClick={() => (a.on ? autoRun.stop() : autoRun.start())}
+        className={cx('flex h-32 items-center gap-8 rounded-pill px-16 font-ui text-body-sm font-semibold transition-colors duration-fast', a.on ? 'bg-yellow text-text-onYellow' : 'border border-hairline text-text-pri hover:border-hairlineStrong')}
+      >
+        <span aria-hidden="true" className={cx('h-8 w-8 rounded-pill', a.on ? 'bg-black' : 'bg-text-meta')} />
+        {a.on ? pickLang(lang, 'Stop', '정지') : pickLang(lang, 'Auto run', '자동 운영')}
+      </button>
+      <Segmented label={pickLang(lang, 'Speed', '배속')} value={a.mult} onChange={autoRun.setMult} items={MULTS.map((m) => ({ value: m, label: `${m}x` }))} />
     </div>
   )
 }
@@ -135,6 +160,7 @@ export default function Simulator({ options = {} }) {
             { value: 3, label: pickLang(L, '3 kiosks', '3대') },
           ]}
         />
+        <AutoControl lang={L} />
         <div className="ml-auto flex items-center gap-12">
           <Segmented label={pickLang(L, 'Ops language', '운영 화면 언어')} value={L} onChange={setOpsLang} items={[{ value: 'ko', label: 'KO' }, { value: 'en', label: 'EN' }]} />
           <Link to={`/screen?${fsQ.toString()}`} className="ue-press px-8 font-ui text-body-sm font-semibold text-text-sec hover:text-text-pri">

@@ -5,9 +5,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { cx, LangContext, pickLang } from '@urbanedge/ds'
-import DeviceFrame from '../device/DeviceFrame.jsx'
 import Stage from '../device/Stage.jsx'
-import { RATIO } from '../device/geometry.js'
 import KioskScreen from '../flow/KioskScreen.jsx'
 import { useKioskController } from '../flow/controller.js'
 import { ROOMS } from '../flow/rooms.js'
@@ -50,11 +48,11 @@ function KioskUnit({ booth, width, options, focused, onFocus, showOutline }) {
       style={{ width }}
     >
       <LangContext.Provider value={ctrl.lang}>
-        <DeviceFrame hint={null} flashing={ctrl.flashing} printUrl={ctrl.printUrl} cameraActive={ctrl.cameraActive} annotate={false} bg="base">
+        <div className="overflow-hidden" style={{ borderRadius: 20 }}>
           <Stage label={pickLang(ctrl.lang, `Kiosk screen, ${roomOf(booth).title.en}`, `키오스크 화면, ${roomOf(booth).title.ko}`)}>
             <KioskScreen ctrl={ctrl} />
           </Stage>
-        </DeviceFrame>
+        </div>
       </LangContext.Provider>
     </div>
   )
@@ -63,7 +61,7 @@ function KioskUnit({ booth, width, options, focused, onFocus, showOutline }) {
 function BoothLabel({ id, lang, active }) {
   const r = roomOf(id)
   return (
-    <span className={cx('font-ui text-body-sm font-bold', active ? 'rounded-pill bg-[#FFD400] px-8 text-black' : 'text-black')}>
+    <span className={cx('font-ui text-body-sm font-bold', active ? 'text-[#FFD400]' : 'text-white')}>
       {r.n} {pickLang(lang, r.title.en, r.title.ko)}
     </span>
   )
@@ -79,7 +77,7 @@ function Segmented({ value, onChange, items, label }) {
           role="radio"
           aria-checked={value === it.value}
           onClick={() => onChange(it.value)}
-          className={cx('h-full rounded-pill px-12 font-ui text-body-sm font-bold transition-colors duration-fast', value === it.value ? 'bg-[#FFD400] text-black' : 'bg-white text-black hover:bg-[#FFD400]')}
+          className={cx('h-full rounded-pill px-12 font-ui text-body-sm font-bold transition-colors duration-fast', value === it.value ? 'bg-[#FFD400] text-black' : 'bg-transparent text-white hover:text-[#FFD400]')}
         >
           {it.label}
         </button>
@@ -97,7 +95,7 @@ function AutoControl({ lang }) {
         type="button"
         aria-pressed={a.on}
         onClick={() => (a.on ? autoRun.stop() : autoRun.start())}
-        className={cx('flex h-32 items-center gap-8 rounded-pill px-16 font-ui text-body-sm font-semibold transition-colors duration-fast', a.on ? 'bg-[#FFD400] text-black' : 'bg-white text-black hover:bg-[#FFD400]')}
+        className={cx('flex h-32 items-center gap-8 rounded-pill px-16 font-ui text-body-sm font-semibold transition-colors duration-fast', a.on ? 'bg-[#FFD400] text-black' : 'bg-transparent text-white hover:text-[#FFD400]')}
       >
         {a.on ? pickLang(lang, 'Stop', '정지') : pickLang(lang, 'Auto run', '자동 운영')}
       </button>
@@ -129,31 +127,30 @@ export default function Simulator({ options = {} }) {
   const PAD = 16
   const LABEL = 24
   const TABS = 32
-  const GAP3 = 12
+  const GAP3 = 16
   let w = 0
   let devH = 0
+  let colW = 0
   if (bw > 0 && bh > 0) {
     if (units === 1) {
-      // 한 대: 폭은 화면의 36%까지, 높이에 맞춰 줄인다.
+      colW = Math.max(300, Math.round(bw * 0.28))
       const availH = bh - 2 * PAD - TABS - 8
-      w = Math.floor(Math.min(bw * 0.36 - 2 * PAD, availH / RATIO))
-      devH = Math.floor(w * RATIO)
+      w = Math.floor(Math.min(colW - 2 * PAD, (availH * 16) / 9))
     } else {
-      // 세 대: 열 폭을 채우고 줄 높이에 맞게 아래쪽(트레이와 다리)을 잘라 낸다. 화면이 잘리지 않도록 최소 50%는 남긴다.
+      colW = Math.max(300, Math.round(bw * 0.24))
       const rowH = Math.floor((bh - 2 * PAD - 3 * LABEL - 2 * GAP3) / 3)
-      w = Math.floor(Math.min(bw * 0.3 - 2 * PAD, rowH / (RATIO * 0.5)))
-      devH = Math.min(rowH, Math.floor(w * RATIO))
+      w = Math.floor(Math.min(colW - 2 * PAD, (rowH * 16) / 9))
     }
+    devH = Math.floor((w * 9) / 16)
   }
-  const colW = w > 0 ? w + 2 * PAD : 0
   const L = opsLang
   const fsQ = new URLSearchParams({ room: units === 1 ? single : selected || 'subway', lang: options.lang || 'en' })
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-white text-black">
-      <header className="flex h-48 shrink-0 items-center gap-16 bg-white px-16 text-black">
+    <div className="flex h-dvh flex-col overflow-hidden bg-black text-white">
+      <header className="flex h-48 shrink-0 items-center gap-16 bg-black px-16 text-white">
         <p className="font-display text-body font-bold">
-          UrbanEdge <span className="font-ui font-semibold text-black">{pickLang(L, 'Ops demo', '운영 데모')}</span>
+          UrbanEdge <span className="font-ui font-semibold text-white">{pickLang(L, 'Ops demo', '운영 데모')}</span>
         </p>
         <Segmented
           label={pickLang(L, 'Number of kiosks', '키오스크 대수')}
@@ -167,14 +164,14 @@ export default function Simulator({ options = {} }) {
         <AutoControl lang={L} />
         <div className="ml-auto flex items-center gap-12">
           <Segmented label={pickLang(L, 'Ops language', '운영 화면 언어')} value={L} onChange={setOpsLang} items={[{ value: 'ko', label: 'KO' }, { value: 'en', label: 'EN' }]} />
-          <Link to={`/screen?${fsQ.toString()}`} className="ue-press px-8 font-ui text-body-sm font-bold text-black hover:bg-[#FFD400]">
+          <Link to={`/screen?${fsQ.toString()}`} className="ue-press px-8 font-ui text-body-sm font-bold text-white hover:text-[#FFD400]">
             {pickLang(L, 'Full screen', '전체 화면')}
           </Link>
         </div>
       </header>
 
       <div ref={bodyRef} className="flex min-h-0 flex-1">
-        <section aria-label={pickLang(L, 'Kiosks', '키오스크')} className="flex min-h-0 shrink-0 flex-col bg-white" style={{ width: colW || '34%', padding: PAD }}>
+        <section aria-label={pickLang(L, 'Kiosks', '키오스크')} className="flex min-h-0 shrink-0 flex-col justify-center bg-black" style={{ width: colW || '28%', padding: PAD }}>
           {units === 1 ? (
             <>
               <div role="tablist" aria-label={pickLang(L, 'Booth', '부스')} className="mb-8 flex h-32 items-center gap-4">
@@ -185,9 +182,9 @@ export default function Simulator({ options = {} }) {
                     role="tab"
                     aria-selected={single === id}
                     onClick={() => setSingle(id)}
-                    className={cx('h-32 rounded-pill px-12 transition-colors duration-fast', single === id ? 'bg-[#FFD400]' : 'bg-white hover:bg-[#FFD400]')}
+                    className={cx('h-32 rounded-pill px-12 transition-colors duration-fast', single === id ? 'bg-[#FFD400]' : 'bg-transparent')}
                   >
-                    <span className={cx('font-ui text-body-sm font-bold', 'text-black')}>
+                    <span className={cx('font-ui text-body-sm font-bold', single === id ? 'text-black' : 'text-white')}>
                       {roomOf(id).n} {pickLang(L, roomOf(id).title.en, roomOf(id).title.ko)}
                     </span>
                   </button>
@@ -203,9 +200,9 @@ export default function Simulator({ options = {} }) {
                     <button type="button" onClick={() => ops.selectBooth(id)} aria-pressed={selected === id} className="flex items-center text-left" style={{ height: LABEL }}>
                       <BoothLabel id={id} lang={L} active={selected === id} />
                     </button>
-                    <div className="relative overflow-hidden rounded-lg" style={{ width: w, height: devH }}>
+                    <div className="relative" style={{ width: w, height: devH, borderRadius: 20 }}>
                       <KioskUnit booth={id} width={w} options={kOpts} focused={selected === id} onFocus={() => ops.get().selectedBooth !== id && ops.selectBooth(id)} />
-                      {selected === id && <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-lg" style={{ boxShadow: 'inset 0 0 0 4px #FFD400' }} />}
+                      {selected === id && <span aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ borderRadius: 20, boxShadow: 'inset 0 0 0 3px #FFD400' }} />}
                     </div>
                   </div>
                 ))}

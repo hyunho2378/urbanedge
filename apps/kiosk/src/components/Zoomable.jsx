@@ -17,14 +17,16 @@ export function Zoomable({ render, height, zoomHeight = 940, label, disabled = f
   const from = useRef(null)
   const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-  const root = stageRef?.current
+  // 화면 영역은 클릭할 때 읽는다. 렌더 시점에는 아직 연결되지 않았을 수 있어(마지막 화면은 다시 그려지지 않는다) 미리 잡아 두면 null로 굳는다.
+  const getRoot = () => stageRef?.current
   const scaleOf = () => {
+    const root = getRoot()
     const r = root.getBoundingClientRect()
     return { r, s: r.width / root.offsetWidth }
   }
 
   const openIt = () => {
-    if (disabled || !root || phase !== 'closed') return
+    if (disabled || !getRoot() || phase !== 'closed') return
     const { r, s } = scaleOf()
     const b = thumb.current.getBoundingClientRect()
     from.current = { x: (b.left - r.left) / s, y: (b.top - r.top) / s, w: b.width / s, h: b.height / s }
@@ -76,6 +78,7 @@ export function Zoomable({ render, height, zoomHeight = 940, label, disabled = f
   }, [phase, closeIt])
 
   const shown = phase !== 'closed'
+  const root = getRoot()
   return (
     <>
       <button

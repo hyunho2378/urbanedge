@@ -4,7 +4,7 @@ import { Receipt, RotateCcw } from 'lucide-react'
 import { BOOTHS, METHODS, ops, useOps } from './store.js'
 import { frameById } from '../flow/prints.js'
 import { rangeStart, summarize } from './Dashboard.jsx'
-import { BoothDot, Dialog, METHOD_LABEL, SampleBadge, boothOf, hhmm, useL, useLangCode, won, ymd } from './ui.jsx'
+import { BoothDot, Dialog, METHOD_LABEL, boothOf, hhmm, useL, useLangCode, won, ymd } from './ui.jsx'
 
 export default function Pos() {
   const L = useL()
@@ -23,7 +23,6 @@ export default function Pos() {
     const p = day.paid.filter((t) => t.method === m)
     return { m, c: p.length, v: p.reduce((a, t) => a + t.amount, 0) }
   })
-  const daySample = todayTx.some((t) => t.sample)
   const nameOf = (id) => {
     if (!id) return null
     const f = frameById(id)
@@ -38,7 +37,6 @@ export default function Pos() {
         <section className="op-card op-close" aria-label={L('Day close', '일 마감')}>
           <div className="op-card-head">
             <h3 className="op-h3">{L('Day close', '일 마감')}</h3>
-            <SampleBadge show={daySample} />
           </div>
           <p className="op-kpi-value op-num">{won(day.revenue)}</p>
           <p className="op-meta">
@@ -115,7 +113,6 @@ export default function Pos() {
                       <td className="op-num">
                         {t.ts < rangeStart('today') ? `${ymd(t.ts)} ` : ''}
                         {hhmm(t.ts)}
-                        {t.sample ? <span className="op-sample op-sample-sm">{L('sample', '샘플')}</span> : null}
                       </td>
                       <td>
                         <span className="op-row op-gap-6">
@@ -179,7 +176,6 @@ export default function Pos() {
         <div className="op-receipt" aria-label={L('Receipt', '영수증')}>
           <p className="op-receipt-c">URBANEDGE GY-01</p>
           <p className="op-receipt-c">{new Date().toLocaleDateString('ko-KR')} {L('day close', '일 마감')}</p>
-          {daySample ? <p className="op-receipt-c">** {L('INCLUDES SAMPLE DATA', '샘플 데이터 포함')} **</p> : null}
           <hr />
           {BOOTHS.map((b) => {
             const p = day.paid.filter((t) => t.booth === b.id)

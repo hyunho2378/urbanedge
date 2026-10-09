@@ -1,5 +1,5 @@
 // ops/CameraPanel.jsx: 부스별 카메라 미리보기와 설정(좌우 반전, 줌, 밝기, 대비, 색온도, 필터), 저장 폴더.
-// 키오스크가 웹캠 스트림을 store.stream에 올리면 그것을, 없으면 샘플 사진을 보여 준다. 설정은 촬영과 저장에 같은 값으로 쓰인다.
+// 키오스크가 웹캠 스트림을 store.stream에 올리면 그것을, 없으면 팀 사진을 보여 준다. 설정은 촬영과 저장에 같은 값으로 쓰인다.
 import { useEffect, useRef, useState } from 'react'
 import { RotateCcw } from 'lucide-react'
 import { BOOTHS, CAMERA_FILTERS, cameraCss, ops, useOps } from './store.js'
@@ -49,12 +49,12 @@ export default function CameraPanel() {
           />
         </div>
         <div className="op-cam-view" style={{ boxShadow: `inset 0 0 0 3px rgb(${BOOTH_COLOR[sel]})` }}>
-          {stream ? <Live stream={stream} style={css} /> : <img src={SAMPLE[sel]} alt={L('Sample photo standing in for the camera', '카메라 대신 보여 주는 샘플 사진')} className="op-cam-media" style={css} />}
+          {stream ? <Live stream={stream} style={css} /> : <img src={SAMPLE[sel]} alt={L('Team photo standing in for the camera', '카메라 대신 보여 주는 팀 사진')} className="op-cam-media" style={css} />}
           <span className={`op-chip op-cam-status ${bs.cameraActive ? 'op-chip-live' : ''}`}>
             <span className="op-dot" style={{ width: 8, height: 8, background: bs.online ? (bs.cameraActive ? '#E74135' : '#3FA66B') : '#9A9A94' }} aria-hidden="true" />
             P{boothOf(sel).n} · {stepLabel}
           </span>
-          {!stream ? <span className="op-chip op-cam-src">{L('Sample photo', '샘플 사진')}</span> : null}
+          {!stream ? <span className="op-chip op-cam-src">{L('Team photo', '팀 사진')}</span> : null}
         </div>
       </div>
 

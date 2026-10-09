@@ -1,23 +1,21 @@
-// ops/FramesPrice.jsx: 프레임 켜고 끄기, 프레임 추가, 가격. 바꾸면 키오스크 3대에 바로 반영된다.
+// ops/Frames.jsx: 프레임 켜고 끄기, 프레임 추가. 바꾸면 키오스크 3대에 바로 반영된다. (가격은 상품·가격 탭)
 // 프레임은 데이터(이름, 색, 컷 수, 기본 레이아웃) 한 줄이라 하나를 더해도 프로그램을 다시 짤 필요가 없다.
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { allFrames } from '../flow/prints.js'
 import { StripView } from '../components/StripView.jsx'
 import { ops, useOps } from './store.js'
-import { Switch, useL, useLangCode, won } from './ui.jsx'
+import { Switch, useL, useLangCode } from './ui.jsx'
 
-export default function FramesPrice() {
+export default function Frames() {
   const L = useL()
   const lang = useLangCode()
   const frames = useOps((s) => s.frames)
-  const price = useOps((s) => s.price)
   const base = allFrames()
   const [name, setName] = useState('')
   const [bg, setBg] = useState('#F5C518')
   const [fg, setFg] = useState('#111111')
   const [cuts, setCuts] = useState(4)
-  const [priceIn, setPriceIn] = useState(price)
 
   const add = (e) => {
     e.preventDefault()
@@ -30,29 +28,7 @@ export default function FramesPrice() {
 
   return (
     <div className="op-stack">
-      <div className="op-grid-2">
-        <section className="op-card" aria-label={L('Price', '가격')}>
-          <h3 className="op-h3">{L('Price per session', '1회 가격')}</h3>
-          <form
-            className="op-row"
-            onSubmit={(e) => {
-              e.preventDefault()
-              ops.setPrice(Math.max(0, Math.round(priceIn / 500) * 500))
-            }}
-          >
-            <label className="op-field op-grow">
-              <span>{L('KRW, step 500', '원, 500원 단위')}</span>
-              <input type="number" min={0} step={500} value={priceIn} onChange={(e) => setPriceIn(Number(e.target.value) || 0)} />
-            </label>
-            <button type="submit" className="op-btn op-self-end">
-              {L('Apply', '적용')}
-            </button>
-          </form>
-          <p className="op-meta">
-            {L('Now', '지금')} {won(price)} · {L('kiosks show the new price on the next payment', '다음 결제부터 키오스크에 반영된다')}
-          </p>
-        </section>
-
+      <div className="op-stack">
         <section className="op-card" aria-label={L('Add a frame', '프레임 추가')}>
           <h3 className="op-h3">{L('Add a frame', '프레임 추가')}</h3>
           <p className="op-meta">{L('A frame is one line of data, so adding one needs no program rewrite.', '프레임은 데이터 한 줄이라 하나를 더해도 프로그램을 다시 짤 필요가 없다.')}</p>

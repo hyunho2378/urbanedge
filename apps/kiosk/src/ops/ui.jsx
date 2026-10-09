@@ -5,8 +5,10 @@ import { pickLang, useLangValue } from '@urbanedge/ds'
 import { BOOTHS } from './store.js'
 
 // 운영 화면은 문구가 많고 촘촘해서 두 언어를 겹치지 않고 현재 언어 하나만 쓴다.
+let curLang = 'ko'
 export function useL() {
   const lang = useLangValue()
+  curLang = lang
   return useCallback((en, ko) => pickLang(lang, en, ko), [lang])
 }
 export const useLangCode = useLangValue
@@ -33,7 +35,8 @@ export const STEP_LABEL = {
   finish: { en: 'Done', ko: '완료' },
 }
 
-export const won = (n) => `${Math.round(n).toLocaleString('ko-KR')}원`
+// 금액: 한국어는 7,000원, 영어는 ₩7,000. 쓰는 화면이 모두 useL()을 먼저 부르므로 현재 언어를 따른다.
+export const won = (n) => (curLang === 'en' ? `₩${Math.round(n).toLocaleString('en-US')}` : `${Math.round(n).toLocaleString('ko-KR')}원`)
 export const hhmm = (ts) => {
   const d = new Date(ts)
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
@@ -47,10 +50,25 @@ export function BoothDot({ id, size = 10 }) {
   return <span aria-hidden="true" className="op-dot" style={{ width: size, height: size, background: `rgb(${BOOTH_COLOR[id]})` }} />
 }
 
-export function SampleBadge({ show }) {
-  const L = useL()
-  if (!show) return null
-  return <span className="op-sample">{L('Includes sample', '샘플 포함')}</span>
+export const hhmmss = (ts) => {
+  const d = new Date(ts)
+  const p = (n) => String(n).padStart(2, '0')
+  return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
+}
+// 12.3만 / 12.3k 처럼 줄여 쓴다(차트 막대 위 숫자용)
+export const compact = (n, lang = 'ko') => {
+  if (lang === 'ko') return n >= 10000 ? `${(n / 10000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, '')}만` : n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, '')}천` : String(n)
+  return n >= 1000 ? `${(n / 1000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, '')}k` : String(n)
+}
+export const relTime = (ts, now, lang = 'ko') => {
+  const s = Math.max(0, Math.floor((now - ts) / 1000))
+  if (s < 10) return lang === 'ko' ? '방금' : 'just now'
+  if (s < 60) return lang === 'ko' ? `${s}초 전` : `${s}s ago`
+  const m = Math.floor(s / 60)
+  if (m < 60) return lang === 'ko' ? `${m}분 전` : `${m}m ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return lang === 'ko' ? `${h}시간 전` : `${h}h ago`
+  return lang === 'ko' ? `${Math.floor(h / 24)}일 전` : `${Math.floor(h / 24)}d ago`
 }
 
 // 탭: role=tablist, 좌우 화살표/Home/End로 이동한다.

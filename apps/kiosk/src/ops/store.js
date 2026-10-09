@@ -56,6 +56,53 @@ const emit = () => subs.forEach((f) => f())
 const set = (fn) => {
   state = { ...state, ...fn(state) }
   emit()
+  scheduleBroadcast()
+}
+
+// ---- 탭 사이 동기화 ----
+// 운영 데모 탭(host)이 상태를 BroadcastChannel로 내보내고, /dashboard 탭(viewer)은 받아서 보여 주기만 한다.
+// viewer는 보내지 않으므로 되돌아오는 메시지(에코)가 생기지 않는다. 서버나 localStorage는 쓰지 않는다.
+const SYNC_KEYS = ['price', 'products', 'tx', 'frames', 'coupons', 'camera', 'booth', 'selectedBooth', 'hasSample']
+let channel = null
+let role = null
+let timer = null
+function scheduleBroadcast() {
+  if (role !== 'host' || timer) return
+  timer = setTimeout(() => {
+    timer = null
+    postSnapshot()
+  }, 120)
+}
+function postSnapshot() {
+  if (!channel || role !== 'host') return
+  const snap = {}
+  for (const k of SYNC_KEYS) snap[k] = state[k]
+  try {
+    channel.postMessage({ type: 'snapshot', snap })
+  } catch {
+    /* 직렬화할 수 없는 값은 보내지 않는다 */
+  }
+}
+// 'host'는 키오스크가 있는 탭, 'viewer'는 /dashboard 같은 보기 전용 탭. 돌려주는 함수로 멈춘다.
+export function startSync(r) {
+  if (typeof BroadcastChannel === 'undefined' || channel) return () => {}
+  role = r
+  channel = new BroadcastChannel('urbanedge-ops')
+  channel.onmessage = (e) => {
+    const m = e.data
+    if (role === 'viewer' && m?.type === 'snapshot') {
+      state = { ...state, ...m.snap, synced: Date.now() }
+      emit()
+    }
+    if (role === 'host' && m?.type === 'hello') postSnapshot()
+  }
+  if (role === 'viewer') channel.postMessage({ type: 'hello' })
+  else postSnapshot()
+  return () => {
+    channel?.close()
+    channel = null
+    role = null
+  }
 }
 
 export const ops = {
@@ -76,14 +123,15 @@ export const ops = {
     set((s) => ({ files: [f, ...s.files].slice(0, 120) }))
   },
   // 쿠폰 확인: 등록 쿠폰 먼저, 없으면 웹사이트 스크래치 쿠폰(체크섬) 규칙. 결과 { ok, discount, label }
-  checkCoupon: (code) => {
+  // due: 지금 내야 할 금액. 웹사이트 쿠폰은 이 금액 전액을 깎는다(없으면 기본 가격).
+  checkCoupon: (code, due) => {
     const c = state.coupons.find((x) => x.code === code && x.active)
     if (c) {
       if (c.kind === 'daily' && c.date !== today()) return { ok: false }
       if (c.maxUses && c.uses >= c.maxUses) return { ok: false }
       return { ok: true, discount: c.discount, label: c.label }
     }
-    if (checksumOk(code)) return { ok: true, discount: state.price, label: 'web' }
+    if (checksumOk(code)) return { ok: true, discount: due ?? state.price, label: 'web' }
     return { ok: false }
   },
   useCoupon: (code) => set((s) => ({ coupons: s.coupons.map((c) => (c.code === code ? { ...c, uses: c.uses + 1 } : c)) })),
@@ -102,8 +150,40 @@ export const ops = {
   setBoothOnline: (booth, online) => ops.boothState(booth, { online }),
   selectBooth: (id) => set(() => ({ selectedBooth: id })),
   setStream: (booth, stream) => set((s) => ({ stream: { ...s.stream, [booth]: stream } })),
-  loadSample: (rows) => set((s) => ({ tx: [...s.tx, ...rows.map((r) => ({ ...r, sample: true }))].sort((a, b) => b.ts - a.ts), hasSample: true })),
-  clearSample: () => set((s) => ({ tx: s.tx.filter((t) => !t.sample), hasSample: false })),
+  // 지난 기록(올해 1월 1일부터 어제까지)을 불러온다. 월별, 연별 보기에 데이터가 생긴다. 화면에는 따로 표시하지 않는다.
+  loadHistory: (rows) => set((s) => ({ tx: [...s.tx.filter((t) => !t.history), ...rows.map((r) => ({ ...r, history: true }))].sort((a, b) => b.ts - a.ts), hasSample: true })),
+  clearHistory: () => set((s) => ({ tx: s.tx.filter((t) => !t.history), hasSample: false })),
+  removeProduct: (id) => set((s) => ({ products: s.products.filter((p) => p.id !== id) })),
+  // 설정 내보내기/불러오기: 상품, 프레임, 쿠폰, 카메라, 가격을 JSON 한 파일로.
+  exportSettings: () => ({
+    app: 'urbanedge-ops',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    price: state.price,
+    products: state.products,
+    frames: state.frames.map((f) => ({ id: f.id, enabled: f.enabled, ...(f.custom ? { custom: f.custom } : {}) })),
+    coupons: state.coupons,
+    camera: state.camera,
+  }),
+  importSettings: (obj) => {
+    if (!obj || obj.app !== 'urbanedge-ops') return { ok: false, error: 'UrbanEdge 설정 파일이 아니다.' }
+    const prods = Array.isArray(obj.products) ? obj.products : null
+    if (prods && prods.some((p) => !p || typeof p.id !== 'string' || !Number.isFinite(Number(p.price)))) return { ok: false, error: '상품 목록에 읽을 수 없는 줄이 있다.' }
+    const known = new Set(allFrames().map((f) => f.id))
+    set((s) => ({
+      price: Number.isFinite(Number(obj.price)) ? Number(obj.price) : s.price,
+      products: prods ? prods.map((p) => ({ prints: 2, enabled: true, cuts: 4, name: { en: p.id, ko: p.id }, ...p, price: Number(p.price) })) : s.products,
+      frames: Array.isArray(obj.frames)
+        ? [...s.frames.map((f) => { const m = obj.frames.find((x) => x.id === f.id); return m ? { ...f, enabled: !!m.enabled } : f }), ...obj.frames.filter((x) => x.custom && !known.has(x.id) && !s.frames.some((f) => f.id === x.id)).map((x) => ({ id: x.id, enabled: !!x.enabled, custom: x.custom }))]
+        : s.frames,
+      coupons: Array.isArray(obj.coupons) ? obj.coupons : s.coupons,
+      camera: obj.camera && typeof obj.camera === 'object' ? { ...s.camera, ...obj.camera } : s.camera,
+    }))
+    return { ok: true }
+  },
+  // 이전 이름(호환)
+  loadSample: (rows) => ops.loadHistory(rows),
+  clearSample: () => ops.clearHistory(),
 }
 
 export const today = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`

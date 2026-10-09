@@ -45,7 +45,7 @@ function BoothRow() {
   const tx = useOps((s) => s.tx)
   const sel = useOps((s) => s.selectedBooth)
   const from = rangeStart('today')
-  const counts = useMemo(() => Object.fromEntries(BOOTHS.map((b) => [b.id, tx.filter((t) => t.booth === b.id && t.status === 'paid' && t.ts >= from).length])), [tx, from])
+  const counts = useMemo(() => Object.fromEntries(BOOTHS.map((b) => [b.id, tx.filter((t) => t.booth === b.id && t.status === 'paid' && !t.sample && t.ts >= from).length])), [tx, from])
   return (
     <ul className="op-booths" aria-label={L('Booth status', '부스 상태')}>
       {BOOTHS.map((b) => {

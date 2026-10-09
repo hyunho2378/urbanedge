@@ -61,14 +61,14 @@ export default function CameraPanel() {
       <div className="op-cam-controls">
         <div className="op-row-between">
           <h3 className="op-h3">{L('Camera settings', '카메라 설정')}</h3>
-          <button type="button" className="op-btn op-btn-sm op-btn-ghost" onClick={() => ops.resetCamera(sel)}>
-            <RotateCcw size={14} aria-hidden="true" />
-            {L('Defaults', '기본값')}
-          </button>
-        </div>
-        <div className="op-row-between op-switch-row">
-          <span>{L('Mirror', '좌우 반전')}</span>
-          <Switch checked={cam.mirror} onChange={(v) => set({ mirror: v })} label={L('Mirror', '좌우 반전')} />
+          <div className="op-row op-gap-6">
+            <span className="op-switch-row">{L('Mirror', '좌우 반전')}</span>
+            <Switch checked={cam.mirror} onChange={(v) => set({ mirror: v })} label={L('Mirror', '좌우 반전')} />
+            <button type="button" className="op-btn op-btn-sm op-btn-ghost" onClick={() => ops.resetCamera(sel)}>
+              <RotateCcw size={14} aria-hidden="true" />
+              {L('Defaults', '기본값')}
+            </button>
+          </div>
         </div>
         <div className="op-sliders">
           <Slider label={L('Zoom', '줌')} value={cam.zoom} min={1} max={1.6} step={0.05} onChange={(v) => set({ zoom: v })} format={(v) => `${v.toFixed(2)}x`} />
@@ -86,8 +86,13 @@ export default function CameraPanel() {
       </div>
 
       <div className="op-cam-files">
-        <h3 className="op-h3">
-          {L('Save folder', '저장 폴더')} <span className="op-meta op-num">{mine.length}</span>
+        <h3 className="op-files-title">
+          {L('Save folder', '저장 폴더')}
+          <span className="op-meta op-num">{mine.length}</span>
+          <span className="op-meta op-files-key">
+            <span className="op-file-key" aria-hidden="true" />
+            {L('print', '인화본')}
+          </span>
         </h3>
         {mine.length === 0 ? (
           <p className="op-empty">{L('Shots and prints from this booth land here.', '이 부스에서 찍은 컷과 인화본이 여기에 쌓인다.')}</p>
@@ -95,10 +100,10 @@ export default function CameraPanel() {
           <ul className="op-files">
             {mine.map((f) => (
               <li key={f.id}>
-                <button type="button" className="op-file" onClick={() => setOpen(f)} aria-label={`${f.kind === 'print' ? L('Print', '인화본') : L('Shot', '컷')} ${hhmm(f.ts)}`}>
+                <button type="button" className={`op-file ${f.kind === 'print' ? 'op-file-print' : ''}`} onClick={() => setOpen(f)} aria-label={`${f.kind === 'print' ? L('Print', '인화본') : L('Shot', '컷')} ${hhmm(f.ts)}`}>
                   <img src={f.url} alt="" />
                   <span className="op-file-meta op-num">
-                    {f.kind === 'print' ? L('Print', '인화') : L('Shot', '컷')} {hhmm(f.ts)}
+                    {hhmm(f.ts)}
                   </span>
                 </button>
               </li>

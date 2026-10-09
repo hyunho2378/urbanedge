@@ -1,0 +1,20 @@
+/* 시연 오버레이. 사이트 화면은 건드리지 않고 커서, 강조 링, 자막만 얹는다. */
+.demo-layer { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; font-family: inherit; }
+.demo-cursor { position: absolute; left: 0; top: 0; will-change: transform; transition: transform 700ms cubic-bezier(.22,.8,.2,1); filter: drop-shadow(0 2px 4px rgba(0,0,0,.45)); }
+.demo-cursor svg { transform-origin: 4px 2px; transition: transform 120ms ease; }
+.demo-cursor.demo-press svg { transform: scale(.82); }
+.demo-ripple { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 999px; background: #ffd400; opacity: .9; animation: demo-rip 640ms ease-out forwards; }
+@keyframes demo-rip { to { transform: scale(4.2); opacity: 0; } }
+.demo-ring { position: absolute; left: 0; top: 0; width: 0; height: 0; opacity: 0; border-radius: 20px; box-shadow: 0 0 0 3px #000, 0 0 0 7px #ffd400; transition: opacity 200ms ease; will-change: transform, width, height; }
+.demo-cap { position: absolute; left: clamp(16px, 2vw, 40px); bottom: clamp(16px, 2.4vw, 44px); max-width: min(78vw, 1100px); display: flex; align-items: center; gap: 14px; padding: 14px 24px 14px 14px; background: #fff; color: #000; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,.35); animation: demo-cap-in 320ms ease-out; }
+.demo-chip { flex: none; padding: 6px 12px; border-radius: 999px; background: #ffd400; color: #000; font-weight: 800; font-size: clamp(13px, .85vw, 18px); font-variant-numeric: tabular-nums; }
+.demo-label { flex: none; font-weight: 800; font-size: clamp(16px, 1.1vw, 24px); }
+.demo-text { font-weight: 600; font-size: clamp(16px, 1.1vw, 24px); line-height: 1.35; }
+@keyframes demo-cap-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.demo-count { position: absolute; left: 50%; top: 14%; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; padding: 12px 26px 12px 12px; background: #fff; color: #000; border-radius: 999px; box-shadow: 0 10px 40px rgba(0,0,0,.35); font-weight: 700; font-size: 20px; }
+.demo-count b { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 999px; background: #ffd400; font-size: 22px; }
+.demo-paused { position: absolute; right: 24px; top: 80px; padding: 8px 16px; border-radius: 999px; background: #ffd400; color: #000; font-weight: 800; }
+.demo-end { position: absolute; inset: 0; display: grid; place-content: center; gap: 16px; text-align: center; background: #000; color: #fff; animation: demo-cap-in 600ms ease-out; }
+.demo-end-kicker { font-weight: 800; font-size: clamp(22px, 2vw, 40px); color: #ffd400; }
+.demo-end-url { font-weight: 800; font-size: clamp(36px, 5vw, 96px); letter-spacing: -0.02em; }
+.demo-end-sub { font-weight: 500; font-size: clamp(16px, 1.5vw, 30px); }

@@ -3,6 +3,7 @@ import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import { LangProvider, usePick } from './i18n/index.jsx'
 import Layout from './layout/Layout.jsx'
 import Home from './pages/Home.jsx'
+import DemoRoot from './demo/DemoRoot.jsx'
 
 // W2가 만드는 하위 페이지는 pages/ 폴더의 파일명 그대로 불러온다. 파일이 아직 없으면 안내 자리표시를 보여 앱이 멈추지 않는다.
 // import.meta.glob은 존재하는 파일만 모으므로 파일이 생기면 개발 서버가 자동으로 반영한다.
@@ -40,6 +41,7 @@ const Result = lazy(() => import('./pages/Result.jsx'))
 export default function App() {
   return (
     <LangProvider>
+      <DemoRoot />
       <Routes>
         <Route
           path="result/:sessionId"
@@ -51,6 +53,7 @@ export default function App() {
         />
         <Route element={<Layout />}>
           <Route index element={<Home />} />
+          <Route path="demo" element={<Home />} />
           <Route path="rooms" element={<Rooms />} />
           <Route path="rooms/phone" element={<Navigate to="/rooms" replace />} />
           <Route path="rooms/:id" element={<RoomDetail />} />

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Globe } from 'lucide-react'
 import { cx } from '@urbanedge/ds'
 import { T, useT } from './lang.jsx'
@@ -7,6 +8,21 @@ import { PLATFORM_BG, roomById } from '../flow/rooms.js'
 // TopRail: 화면 위 길찾기 구조. 지하철 역명판처럼 왼쪽에 승강장 번호 배지와 지금 정거장, 오른쪽에 다음 정거장과 언어 버튼,
 // 아래에 노선 한 줄(정거장 점과 진행)이 있다. 장식이 아니라 "지금 어디이고 다음은 무엇인지"를 알리는 표지다.
 // 언어 버튼은 반대 언어 이름을 같은 칸에 겹쳐 그려 한영을 바꿔도 폭이 변하지 않는다.
+function Clock() {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 10000)
+    return () => clearInterval(id)
+  }, [])
+  const hh = String(now.getHours()).padStart(2, '0')
+  const mm = String(now.getMinutes()).padStart(2, '0')
+  return (
+    <time dateTime={`${hh}:${mm}`} className="kt-strong kt-num text-text-sec" style={{ minWidth: 96, textAlign: 'right' }}>
+      {hh}:{mm}
+    </time>
+  )
+}
+
 export function TopRail({ ctrl, showLang = true }) {
   const t = useT()
   const { step, steps } = ctrl
@@ -30,6 +46,7 @@ export function TopRail({ ctrl, showLang = true }) {
       </div>
 
       <div className="absolute flex items-center gap-40" style={{ right: 120, top: 24, height: 120 }}>
+        <Clock />
         <span className="block text-right">
           <T n={COPY.rail.next} as="span" className="kt-caption block text-text-meta" />
           <T n={nxt ? nxt.label : COPY.rail.last} as="span" className="kt-strong block" />

@@ -69,7 +69,7 @@ export async function composeStrip({ frameId, photos = [], date, roomId, stamp, 
   await ensureFrameFonts()
   const srcs = (await Promise.all(photos.filter(Boolean).map((s) => loadImage(s).catch(() => null)))).filter(Boolean)
   if (signal?.aborted) throw new DOMException('aborted', 'AbortError')
-  const tone = TONES[frame.tone]
+  const tone = typeof frame.tone === 'string' ? TONES[frame.tone] : frame.tone
   const station = getStation(roomId)
   const stampStation = stamp ? getStation(stamp === true ? roomId : stamp) : null
   const copies = frame.layout === 'twin' && mode === 'sheet' ? 2 : 1

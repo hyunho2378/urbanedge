@@ -125,9 +125,19 @@ function Reader({ ctrl }) {
   return (
     <div>
       <T n={title} as="h1" className="kt-headline" />
-      <div className="mt-24">
-        <CardReader ctrl={ctrl} />
-      </div>
+      {pay.status === 'success' ? (
+        <>
+          <Receipt ctrl={ctrl} />
+          <p className="kt-strong mt-32 flex items-center gap-16 text-yellow">
+            <Check size={40} strokeWidth={2.6} aria-hidden="true" />
+            <T n={COPY.pay.readerOkCard} inline />
+          </p>
+        </>
+      ) : (
+        <div className="mt-24">
+          <CardReader ctrl={ctrl} />
+        </div>
+      )}
     </div>
   )
 }
@@ -188,6 +198,29 @@ function Coupon({ ctrl }) {
   )
 }
 
+// 영수증 요약: 상품, 금액, 할인, 결제 금액은 왼쪽 주문 내역이 이미 보여 주므로 여기에는 결제 수단과 시각만 둔다.
+function Receipt({ ctrl }) {
+  const t = useT()
+  const { pay } = ctrl
+  const now = new Date()
+  const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+  const R = COPY.pay.receipt
+  const rows = [
+    [R.method, t(R.methods[pay.method] || R.methods.card)],
+    [R.time, hhmm],
+  ]
+  return (
+    <dl className="mt-32 rounded-xl bg-bg-panel" style={{ width: 640, padding: '16px 40px' }}>
+      {rows.map(([k, v], i) => (
+        <div key={i} className="kt-body flex items-baseline justify-between" style={{ height: 64 }}>
+          <dt className="text-text-sec"><T n={k} inline /></dt>
+          <dd className="kt-num m-0">{v}</dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
 function Result({ ok, title, body, children }) {
   return (
     <div className="k-pop flex flex-col items-start">
@@ -220,7 +253,11 @@ export default function Pay({ ctrl }) {
         <T n={COPY.pay.processing} as="h1" className="kt-title mt-40" />
       </div>
     )
-  } else if (pay.status === 'success') right = <Result ok title={COPY.pay.paidTitle} body={couponUsed ? COPY.pay.paidCoupon : COPY.pay.paidBody} />
+  } else if (pay.status === 'success') right = (
+      <Result ok title={COPY.pay.paidTitle} body={couponUsed ? COPY.pay.paidCoupon : COPY.pay.paidBody}>
+        <Receipt ctrl={ctrl} />
+      </Result>
+    )
   else if (pay.status === 'failed') {
     right = (
       <Result ok={false} title={COPY.pay.failTitle} body={COPY.pay.failBody}>

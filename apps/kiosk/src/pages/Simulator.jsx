@@ -132,15 +132,15 @@ export default function Simulator({ options = {} }) {
   const gap = 16
   const rowGap = 28 // 기기 아래 트레이와 다리가 상자 밖으로 조금 나온다
   const labelH = 40
+  // 3대: 세로로 석 줄. 기기 아래쪽(트레이와 다리)은 잘라 화면과 카메라와 카드 단말기만 보여 주면 화면이 가장 크게 남는다.
+  const CROP = 0.64
+  const rowGap3 = 12
   let layout = { cols: 1, w: 0 }
   if (units === 1) {
     layout = { cols: 1, w: Math.max(0, Math.min(lw - 32, (lh - 32 - labelH) / RATIO)) }
   } else {
-    for (const cols of [3, 2, 1]) {
-      const rows = Math.ceil(3 / cols)
-      const w = Math.min((lw - 32 - (cols - 1) * gap) / cols, (lh - 24 - rows * labelH - (rows - 1) * rowGap) / rows / RATIO)
-      if (w > layout.w) layout = { cols, w }
-    }
+    const rowH = (lh - 16 - 2 * rowGap3) / 3 - 32
+    layout = { cols: 1, w: Math.max(0, Math.min(lw - 32, rowH / (RATIO * CROP))) }
   }
   const L = opsLang
   const fsQ = new URLSearchParams({ room: units === 1 ? single : selected || 'subway', lang: options.lang || 'en' })
@@ -190,14 +190,16 @@ export default function Simulator({ options = {} }) {
               {layout.w > 0 && <KioskUnit key={single} booth={single} width={Math.floor(layout.w)} options={kOpts} focused onFocus={() => {}} />}
             </>
           ) : (
-            <div className="grid justify-center" style={{ gridTemplateColumns: `repeat(${layout.cols}, ${Math.floor(layout.w)}px)`, columnGap: gap, rowGap }}>
+            <div className="flex flex-col items-center" style={{ rowGap: rowGap3 }}>
               {layout.w > 0 &&
                 BOOTH_IDS.map((id) => (
                   <div key={id} className="flex flex-col items-center">
-                    <button type="button" onClick={() => ops.selectBooth(id)} aria-pressed={selected === id} className="flex items-center" style={{ height: labelH }}>
+                    <button type="button" onClick={() => ops.selectBooth(id)} aria-pressed={selected === id} className="flex items-center" style={{ height: 32 }}>
                       <BoothLabel id={id} lang={L} active={selected === id} />
                     </button>
-                    <KioskUnit booth={id} width={Math.floor(layout.w)} options={kOpts} focused={selected === id} showOutline onFocus={() => ops.get().selectedBooth !== id && ops.selectBooth(id)} />
+                    <div className={cx('overflow-hidden rounded-lg transition-shadow duration-fast', selected === id && 'ring-2 ring-yellow ring-offset-4 ring-offset-bg-base')} style={{ width: Math.floor(layout.w), height: Math.floor(layout.w * RATIO * CROP) }}>
+                      <KioskUnit booth={id} width={Math.floor(layout.w)} options={kOpts} focused={selected === id} onFocus={() => ops.get().selectedBooth !== id && ops.selectBooth(id)} />
+                    </div>
                   </div>
                 ))}
             </div>

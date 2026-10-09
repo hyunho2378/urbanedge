@@ -82,7 +82,7 @@ assert.equal((await call('GET', '/api/export?format=csv&range=today')).status, 4
 const get = async (q) => { const r = await fetch(`${A}/api/export?${q}`, { headers: { 'x-admin-key': 'adm' } }); return { r, b: Buffer.from(await r.arrayBuffer()) } }
 const csv = await get('format=csv&range=today&kind=tx')
 assert.equal(csv.b[0], 0xef); assert.equal(csv.b[1], 0xbb); assert.equal(csv.b[2], 0xbf)
-const csvText = csv.b.toString('utf8'); assert.ok(csvText.includes('시각,부스,상품,프레임,결제수단,쿠폰,쿠폰채널,금액,할인,상태')); assert.ok(csvText.includes('올리브 카페')); assert.ok(decodeURIComponent(csv.r.headers.get('content-disposition')).includes('UrbanEdge_매출_오늘_거래'))
+const csvText = csv.b.toString('utf8'); assert.ok(csvText.includes('시각,부스,상품,프레임,결제수단,카드사,카드번호,승인번호,할부,받은금액,거스름돈,쿠폰,쿠폰코드,쿠폰채널,금액,할인,상태')); assert.ok(csvText.includes('올리브 카페')); assert.ok(decodeURIComponent(csv.r.headers.get('content-disposition')).includes('UrbanEdge_매출_오늘_거래'))
 const csvS = (await get('format=csv&range=today&kind=summary')).b.toString('utf8'); assert.ok(/프레임별,클래식 블랙,\d+/.test(csvS)); ok('csv (BOM, columns, Korean filename, summary)')
 const x = await get('format=xlsx&range=today'); const wb = new ExcelJS.Workbook(); await wb.xlsx.load(x.b)
 assert.deepEqual(wb.worksheets.map((w) => w.name), ['요약', '거래내역']); assert.ok(wb.getWorksheet('거래내역').rowCount >= 6); assert.equal(wb.getWorksheet('거래내역').getRow(1).getCell(1).font.bold, true); ok('xlsx (요약, 거래내역)')

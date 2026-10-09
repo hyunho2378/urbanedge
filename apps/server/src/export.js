@@ -1,5 +1,6 @@
 // export.js: 매출 내보내기. csv(엑셀에서 한글이 깨지지 않게 BOM), xlsx(요약+거래내역), hwpx(한글 보고서, kordoc), pdf(pdfkit + Pretendard).
 import { fileURLToPath } from 'node:url'
+import { payCols } from './pay.js'
 import path from 'node:path'
 import { TZ, BOOTHS, DEFAULT_FRAME_NAMES } from './db.js'
 import { stats } from './stats.js'
@@ -38,6 +39,7 @@ export async function buildData(pool, range) {
     쿠폰채널: r.coupon_channel ? CHANNEL[r.coupon_channel] || partner[r.coupon_channel] || r.coupon_channel : '',
     금액: r.amount,
     할인: r.discount,
+    ...payCols(r.pay),
     상태: r.status === 'refunded' ? '환불' : '결제',
   }))
   const nm = (rowsIn, f) => rowsIn.map((r) => ({ 항목: f(r), 건수: r.count, 매출: r.revenue, 비중: r.share }))
@@ -73,7 +75,7 @@ export function toCsv(d, kind) {
     lines.push(['구분', '항목', '건수', '매출', '비중(%)'].map(csvCell).join(','))
     for (const s of d.sections) for (const r of s.rows) lines.push([s.title, r.항목, r.건수, r.매출, r.비중].map(csvCell).join(','))
   } else {
-    const head = ['시각', '부스', '상품', '프레임', '결제수단', '쿠폰', '쿠폰채널', '금액', '할인', '상태']
+    const head = ['시각', '부스', '상품', '프레임', '결제수단', '카드사', '카드번호', '승인번호', '할부', '받은금액', '거스름돈', '쿠폰', '쿠폰코드', '쿠폰채널', '금액', '할인', '상태']
     lines.push(head.join(','))
     for (const t of d.tx) lines.push(head.map((h) => csvCell(t[h])).join(','))
   }
@@ -102,16 +104,15 @@ export async function toXlsx(d) {
   }
   s1.columns = [{ width: 24 }, { width: 14 }, { width: 18 }, { width: 12 }]
   const s2 = wb.addWorksheet('거래내역')
-  const head = ['시각', '부스', '상품', '프레임', '결제수단', '쿠폰', '쿠폰채널', '금액', '할인', '상태']
+  const head = ['시각', '부스', '상품', '프레임', '결제수단', '카드사', '카드번호', '승인번호', '할부', '받은금액', '거스름돈', '쿠폰', '쿠폰코드', '쿠폰채널', '금액', '할인', '상태']
   bold(s2.addRow(head))
   for (const t of d.tx) {
     const row = s2.addRow(head.map((h) => t[h]))
-    row.getCell(8).numFmt = '#,##0"원"'
-    row.getCell(9).numFmt = '#,##0"원"'
+    for (const c of [10, 11, 15, 16]) row.getCell(c).numFmt = '#,##0"원"'
   }
-  s2.columns = [20, 12, 14, 14, 10, 16, 12, 12, 10, 8].map((width) => ({ width }))
+  s2.columns = [20, 12, 14, 14, 10, 12, 22, 12, 8, 12, 12, 16, 16, 12, 12, 10, 8].map((width) => ({ width }))
   s2.views = [{ state: 'frozen', ySplit: 1 }]
-  s2.autoFilter = { from: 'A1', to: 'J1' }
+  s2.autoFilter = { from: 'A1', to: 'Q1' }
   return Buffer.from(await wb.xlsx.writeBuffer())
 }
 
@@ -125,7 +126,7 @@ export function toMarkdown(d, kind) {
   }
   if (kind !== 'summary') {
     const last = d.tx.slice(0, 50)
-    out.push('', `## 최근 거래 ${last.length}건`, '', mdTable(['시각', '부스', '상품', '프레임', '결제수단', '금액', '상태'], last.map((t) => [t.시각, t.부스, t.상품, t.프레임, t.결제수단, won(t.금액), t.상태])))
+    out.push('', `## 최근 거래 ${last.length}건`, '', mdTable(['시각', '부스', '상품', '결제수단', '카드사', '카드번호', '승인번호', '할부', '금액', '상태'], last.map((t) => [t.시각, t.부스, t.상품, t.결제수단, t.카드사, t.카드번호, t.승인번호, t.할부, won(t.금액), t.상태])))
   }
   return out.join('\n') + '\n'
 }
@@ -184,7 +185,7 @@ export async function toPdf(d, kind) {
     const last = d.tx.slice(0, 200)
     doc.font('B').fontSize(12).text(`거래 내역 ${last.length}건`, 40, 40)
     doc.moveDown(0.3)
-    table(['시각', '부스', '상품', '프레임', '결제수단', '금액', '상태'], last.map((t) => [t.시각, t.부스, t.상품, t.프레임, t.결제수단, won(t.금액), t.상태]), [W * 0.22, W * 0.12, W * 0.16, W * 0.16, W * 0.1, W * 0.14, W * 0.1])
+    table(['시각', '부스', '상품', '결제수단', '카드사', '카드번호', '승인번호', '할부', '금액', '상태'], last.map((t) => [t.시각, t.부스, t.상품, t.결제수단, t.카드사, t.카드번호, t.승인번호, t.할부, won(t.금액), t.상태]), [W * 0.14, W * 0.08, W * 0.1, W * 0.07, W * 0.1, W * 0.17, W * 0.1, W * 0.06, W * 0.12, W * 0.06])
   }
   doc.end()
   await done

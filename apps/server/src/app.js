@@ -1,5 +1,6 @@
 // app.js: UrbanEdge 운영 API. 키오스크(쓰기: X-Device-Key), 운영 화면(쓰기: X-Admin-Key), 읽기는 열려 있다.
 import express from 'express'
+import { cleanPay } from './pay.js'
 import compression from 'compression'
 import { randomUUID, timingSafeEqual } from 'node:crypto'
 import { TZ, BOOTHS, DEFAULT_CAMERA } from './db.js'
@@ -39,6 +40,7 @@ export const txOut = (r) => ({
   cuts: r.cuts,
   frameId: r.frame_id,
   couponChannel: r.coupon_channel || null,
+  pay: r.pay || null,
   status: r.status,
   refundedAt: ms(r.refunded_at),
   sim: r.sim,
@@ -172,6 +174,7 @@ export function createApp({ pool, now = () => new Date(), secret = process.env.C
       cuts: b.cuts == null ? null : int(b.cuts),
       frame_id: b.frameId ? String(b.frameId).slice(0, 41) : null,
       sim: !!b.sim,
+      pay: cleanPay(b.pay),
       // 기기가 보낸 시각이 '지난 24시간 안, 미래로는 5분 안'이면 그 시각을 쓴다(인터넷이 끊긴 사이의 결제도 제 시각에 남는다). 아니면 서버 시각.
       ts: b.ts && Number(b.ts) > Date.now() - 24 * 3600_000 && Number(b.ts) < Date.now() + 5 * 60_000 ? new Date(Number(b.ts)) : new Date(),
     }
@@ -181,10 +184,10 @@ export function createApp({ pool, now = () => new Date(), secret = process.env.C
     t.channel = await couponChannelOf(t.coupon)
     // 같은 id를 다시 보내도(재시도) 한 건만 남는다.
     const { rows } = await q(
-      `INSERT INTO transactions (id, booth, ts, method, product, amount, discount, coupon, cuts, frame_id, sim, coupon_channel)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+      `INSERT INTO transactions (id, booth, ts, method, product, amount, discount, coupon, cuts, frame_id, sim, coupon_channel, pay)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
        ON CONFLICT (id) DO UPDATE SET id = EXCLUDED.id RETURNING *`,
-      [t.id, t.booth, t.ts, t.method, t.product, t.amount, t.discount, t.coupon, t.cuts, t.frame_id, t.sim, t.channel],
+      [t.id, t.booth, t.ts, t.method, t.product, t.amount, t.discount, t.coupon, t.cuts, t.frame_id, t.sim, t.channel, t.pay ? JSON.stringify(t.pay) : null],
     )
     const out = txOut(rows[0])
     broadcast('tx', out)

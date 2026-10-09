@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS settings (
   value jsonb NOT NULL
 );
 ALTER TABLE transactions ADD COLUMN IF NOT EXISTS coupon_channel text;
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS pay jsonb;
 CREATE TABLE IF NOT EXISTS partners (
   id text PRIMARY KEY,
   label text NOT NULL,

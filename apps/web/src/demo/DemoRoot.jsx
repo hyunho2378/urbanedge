@@ -6,7 +6,7 @@ import { buildScenes, TOTAL } from './script.js'
 import './demo.css'
 
 // /demo 로 들어오면 카운트다운 뒤 사이트를 자동으로 시연한다. 화면 녹화용이다.
-// 주소 옵션: lang=ko|en(자막 언어, 기본 ko) speed=0.5~1.5(배속) wait=3(시작 전 초) cap=0(자막 끄기)
+// 주소 옵션: site=ko(사이트 화면 한국어, 기본 영어) cap=en(영어 자막, 기본 한국어) speed=0.5~1.5(배속) wait=3(시작 전 초) cap=0(자막 끄기)
 // 조작: Space 일시정지, 좌우 방향키 장면 이동, R 처음부터, H 자막 숨김, Esc 종료
 let armed = typeof window !== 'undefined' && window.location.pathname === '/demo'
 
@@ -27,16 +27,18 @@ export default function DemoRoot() {
   useEffect(() => {
     if (!armed) return undefined
     const q = new URLSearchParams(window.location.search)
-    const lang = q.get('lang') === 'en' ? 'en' : 'ko'
+    // 사이트 화면 언어(기본 영어)와 자막 언어(기본 한국어)를 따로 둔다. ?site=ko, ?cap=en, ?cap=0(자막 끄기)
+    const site = q.get('site') === 'ko' ? 'ko' : 'en'
+    const capLang = q.get('cap') === 'en' || q.get('lang') === 'en' ? 'en' : 'ko'
     const speed = Math.max(0.5, Math.min(1.5, Number(q.get('speed')) || 1))
     const wait = q.get('wait') !== null && Number(q.get('wait')) >= 0 ? Number(q.get('wait')) : 3
     const showCap = q.get('cap') !== '0'
     const S = { gen: 0, stop: false, paused: false, speed, idx: 0, target: null, ringEl: null, cx: 0, cy: 0, cursor: cursorRef.current, layer: layerRef.current, hidden: false }
     S.setCap = (c) => setCap(showCap ? c : null)
     S.setEnd = setEnd
-    const t = (ko, en) => (lang === 'ko' ? ko : en)
+    const t = (ko, en) => (capLang === 'ko' ? ko : en)
     window.__demoLog = []
-    setLang(lang)
+    setLang(site)
     if (pathname === '/demo') navigate('/' + window.location.search, { replace: true })
 
     const go = (i) => { S.target = Math.max(0, Math.min(TOTAL, i)); S.gen += 1 }
@@ -77,7 +79,7 @@ export default function DemoRoot() {
       S.cursor.style.transform = `translate(${window.innerWidth * 0.5}px, ${window.innerHeight * 0.8}px)`
       for (let i = wait; i > 0 && !S.stop; i--) { setCount(i); await real(1000) }
       setCount(null)
-      const scenes = buildScenes({ t, navigate, lang, setSite: setLang, S })
+      const scenes = buildScenes({ t, navigate, lang: site, setSite: setLang, S })
       let i = 0
       while (!S.stop) {
         const gen = S.gen
@@ -126,7 +128,7 @@ export default function DemoRoot() {
       {count !== null && (
         <div className="demo-count">
           <b>{count}</b>
-          <span>{new URLSearchParams(window.location.search).get('lang') === 'en' ? 'Demo starts soon' : '시연이 곧 시작된다'}</span>
+          <span>{new URLSearchParams(window.location.search).get('cap') === 'en' ? 'Demo starts soon' : '시연이 곧 시작된다'}</span>
         </div>
       )}
       {cap && !hidden && (
@@ -136,12 +138,12 @@ export default function DemoRoot() {
           <span className="demo-text">{cap.text}</span>
         </div>
       )}
-      {paused && <div className="demo-paused">{new URLSearchParams(window.location.search).get('lang') === 'en' ? 'Paused' : '일시정지'}</div>}
+      {paused && <div className="demo-paused">{new URLSearchParams(window.location.search).get('cap') === 'en' ? 'Paused' : '일시정지'}</div>}
       {end && (
         <div className="demo-end">
           <p className="demo-end-kicker">UrbanEdge</p>
           <p className="demo-end-url">urbanedge-web.vercel.app</p>
-          <p className="demo-end-sub">{new URLSearchParams(window.location.search).get('lang') === 'en' ? 'A Time-Traveling Train Ride Through Our Memories' : '시간을 싣고 달리는 열차, 철길 따라 흐르는 우리의 기억'}</p>
+          <p className="demo-end-sub">{new URLSearchParams(window.location.search).get('site') !== 'ko' ? 'A Time-Traveling Train Ride Through Our Memories' : '시간을 싣고 달리는 열차, 철길 따라 흐르는 우리의 기억'}</p>
         </div>
       )}
     </div>

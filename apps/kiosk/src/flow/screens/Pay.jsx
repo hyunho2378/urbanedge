@@ -7,7 +7,7 @@ import { CardReader } from '../../components/CardReader.jsx'
 import { StripView } from '../../components/StripView.jsx'
 import { CodeKeypad } from '../../components/OnScreenKeyboard.jsx'
 import { COPY } from '../copy.js'
-import { defaultFrameFor } from '../prints.js'
+import { defaultFrameFor, frameById } from '../prints.js'
 
 // 6. pay v3: 왼쪽은 요금(7,000원, 인화 2장, 고른 프레임), 오른쪽은 지금 해야 할 일 하나.
 // 수단은 카드, 삼성페이, 현금, 쿠폰 넷이다. 결제는 시뮬레이션이며 각 수단의 행동은 오른쪽 아래 주 버튼 하나로 한다(KioskScreen barConfig).
@@ -20,23 +20,74 @@ const METHODS = [
 ]
 const won = (n) => n.toLocaleString('en-US')
 
+// 상품마다 대표 프레임(카드 썸네일과 주문 내역 미리보기에 쓴다).
+const THUMB = { strip4: 'route', grid4: 'classic-white', grid8: 'classic-blue', premium: 'crosswalk' }
+const thumbFrame = (p) => frameById(THUMB[p.id]) || defaultFrameFor(p.cuts)
+
+function Products({ ctrl }) {
+  const list = (ctrl.products || []).filter((p) => p.enabled)
+  return (
+    <div className="absolute inset-0 bg-bg-base">
+      <div className="absolute" style={{ left: 120, top: 236, width: 1400 }}>
+        <T n={COPY.pay.productTitle} as="h1" className="kt-title" />
+        <T n={COPY.pay.productSub} as="p" className="kt-lead mt-16 text-text-sec" />
+      </div>
+      <div className="absolute grid gap-32" style={{ left: 120, top: 432, width: 1680, gridTemplateColumns: `repeat(${Math.max(1, list.length)}, 1fr)` }} role="group" aria-label={COPY.pay.productTitle.en}>
+        {list.map((p) => (
+          <button key={p.id} type="button" onClick={() => ctrl.setProduct(p.id)} className="ue-press flex flex-col items-stretch whitespace-normal rounded-xl bg-bg-panel text-left transition-[transform,background-color] duration-fast ease-out" style={{ height: 436, padding: 28 }}>
+            <div className="flex items-center justify-center" style={{ height: 200 }} aria-hidden="true">
+              <StripView frame={thumbFrame(p)} date={ctrl.date} roomId={ctrl.room} height={200} className="k-lift" />
+            </div>
+            <T n={p.name} as="span" className="kt-strong mt-20 block" />
+            <T n={COPY.pay.cutsPrints} v={{ cuts: p.cuts, prints: p.prints }} as="span" className="kt-caption block text-text-sec" />
+            <span className="kt-subhead kt-num mt-8 block">
+              <T n={COPY.pay.amount} v={{ price: won(p.price) }} inline />
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function Fare({ ctrl }) {
-  const frame = ctrl.frame || defaultFrameFor(ctrl.cuts || 4)
+  const p = ctrl.product
+  const frame = ctrl.frame || (p ? thumbFrame(p) : defaultFrameFor(ctrl.cuts || 4))
+  const disc = Math.min(ctrl.pay.discount || 0, ctrl.price)
+  const total = Math.max(0, ctrl.price - disc)
   const coupon = ctrl.pay.coupon
   return (
-    <div className="absolute" style={{ left: 120, top: 236, width: 600 }}>
-      <T n={COPY.pay.fare} as="p" className="kt-label text-text-meta" />
-      <p className={cx('kt-headline kt-num mt-8', coupon && 'text-text-meta line-through')}>
-        <T n={COPY.pay.amount} v={{ price: won(ctrl.price) }} inline />
-      </p>
-      {coupon ? <T n={COPY.pay.couponLine} v={{ code: coupon }} as="p" className="kt-strong mt-8 text-yellow" /> : null}
-      {coupon && ctrl.pay.discount < ctrl.price ? <T n={COPY.pay.due} v={{ price: won(ctrl.price - ctrl.pay.discount) }} as="p" className="kt-strong mt-8" /> : null}
-      <div className="relative mt-48" style={{ height: 380 }} aria-hidden="true">
-        <div className="absolute" style={{ left: 28, top: 10, transform: 'rotate(-4deg)' }}>
-          <StripView frame={frame} date={ctrl.date} roomId={ctrl.room} height={360} className="k-lift opacity-60" />
+    <div className="absolute" style={{ left: 120, top: 252, width: 600 }}>
+      <T n={COPY.pay.order} as="p" className="kt-label text-text-meta" />
+      <div className="mt-16 rounded-xl bg-bg-panel" style={{ padding: 32 }}>
+        {p ? (
+          <div className="flex items-baseline justify-between gap-24">
+            <span className="min-w-0">
+              <T n={p.name} as="span" className="kt-strong block" />
+              <T n={COPY.pay.cutsPrints} v={{ cuts: p.cuts, prints: p.prints }} as="span" className="kt-caption block text-text-meta" />
+            </span>
+            <span className="kt-strong kt-num shrink-0">{won(p.price)}</span>
+          </div>
+        ) : null}
+        {coupon ? (
+          <div className="mt-16 flex items-baseline justify-between gap-24 text-yellow">
+            <T n={COPY.pay.discountLine} as="span" className="kt-strong" />
+            <span className="kt-strong kt-num">-{won(disc)}</span>
+          </div>
+        ) : null}
+        <div className="mt-24 border-t border-bg-raised pt-24">
+          <T n={COPY.pay.total} as="p" className="kt-caption text-text-meta" />
+          <p className="kt-headline kt-num mt-4">
+            <T n={COPY.pay.amount} v={{ price: won(total) }} inline />
+          </p>
+        </div>
+      </div>
+      <div className="relative mt-24" style={{ height: 210 }} aria-hidden="true">
+        <div className="absolute" style={{ left: 28, top: 8, transform: 'rotate(-4deg)' }}>
+          <StripView frame={frame} date={ctrl.date} roomId={ctrl.room} height={200} className="k-lift opacity-60" />
         </div>
         <div className="absolute" style={{ left: 0, top: 0 }}>
-          <StripView frame={frame} date={ctrl.date} roomId={ctrl.room} height={360} className="k-lift" />
+          <StripView frame={frame} date={ctrl.date} roomId={ctrl.room} height={200} className="k-lift" />
         </div>
       </div>
     </div>
@@ -152,6 +203,7 @@ function Result({ ok, title, body, children }) {
 
 export default function Pay({ ctrl }) {
   const { pay } = ctrl
+  if (!ctrl.product && ctrl.products && ctrl.products.some((p) => p.enabled) && pay.status === 'choose') return <Products ctrl={ctrl} />
   const couponUsed = pay.method === 'coupon' && pay.status === 'success'
   const typing = pay.status === 'waiting' && pay.method === 'coupon' && pay.view !== 'scan'
   let right

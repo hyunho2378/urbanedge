@@ -23,6 +23,20 @@ const framesOn = (cuts) => {
   const f = all.filter((x) => on.has(x.id))
   return f.length ? f : all
 }
+const PLATFORM_FRAMES = ['route', 'tape', 'train', 'ticket', 'ticket-night', 'crosswalk', 'crossroad']
+// 상품마다 보이는 프레임: 스트립은 2장 스트립형, 4컷 사진은 한 장형, 8컷은 8컷 전부, 승강장 프레임은 노선 디자인.
+const productFilter = {
+  strip4: (f) => f.layout === 'twin',
+  grid4: (f) => f.layout === 'full' && !PLATFORM_FRAMES.includes(f.id),
+  grid8: () => true,
+  premium: (f) => PLATFORM_FRAMES.includes(f.id),
+}
+const framesOrdered = (cuts, productId) => {
+  const f = framesOn(cuts)
+  const pick = productFilter[productId]
+  const g = pick ? f.filter(pick) : f
+  return g.length ? g : f
+}
 const defaultOn = (cuts) => framesOn(cuts)[0] || defaultFrameFor(cuts)
 
 // controller.js: 키오스크 상태 컨트롤러 계약. K2(flow)가 실제 구현으로 교체한다.
@@ -80,7 +94,11 @@ export function useKioskController(options = {}) {
   const speed = options.speed ?? 1
   // booth: 운영 저장소에 기록할 부스 id. 없으면 고른 방(room)을 쓴다.
   const boothOpt = options.booth || null
-  const price = useOps((s) => s.price)
+  const basePrice = useOps((s) => s.price)
+  const products = useOps((s) => s.products)
+  const [productId, setProductId] = useState(null)
+  const product = (products || []).find((p) => p.id === productId) || null
+  const price = product ? product.price : basePrice
   const [step, setStepState] = useState(options.step || 'attract')
   const [dir, setDir] = useState('forward')
   const [lang, setLang] = useState(options.lang || 'en')
@@ -110,7 +128,7 @@ export function useKioskController(options = {}) {
 
   // 비동기 흐름이 항상 최신 값을 읽도록 참조를 두고, 세터는 참조도 바로 갱신한다.
   const live = useRef({})
-  live.current = { ...live.current, booth, price, step, cuts, frameId, retouch, shots, arrangement, stamps, message, room, lang, camera, speed, printDone, printUrl, introPage, pay, date }
+  live.current = { ...live.current, booth, price, product, step, cuts, frameId, retouch, shots, arrangement, stamps, message, room, lang, camera, speed, printDone, printUrl, introPage, pay, date }
   const sync = (patch) => {
     live.current = { ...live.current, ...patch }
   }
@@ -234,6 +252,21 @@ export function useKioskController(options = {}) {
     const keep = p.coupon && p.discount > 0 && m !== 'coupon' ? { coupon: p.coupon, discount: p.discount } : { coupon: null, discount: 0 }
     patchPay({ method: m, status: 'waiting', couponError: false, cash: 0, view: 'type', reader: null, ...keep })
   }, [patchPay])
+  const setProduct = useCallback((id) => {
+    const p = (ops.get().products || []).find((x) => x.id === id) || null
+    sync({ product: p, price: p ? p.price : ops.get().price })
+    setProductId(p ? p.id : null)
+  }, [])
+  // 결제가 끝나면 상품이 컷 수를 정해 두었으므로 컷 수 화면을 건너뛴다.
+  const afterPay = useCallback(() => {
+    const p = live.current.product
+    if (p) {
+      setCuts(p.cuts)
+      const first = framesOrdered(p.cuts, p.id)[0]
+      if (first) setFrame(first.id)
+      go('frame')
+    } else go('cuts')
+  }, [go, setCuts, setFrame])
   const payBack = useCallback(() => patchPay({ ...INITIAL_PAY }), [patchPay])
   const payRetry = useCallback(() => patchPay({ status: 'waiting', couponError: false, cash: 0, reader: null }), [patchPay])
   const setCouponView = useCallback((v) => patchPay({ view: v }), [patchPay])
@@ -249,7 +282,7 @@ export function useKioskController(options = {}) {
           const P = live.current.pay
           const disc = Math.min(P.discount || 0, live.current.price)
           const method = P.method === 'samsung' ? 'samsungpay' : P.method
-          txRef.current = ops.recordPayment({ booth: live.current.booth, method, amount: live.current.price - disc, discount: disc, coupon: P.coupon })
+          txRef.current = ops.recordPayment({ booth: live.current.booth, method, amount: live.current.price - disc, discount: disc, coupon: P.coupon, product: live.current.product ? live.current.product.id : null, cuts: live.current.product ? live.current.product.cuts : null })
         }
       }, FLOW.payMs)
     },
@@ -299,10 +332,10 @@ export function useKioskController(options = {}) {
   useEffect(() => {
     if (step !== 'pay' || pay.status !== 'success') return undefined
     const id = setTimeout(() => {
-      if (live.current.step === 'pay') go('cuts')
+      if (live.current.step === 'pay') afterPay()
     }, FLOW.payDoneMs * live.current.speed)
     return () => clearTimeout(id)
-  }, [step, pay.status, go])
+  }, [step, pay.status, afterPay])
 
   // ---------- 인화 합성 ----------
 
@@ -332,7 +365,8 @@ export function useKioskController(options = {}) {
     txRef.current = null
     timers.current.forEach(clearTimeout)
     timers.current = []
-    sync({ cuts: null, frameId: null, shots: [], arrangement: [], stamps: [], message: '', pay: INITIAL_PAY, printDone: false, printUrl: null })
+    sync({ product: null, cuts: null, frameId: null, shots: [], arrangement: [], stamps: [], message: '', pay: INITIAL_PAY, printDone: false, printUrl: null })
+    setProductId(null)
     setCutsState(null)
     setFrameIdState(null)
     setRetouchState(DEFAULT_RETOUCH)
@@ -436,7 +470,8 @@ export function useKioskController(options = {}) {
         go('language')
         break
       case 'language':
-        go(L.pay.status === 'success' ? 'cuts' : 'pay')
+        if (L.pay.status === 'success') afterPay()
+        else go('pay')
         break
       case 'cuts':
         if (L.cuts) go('frame')
@@ -445,7 +480,7 @@ export function useKioskController(options = {}) {
         go('guide')
         break
       case 'pay':
-        if (L.pay.status === 'success') go('cuts')
+        if (L.pay.status === 'success') afterPay()
         break
       case 'guide':
         go('shoot')
@@ -465,7 +500,7 @@ export function useKioskController(options = {}) {
       default:
         break
     }
-  }, [go, reset, startPrintState])
+  }, [go, reset, startPrintState, afterPay])
 
   const back = useCallback(() => {
     const L = live.current
@@ -478,6 +513,7 @@ export function useKioskController(options = {}) {
         break
       case 'pay':
         if (L.pay.method && !['processing', 'success'].includes(L.pay.status) && !L.pay.reader) payBack()
+        else if (!L.pay.method && L.product) setProduct(null)
         else if (!L.pay.method) go('language')
         break
       case 'guide':
@@ -489,7 +525,7 @@ export function useKioskController(options = {}) {
       default:
         break
     }
-  }, [go, reset, retake, payBack])
+  }, [go, reset, retake, payBack, setProduct])
 
   // ---------- 촬영 시퀀스 ----------
 
@@ -600,7 +636,7 @@ export function useKioskController(options = {}) {
         return true
     }
   })()
-  const canBack = !['attract', 'shoot', 'print', 'finish', 'cuts'].includes(step)
+  const canBack = !['attract', 'shoot', 'print', 'finish', 'cuts'].includes(step) && !(step === 'frame' && product)
   const cameraActive = CAMERA_STEPS.includes(step) && ['live', 'sample', 'fallback'].includes(camera.status)
 
   // 운영 화면에 부스 상태를 알린다(단계, 언어, 카메라).
@@ -614,7 +650,8 @@ export function useKioskController(options = {}) {
 
   return {
     step,
-    steps: STEPS,
+    // 상품이 컷 수를 정하므로 상품이 있으면 컷 수 단계는 보이지 않는다.
+    steps: products && products.some((p) => p.enabled) ? STEPS.filter((x) => x.id !== 'cuts') : STEPS,
     goTo,
     reset,
     lang,
@@ -677,7 +714,10 @@ export function useKioskController(options = {}) {
     skipCoach,
     coachOff: coach.off,
     demoCoupon: DEMO_COUPON,
-    framesForCuts: framesOn,
+    framesForCuts: (c) => framesOrdered(c, live.current.product && live.current.product.id),
+    products,
+    product,
+    setProduct,
     booth,
     price,
   }

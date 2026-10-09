@@ -72,6 +72,12 @@ export const COPY = {
 
   pay: {
     title: { en: 'Payment method', ko: '결제 수단' },
+    productTitle: { en: 'Choose your set', ko: '구성을 고르세요' },
+    productSub: { en: 'Prices include 2 prints and the photo download', ko: '인화물과 사진 파일이 함께 나옵니다' },
+    cutsPrints: { en: '{cuts} cuts, {prints} prints', ko: '{cuts}컷 · 인화 {prints}장' },
+    order: { en: 'Your order', ko: '주문 내역' },
+    discountLine: { en: 'Coupon', ko: '쿠폰 할인' },
+    total: { en: 'Total', ko: '결제 금액' },
     fare: { en: 'Total', ko: '결제 금액' },
     amount: { en: '{price} KRW', ko: '{price}원' },
     due: { en: 'Left to pay: {price} KRW', ko: '남은 금액 {price}원' },

@@ -14,7 +14,7 @@ import OpsPanel from '../ops/OpsPanel.jsx'
 import { autoRun, autoSpeed, MULTS, useAutoPilot, useAutoRun } from '../ops/sim.js'
 import './simulator.css'
 
-const BOOTH_IDS = ['retro', 'karaoke', 'subway']
+const BOOTH_IDS = [...ROOMS].sort((a, b) => a.n - b.n).map((r) => r.id)
 const roomOf = (id) => ROOMS.find((r) => r.id === id) || ROOMS[0]
 
 function useSize(ref) {

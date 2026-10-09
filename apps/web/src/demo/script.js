@@ -49,12 +49,12 @@ export function buildScenes({ t, navigate, lang, setSite, S }) {
       name: '타임 플랫폼',
       run: async (kit) => {
         const sec = await kit.waitFor(() => kit.$('#time-title'), 6000)
-        cap(2, t('타임 플랫폼', 'Time Platform'), t('들어갈수록 시간이 거꾸로 흐른다: 2000년대, 2008, 1968', 'Walk in and time runs backward: 2000s, 2008, 1968'))
+        cap(2, t('타임 플랫폼', 'Time Platform'), t('들어갈수록 시간이 거꾸로 흐른다: 2026, 2008, 1968', 'Walk in and time runs backward: 2026, 2008, 1968'))
         await kit.scrollToEl(sec, { at: 0.18 })
         await kit.sleep(2000)
         const cards = kit.$$('#time a[href^="/rooms/"]')
         const notes = [
-          t('1번 승강장 지하철 샷: 2000년대 현재', 'Platform 1 Subway Shot: the 2000s, today'),
+          t('1번 승강장 지하철 샷: 2026 현재', 'Platform 1 Subway Shot: 2026, today'),
           t('2번 승강장 노래방 샷: 2008 추억', 'Platform 2 Karaoke Shot: 2008, memories'),
           t('3번 승강장 레트로 샷: 1968 뿌리', 'Platform 3 Retro Shot: 1968, the roots'),
         ]

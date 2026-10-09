@@ -22,8 +22,8 @@ export const IDENTITY = [
     id: 'journey',
     title: { en: 'Chronological Journey', ko: '시공간의 압축' },
     body: {
-      en: 'From the modern 2000s back through the romance of 2008 to the analog feel of 1968, you experience how Korean trains and subways evolved, and the youth of each era, with your whole body.',
-      ko: '2000년대 현대에서 2008년의 낭만, 1968년의 아날로그 감성까지 거슬러 오르며 한국 전철과 지하철의 진화와 각 시대의 청춘을 온몸으로 체험한다.',
+      en: 'From today in 2026 back through the romance of 2008 to the analog feel of 1968, you experience how Korean trains and subways evolved, and the youth of each era, with your whole body.',
+      ko: '2026년 지금에서 2008년의 낭만, 1968년의 아날로그 감성까지 거슬러 오르며 한국 전철과 지하철의 진화와 각 시대의 청춘을 온몸으로 체험한다.',
     },
   },
 ]
@@ -62,7 +62,7 @@ export const ERA = {
     },
   },
   subway: {
-    year: { en: '2000s', ko: '2000년대' },
+    year: { en: '2026', ko: '2026' },
     line: { en: 'Platform 1', ko: '1호선 플랫폼' },
     concept: { en: 'Refined daily life, clear records', ko: '세련된 일상과 선명한 기록' },
     experience: {

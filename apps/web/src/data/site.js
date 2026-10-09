@@ -102,12 +102,12 @@ export const ENTRANCE = {
   photo: { src: '/img/place/naver-14.jpg', alt: { en: 'Black cones, yellow caution tape and a checkerboard floor at the entrance', ko: '검은 고깔과 노란 경고 테이프, 체커보드 바닥이 놓인 입구' } },
 }
 
-// 승강장 3곳(Platform 1부터 3, GY-01 UrbanEdge 안). 번호는 시간을 거슬러 가는 순서다: 1 Subway(2000년대 현재), 2 Karaoke(2008), 3 Retro(1968). 방 id와 색은 그대로다. era는 시대 태그(화면에 아직 쓰지 않는다). 사진은 public/img 아래 실제 파일이다(place는 네이버 플레이스, ig는 인스타그램 공개 사진). concept, pose, why는 사진에서 확인한 것만 쓴다.
+// 승강장 3곳(Platform 1부터 3, GY-01 UrbanEdge 안). 번호는 시간을 거슬러 가는 순서다: 1 Subway(2026 현재), 2 Karaoke(2008), 3 Retro(1968). 방 id와 색은 그대로다. era는 시대 태그(화면에 아직 쓰지 않는다). 사진은 public/img 아래 실제 파일이다(place는 네이버 플레이스, ig는 인스타그램 공개 사진). concept, pose, why는 사진에서 확인한 것만 쓴다.
 const P = (n, alt) => ({ src: `/img/place/naver-${n}.jpg`, alt })
 export const ROOMS = [
   {
     id: 'subway', platform: 1, name: 'SUBWAY SHOT', code: '1', color: 'yellow',
-    era: { en: '2000s: The Present', ko: '2000년대: 현재' },
+    era: { en: '2026: The Present', ko: '2026: 현재' },
     title: { en: 'Subway Shot', ko: '지하철 샷' },
     summary: { en: 'Steel train doors, grab rails and an overhead strap', ko: '스테인리스 열차 문과 손잡이 봉, 천장 손잡이 줄이 있는 지하철 객실 세트' },
     concept: {

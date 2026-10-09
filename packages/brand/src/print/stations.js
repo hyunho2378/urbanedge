@@ -19,12 +19,12 @@ export const METRO_STOPS = [
   { id: 'gy-04', code: 'GY-04', name: { en: 'Donggung & Wolji', ko: '동궁과 월지' }, status: 'concept' },
 ]
 
-// 승강장 번호는 시간을 거슬러 가는 순서다: 1 Subway(2000년대 현재), 2 Karaoke(2008), 3 Retro(1968). 방 id와 색은 그대로다.
+// 승강장 번호는 시간을 거슬러 가는 순서다: 1 Subway(2026 현재), 2 Karaoke(2008), 3 Retro(1968). 방 id와 색은 그대로다.
 // era는 시대 태그(화면에 아직 쓰지 않는다). 없어진 Public Phone 방은 목록에서 뺐다.
 const PLATFORMS = [
-  { id: 'subway', platform: 1, shot: 'SUBWAY SHOT', color: 'yellow', title: { en: 'Subway Shot', ko: '지하철 샷' }, era: { en: '2000s · The Present', ko: '2000년대 · 현재' } },
-  { id: 'karaoke', platform: 2, shot: 'KARAOKE SHOT', color: 'red', title: { en: 'Karaoke Shot', ko: '노래방 샷' }, era: { en: '2008 · The Memory', ko: '2008 · 추억' } },
-  { id: 'retro', platform: 3, shot: 'RETRO SHOT', color: 'green', title: { en: 'Retro Shot', ko: '레트로 샷' }, era: { en: '1968 · The Roots', ko: '1968 · 뿌리' } },
+  { id: 'subway', platform: 1, shot: 'SUBWAY SHOT', color: 'yellow', title: { en: 'Subway Shot', ko: '지하철 샷' }, era: { en: '2026: The Present', ko: '2026: 현재' } },
+  { id: 'karaoke', platform: 2, shot: 'KARAOKE SHOT', color: 'red', title: { en: 'Karaoke Shot', ko: '노래방 샷' }, era: { en: '2008: The Memory', ko: '2008: 추억' } },
+  { id: 'retro', platform: 3, shot: 'RETRO SHOT', color: 'green', title: { en: 'Retro Shot', ko: '레트로 샷' }, era: { en: '1968: The Roots', ko: '1968: 뿌리' } },
 ]
 
 // STATIONS: 승강장 3곳. 항목마다 역 정보(code 'GY-01', name 'URBANEDGE')와 승강장 정보(platform, platformText, pCode, shot, color)가 같이 있다.

@@ -25,7 +25,7 @@ const DOT = { green: 'bg-line-green', red: 'bg-line-red', yellow: 'bg-yellow' }
 const CYCLE_MS = 3600
 
 // 홈 히어로: 횡단보도 포스터 위에 이름, 슬로건, 소개, 길 안내 버튼. 위쪽 가운데에 다이내믹 아일랜드 알약 하나가
-// 방 세 곳(1 레트로 1968, 2 노래방 2008, 3 지하철 2000년대)을 시간 순서대로 돌아가며 보여 준다. 누르면 펼쳐져 사진과 '방 보기'가 나온다.
+// 방 세 곳(1 레트로 1968, 2 노래방 2008, 3 지하철 2026)을 시간 순서대로 돌아가며 보여 준다. 누르면 펼쳐져 사진과 '방 보기'가 나온다.
 export default function Hero() {
   const pick = usePick()
   const reduced = useReducedMotion()

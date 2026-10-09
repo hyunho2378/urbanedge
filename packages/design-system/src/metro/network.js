@@ -19,12 +19,12 @@ export const CONCEPT_STOPS = [
   { id: 'gy-04', code: 'GY-04', name: 'Donggung & Wolji', nameKo: '동궁과 월지', icon: 'waves', accent: 'green' },
 ]
 
-// 승강장 3개(유료 촬영 방). 번호는 시간을 거슬러 가는 순서다: 1 Subway(2000년대 현재), 2 Karaoke(2008), 3 Retro(1968). 방 id와 색은 그대로다.
+// 승강장 3개(유료 촬영 방). 번호는 시간을 거슬러 가는 순서다: 1 Subway(2026 현재), 2 Karaoke(2008), 3 Retro(1968). 방 id와 색은 그대로다.
 // id는 tokens.js lines의 방 id와 같다. legacyCode는 이전 L1에서 L4 코드다. era는 시대 태그(화면에 아직 쓰지 않는다).
 export const PLATFORMS = [
-  { id: 'subway', number: 1, name: 'Subway Shot', short: 'Subway', nameKo: '지하철 샷', accent: 'yellow', icon: 'subway', legacyCode: 'L1', era: { en: '2000s · The Present', ko: '2000년대 · 현재' } },
-  { id: 'karaoke', number: 2, name: 'Karaoke Shot', short: 'Karaoke', nameKo: '노래방 샷', accent: 'red', icon: 'mic', legacyCode: 'L2', era: { en: '2008 · The Memory', ko: '2008 · 추억' } },
-  { id: 'retro', number: 3, name: 'Retro Shot', short: 'Retro', nameKo: '레트로 샷', accent: 'green', icon: 'retro', legacyCode: 'L4', era: { en: '1968 · The Roots', ko: '1968 · 뿌리' } },
+  { id: 'subway', number: 1, name: 'Subway Shot', short: 'Subway', nameKo: '지하철 샷', accent: 'yellow', icon: 'subway', legacyCode: 'L1', era: { en: '2026: The Present', ko: '2026: 현재' } },
+  { id: 'karaoke', number: 2, name: 'Karaoke Shot', short: 'Karaoke', nameKo: '노래방 샷', accent: 'red', icon: 'mic', legacyCode: 'L2', era: { en: '2008: The Memory', ko: '2008: 추억' } },
+  { id: 'retro', number: 3, name: 'Retro Shot', short: 'Retro', nameKo: '레트로 샷', accent: 'green', icon: 'retro', legacyCode: 'L4', era: { en: '1968: The Roots', ko: '1968: 뿌리' } },
 ]
 export const platformById = (id) => PLATFORMS.find((p) => p.id === id)
 

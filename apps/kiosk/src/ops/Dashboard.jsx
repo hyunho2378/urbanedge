@@ -671,7 +671,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
             </table>
             {couponRows.length ? (
               <>
-                <h4 className="op-h3">{L('Coupon use by channel', '쿠폰 사용 채널')}</h4>
+                <h4 className="op-h3 op-coupon-sub">{L('Coupon use by channel', '쿠폰 사용 채널')}</h4>
                 <ul className="op-info-list">
                   {couponRows.map((r) => (
                     <Row key={r.k} label={r.k} sub={`${L('Discounted', '할인')} ${won(r.v)}`} value={`${r.c}${L('', '건')}`} />

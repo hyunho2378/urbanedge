@@ -13,7 +13,8 @@ export function useL() {
 }
 export const useLangCode = useLangValue
 
-export const BOOTH_COLOR = { retro: '63 166 107', karaoke: '231 65 53', subway: '245 197 24' }
+// 색은 검정, 흰색, 노랑만 쓴다. 부스는 색이 아니라 이름과 P번호로 구분한다.
+export const BOOTH_COLOR = { retro: '17 17 17', karaoke: '17 17 17', subway: '17 17 17' }
 export const boothOf = (id) => BOOTHS.find((b) => b.id === id) || BOOTHS[0]
 
 export const METHOD_LABEL = {
@@ -46,8 +47,9 @@ export const ymd = (ts) => {
   return `${d.getMonth() + 1}/${d.getDate()}`
 }
 
-export function BoothDot({ id, size = 10 }) {
-  return <span aria-hidden="true" className="op-dot" style={{ width: size, height: size, background: `rgb(${BOOTH_COLOR[id]})` }} />
+// 점 표시는 쓰지 않는다(자리만 유지).
+export function BoothDot() {
+  return null
 }
 
 export const hhmmss = (ts) => {

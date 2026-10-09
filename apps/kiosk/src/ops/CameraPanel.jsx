@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { RotateCcw } from 'lucide-react'
 import { BOOTHS, CAMERA_FILTERS, cameraCss, ops, useOps } from './store.js'
-import { BOOTH_COLOR, BoothDot, Dialog, STEP_LABEL, Slider, Switch, Tabs, boothOf, hhmm, useL, useLangCode } from './ui.jsx'
+import { Dialog, STEP_LABEL, Slider, Switch, Tabs, boothOf, hhmm, useL, useLangCode } from './ui.jsx'
 
 const SAMPLE = { retro: '/img/team/shot-1.jpg', karaoke: '/img/team/shot-2.jpg', subway: '/img/team/shot-3.jpg' }
 const FILTER_LABEL = {
@@ -45,14 +45,13 @@ export default function CameraPanel() {
             label={L('Booth', '부스')}
             value={sel}
             onChange={ops.selectBooth}
-            items={BOOTHS.map((b) => ({ id: b.id, label: b.name[lang] || b.name.ko, icon: <BoothDot id={b.id} size={8} /> }))}
+            items={BOOTHS.map((b) => ({ id: b.id, label: b.name[lang] || b.name.ko }))}
           />
         </div>
-        <div className="op-cam-view" style={{ boxShadow: `inset 0 0 0 3px rgb(${BOOTH_COLOR[sel]})` }}>
+        <div className="op-cam-view">
           {stream ? <Live stream={stream} style={css} /> : <img src={SAMPLE[sel]} alt={L('Team photo standing in for the camera', '카메라 대신 보여 주는 팀 사진')} className="op-cam-media" style={css} />}
           <span className={`op-chip op-cam-status ${bs.cameraActive ? 'op-chip-live' : ''}`}>
-            <span className="op-dot" style={{ width: 8, height: 8, background: bs.online ? (bs.cameraActive ? '#E74135' : '#3FA66B') : '#9A9A94' }} aria-hidden="true" />
-            P{boothOf(sel).n} · {stepLabel}
+            P{boothOf(sel).n} · {bs.online ? stepLabel : L('Offline', '연결 끊김')}
           </span>
           {!stream ? <span className="op-chip op-cam-src">{L('Team photo', '팀 사진')}</span> : null}
         </div>

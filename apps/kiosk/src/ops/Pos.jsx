@@ -4,7 +4,7 @@ import { Receipt, RotateCcw } from 'lucide-react'
 import { BOOTHS, METHODS, ops, useOps } from './store.js'
 import { frameById } from '../flow/prints.js'
 import { rangeStart, summarize } from './Dashboard.jsx'
-import { BoothDot, Dialog, METHOD_LABEL, boothOf, hhmm, useL, useLangCode, won, ymd } from './ui.jsx'
+import { Dialog, METHOD_LABEL, boothOf, hhmm, useL, useLangCode, won, ymd } from './ui.jsx'
 
 export default function Pos() {
   const L = useL()
@@ -116,8 +116,7 @@ export default function Pos() {
                       </td>
                       <td>
                         <span className="op-row op-gap-6">
-                          <BoothDot id={t.booth} size={8} />
-                          {boothOf(t.booth).name[lang] || boothOf(t.booth).name.ko}
+                                                    {boothOf(t.booth).name[lang] || boothOf(t.booth).name.ko}
                         </span>
                       </td>
                       <td>{METHOD_LABEL[t.method]?.[lang] || METHOD_LABEL[t.method]?.ko || t.method}</td>
@@ -129,7 +128,7 @@ export default function Pos() {
                       <td className="op-num op-right">{won(t.amount)}</td>
                       <td>
                         {t.status === 'refunded' ? (
-                          <span className="op-chip op-chip-muted">{L('Refunded', '환불됨')}</span>
+                          <span className="op-chip">{L('Refunded', '환불됨')}</span>
                         ) : (
                           <button type="button" className="op-btn op-btn-sm op-btn-ghost" onClick={() => setConfirm(t)}>
                             <RotateCcw size={14} aria-hidden="true" />

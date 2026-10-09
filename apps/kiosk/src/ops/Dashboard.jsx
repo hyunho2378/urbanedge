@@ -1,11 +1,12 @@
-// ops/Dashboard.jsx: 매출 대시보드(관리자 화면 스타일). 키오스크가 결제하면 1초 안에 숫자와 피드가 바뀐다.
-// 구성: 제목줄(실시간, 시계, 기간, 전체화면) → 숫자 카드 4개(이전 기간 대비) → 시간대별 매출(부스별 쌓기)과 실시간 결제 피드 → 부스별, 상품별, 결제수단.
-// 전체화면(TV 모드)은 같은 화면을 크게 키우고 기기 상태 줄을 붙인다. /dashboard 페이지는 항상 TV 모드다.
+// ops/Dashboard.jsx: 매출 현황판. 미리(재난 담당자 콘솔)의 구성을 따른다.
+// 제목줄(날짜, 제목, 오른쪽 버튼) → 1행(매출 요약, 시간대별 매출, 확인할 일) → 2행(부스별 현황, 실시간 결제) → 3행(상품별, 결제수단).
+// 색은 검정, 흰색, 노랑만 쓴다. 점, 색 테두리, 큰 숫자 강조는 쓰지 않고 줄 정보를 늘려 보여 준다.
+// 전체화면(TV 모드)은 같은 구성을 키우고 한 화면에 맞춘다. /dashboard 페이지는 항상 TV 모드다.
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { History, Maximize2, Minimize2, Trash2 } from 'lucide-react'
+import { ChevronRight, History, Maximize2, Minimize2, Trash2 } from 'lucide-react'
 import { BOOTHS, METHODS, ops, useOps } from './store.js'
 import { makeHistoryTx } from './history.js'
-import { BOOTH_COLOR, BoothDot, METHOD_LABEL, STEP_LABEL, Tabs, compact, hhmmss, relTime, useL, useLangCode, won } from './ui.jsx'
+import { METHOD_LABEL, STEP_LABEL, Tabs, compact, hhmmss, relTime, useL, useLangCode, won } from './ui.jsx'
 
 export function rangeStart(range, now = new Date()) {
   const d = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -41,55 +42,56 @@ function useNow(ms) {
 
 const DOW_KO = ['일', '월', '화', '수', '목', '금', '토']
 const DOW_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const p2 = (n) => String(n).padStart(2, '0')
 
-function Clock({ now }) {
+function DateLine({ now }) {
   const lang = useLangCode()
   const d = new Date(now)
-  const p = (n) => String(n).padStart(2, '0')
   const dow = (lang === 'ko' ? DOW_KO : DOW_EN)[d.getDay()]
+  const date = lang === 'ko' ? `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 ${dow}요일` : `${dow}, ${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`
   return (
-    <time className="op-clock op-num" dateTime={d.toISOString()}>
-      {d.getFullYear()}.{p(d.getMonth() + 1)}.{p(d.getDate())} ({dow}) <strong>{p(d.getHours())}:{p(d.getMinutes())}:{p(d.getSeconds())}</strong>
+    <time className="op-dateline op-num" dateTime={d.toISOString()}>
+      {date} <strong>{p2(d.getHours())}:{p2(d.getMinutes())}:{p2(d.getSeconds())}</strong>
     </time>
   )
 }
 
-function Delta({ cur, prev, label }) {
-  const L = useL()
-  if (!prev) return <span className="op-delta op-delta-flat">{label} —</span>
+function pctText(cur, prev) {
+  if (!prev) return '—'
   const pct = Math.round(((cur - prev) / prev) * 100)
-  const up = pct > 0
-  return (
-    <span className={`op-delta ${pct === 0 ? 'op-delta-flat' : up ? 'op-delta-up' : 'op-delta-down'}`}>
-      <span aria-hidden="true">{pct === 0 ? '–' : up ? '▲' : '▼'}</span>
-      <span className="op-sr">{up ? L('up', '증가') : pct < 0 ? L('down', '감소') : L('flat', '변화 없음')}</span> {Math.abs(pct)}% <span className="op-delta-label">{label}</span>
-    </span>
-  )
+  return `${pct > 0 ? '+' : ''}${pct}%`
 }
 
-function Stat({ label, value, children, dot }) {
-  return (
-    <div className="op-kpi">
-      <span className="op-kpi-label">
-        {dot ? <span className="op-dot" style={{ width: 8, height: 8, background: dot }} aria-hidden="true" /> : null}
-        {label}
-      </span>
-      <span className="op-kpi-value op-num">{value}</span>
-      {children}
-    </div>
-  )
-}
-
-function Head({ title, right }) {
+function Head({ title, link, onLink }) {
   return (
     <div className="op-card-head">
       <h3 className="op-h3">{title}</h3>
-      {right}
+      {link ? (
+        <button type="button" className="op-more" onClick={onLink}>
+          {link}
+          <ChevronRight size={14} aria-hidden="true" />
+        </button>
+      ) : null}
     </div>
   )
 }
 
-function buildSeries(range, paid, now, lang) {
+// 줄 정보: 왼쪽에 이름과 보조 줄, 오른쪽에 값
+function Row({ label, sub, value, onClick }) {
+  const inner = (
+    <>
+      <span className="op-info-l">
+        <span className="op-info-label">{label}</span>
+        {sub ? <span className="op-info-sub">{sub}</span> : null}
+      </span>
+      <span className="op-info-v op-num">{value}</span>
+      {onClick ? <ChevronRight size={14} aria-hidden="true" className="op-info-go" /> : null}
+    </>
+  )
+  return <li>{onClick ? <button type="button" className="op-info op-info-btn" onClick={onClick}>{inner}</button> : <div className="op-info">{inner}</div>}</li>
+}
+
+function buildSeries(range, paid, now, lang, boothId) {
   const d = new Date(now)
   let buckets
   let keyOf
@@ -108,120 +110,56 @@ function buildSeries(range, paid, now, lang) {
     buckets = Array.from({ length: 12 }, (_, i) => ({ k: i + 1, label: String(i + 1) }))
     keyOf = (t) => new Date(t).getMonth() + 1
   }
-  const series = buckets.map((b) => ({ ...b, v: 0, by: Object.fromEntries(BOOTHS.map((x) => [x.id, 0])) }))
+  const series = buckets.map((b) => ({ ...b, v: 0, c: 0 }))
   for (const t of paid) {
+    if (boothId !== 'all' && t.booth !== boothId) continue
     const s = series.find((x) => x.k === keyOf(t.ts))
     if (s) {
       s.v += t.amount
-      s.by[t.booth] += t.amount
+      s.c += 1
     }
   }
   return series
 }
 
-function StackedChart({ series, nowKey, title, unit }) {
-  const L = useL()
+// 막대 차트: 검정 막대, 지금 시각만 노랑(검정 외곽선). 값은 지금 막대와 가장 큰 막대에만 적는다.
+function Bars({ series, nowKey, title, unit }) {
   const lang = useLangCode()
   const max = Math.max(1, ...series.map((s) => s.v))
-  const labelled = series.length <= 14
+  const topK = series.reduce((m, s) => (s.v > m.v ? s : m), { v: 0 }).k
+  const dense = series.length > 14
   const summary = series.filter((s) => s.v).map((s) => `${s.label}${unit} ${won(s.v)}`).join(', ') || '0'
   return (
-    <div>
-      <div className="op-chart" role="img" aria-label={`${title}: ${summary}`}>
-        {!labelled ? <span className="op-chart-max op-num" aria-hidden="true">{compact(max, lang)}</span> : null}
-        <div className="op-chart-bars">
-          {series.map((s, i) => (
-            <div key={s.k} className={`op-col ${s.k === nowKey ? 'op-col-now' : ''}`} title={`${s.label}${unit} ${won(s.v)}`}>
+    <div className="op-chart" role="img" aria-label={`${title}: ${summary}`}>
+      <div className="op-chart-bars">
+        {series.map((s, i) => {
+          const hot = s.k === nowKey
+          const showVal = s.v > 0 && (hot || s.k === topK) && !(dense && !hot && s.k !== topK)
+          return (
+            <div key={s.k} className="op-col" title={`${s.label}${unit} ${won(s.v)} · ${s.c}`}>
               <div className="op-col-area">
-                <div className="op-col-stack" style={{ height: `${(s.v / max) * 100}%` }}>
-                  {labelled && s.v ? <span className="op-col-val op-num">{compact(s.v, lang)}</span> : null}
-                  {BOOTHS.map((b) => (s.by[b.id] ? <i key={b.id} style={{ flexGrow: s.by[b.id], background: `rgb(${BOOTH_COLOR[b.id]})` }} /> : null))}
-                </div>
+                {showVal ? <span className="op-col-val op-num">{compact(s.v, lang)}</span> : null}
+                <div className={`op-col-bar ${hot ? 'op-col-hot' : ''}`} style={{ height: `${s.v ? Math.max(3, (s.v / max) * 100) : 0}%` }} />
               </div>
-              <span className="op-col-label">{labelled || i === 0 || (i + 1) % 5 === 0 ? s.label : ''}</span>
+              <span className={`op-col-label ${hot ? 'op-col-label-hot' : ''}`}>{!dense || i === 0 || (i + 1) % 5 === 0 || hot ? s.label : ''}</span>
             </div>
-          ))}
-        </div>
+          )
+        })}
       </div>
-      <ul className="op-key" aria-label={L('Booths', '부스')}>
-        {BOOTHS.map((b) => (
-          <li key={b.id}>
-            <BoothDot id={b.id} size={8} />
-            {b.name[lang] || b.name.ko}
-          </li>
-        ))}
-      </ul>
     </div>
   )
 }
 
-function Feed({ items, products, now }) {
-  const L = useL()
-  const lang = useLangCode()
-  if (!items.length) return <p className="op-empty">{L('No payments yet today. A payment on any kiosk appears here at once.', '오늘 결제가 아직 없다. 키오스크에서 결제하면 바로 여기에 나타난다.')}</p>
-  return (
-    <ul className="op-feed" aria-live="polite" aria-label={L('Live payments', '실시간 결제')}>
-      {items.map((t) => {
-        const p = products.find((x) => x.id === t.product)
-        const label = p ? p.name[lang] || p.name.ko : t.cuts ? `${t.cuts}${L(' cuts', '컷')}` : '—'
-        return (
-          <li key={t.id} className={`${now - t.ts < 4000 ? 'op-new' : ''} ${t.status === 'refunded' ? 'op-refunded' : ''}`}>
-            <span className="op-feed-time op-num">{hhmmss(t.ts)}</span>
-            <span className="op-feed-main">
-              <BoothDot id={t.booth} size={8} />
-              <span className="op-feed-name">{label}</span>
-              <span className="op-meta">
-                {METHOD_LABEL[t.method]?.[lang] || t.method}
-                {t.status === 'refunded' ? ` · ${L('refunded', '환불됨')}` : ''}
-              </span>
-            </span>
-            <span className="op-num op-feed-amt">{won(t.amount)}</span>
-          </li>
-        )
-      })}
-    </ul>
-  )
-}
-
-function Devices({ now }) {
-  const L = useL()
-  const lang = useLangCode()
-  const booth = useOps((s) => s.booth)
-  const tx = useOps((s) => s.tx)
-  const start = rangeStart('today', new Date(now))
-  return (
-    <ul className="op-devices" aria-label={L('Devices', '기기 상태')}>
-      {BOOTHS.map((b) => {
-        const s = booth[b.id]
-        const mine = tx.filter((t) => t.booth === b.id && !t.history && t.status === 'paid')
-        const last = mine[0]
-        const today = mine.filter((t) => t.ts >= start)
-        const step = s.cameraActive ? L('Shooting', '촬영 중') : STEP_LABEL[s.step]?.[lang] || STEP_LABEL[s.step]?.ko || s.step
-        return (
-          <li key={b.id} className="op-device" style={{ '--op-booth': `rgb(${BOOTH_COLOR[b.id]})` }}>
-            <span className="op-booth-bar" aria-hidden="true" />
-            <span className="op-booth-name">
-              <span className="op-dot" style={{ width: 9, height: 9, background: s.online ? '#3FA66B' : '#9A9A94' }} aria-hidden="true" />
-              P{b.n} {b.name[lang] || b.name.ko}
-            </span>
-            <span className="op-booth-sub">{s.online ? step : L('Offline', '연결 끊김')}</span>
-            <span className="op-booth-sub">
-              {L('Last payment', '마지막 결제')} {last ? relTime(last.ts, now, lang) : '—'} · {L('today', '오늘')} <span className="op-num">{today.length}</span>
-              {L('', '건')}
-            </span>
-          </li>
-        )
-      })}
-    </ul>
-  )
-}
-
-export default function Dashboard({ tv: tvForced = false, connected = true }) {
+export default function Dashboard({ tv: tvForced = false, connected = true, onGo }) {
   const L = useL()
   const lang = useLangCode()
   const [range, setRange] = useState('today')
+  const [chartBooth, setChartBooth] = useState('all')
   const all = useOps((s) => s.tx)
   const products = useOps((s) => s.products)
+  const coupons = useOps((s) => s.coupons)
+  const booth = useOps((s) => s.booth)
+  const sel = useOps((s) => s.selectedBooth)
   const hasHistory = useOps((s) => s.hasSample)
   const now = useNow(1000)
   const minute = Math.floor(now / 60000)
@@ -243,7 +181,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true }) {
       setZoom(1)
       return undefined
     }
-    const f = () => setZoom(Math.max(1, Math.min(2, window.innerWidth / 1200, window.innerHeight / 820)))
+    const f = () => setZoom(Math.max(1, Math.min(2, window.innerWidth / 1180, window.innerHeight / 860)))
     f()
     window.addEventListener('resize', f)
     return () => window.removeEventListener('resize', f)
@@ -267,48 +205,80 @@ export default function Dashboard({ tv: tvForced = false, connected = true }) {
   const data = useMemo(() => {
     const t0 = Date.now()
     const prevStart = prevStartOf(range, start)
-    return { cur: summarize(all.filter((t) => t.ts >= start)), prev: summarize(all.filter((t) => t.ts >= prevStart && t.ts < prevStart + (t0 - start))) }
+    return {
+      cur: summarize(all.filter((t) => t.ts >= start)),
+      prev: summarize(all.filter((t) => t.ts >= prevStart && t.ts < prevStart + (t0 - start))),
+      month: summarize(all.filter((t) => t.ts >= rangeStart('month'))),
+      year: summarize(all.filter((t) => t.ts >= rangeStart('year'))),
+      today: summarize(all.filter((t) => t.ts >= rangeStart('today'))),
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [all, range, start, minute])
-  const { cur, prev } = data
+  const { cur, prev, month, year } = data
 
-  const series = useMemo(() => buildSeries(range, cur.paid, Date.now(), lang), [cur, range, lang, minute]) // eslint-disable-line react-hooks/exhaustive-deps
+  const series = useMemo(() => buildSeries(range, cur.paid, Date.now(), lang, chartBooth), [cur, range, lang, chartBooth, minute]) // eslint-disable-line react-hooks/exhaustive-deps
   const nd = new Date(now)
   const nowKey = range === 'today' ? Math.min(23, Math.max(10, nd.getHours())) : range === 'week' ? (nd.getDay() + 6) % 7 : range === 'month' ? nd.getDate() : nd.getMonth() + 1
   const unit = range === 'today' ? L('h', '시') : range === 'year' ? L('', '월') : range === 'month' ? L('', '일') : ''
   const chartTitle = { today: L('Revenue by hour', '시간대별 매출'), week: L('Revenue by day', '요일별 매출'), month: L('Revenue by day', '일별 매출'), year: L('Revenue by month', '월별 매출') }[range]
-  const vs = { today: L('vs. yesterday', '어제 같은 시각 대비'), week: L('vs. last week', '지난주 대비'), month: L('vs. last month', '지난달 대비'), year: L('vs. last year', '작년 대비') }[range]
+  const vs = { today: L('vs. same time yesterday', '어제 같은 시각 대비'), week: L('vs. last week', '지난주 대비'), month: L('vs. last month', '지난달 대비'), year: L('vs. last year', '작년 대비') }[range]
+  const pageTitle = { today: L("Today's status", '오늘의 현황'), week: L("This week's status", '이번 주 현황'), month: L("This month's status", '이번 달 현황'), year: L("This year's status", '올해 현황') }[range]
+  const rangeName = { today: L('Today', '오늘'), week: L('This week', '이번 주'), month: L('This month', '이번 달'), year: L('This year', '올해') }[range]
 
   const feedStart = rangeStart('today', nd)
-  const feed = useMemo(() => all.filter((t) => t.ts >= feedStart && !t.history).slice(0, tv ? 14 : 10), [all, feedStart, tv])
+  const feed = useMemo(() => all.filter((t) => t.ts >= feedStart && !t.history).slice(0, tv ? 5 : 8), [all, feedStart, tv])
+
+  const mLabel = (m) => METHOD_LABEL[m]?.[lang] || METHOD_LABEL[m]?.ko || m
+  const methodLine = METHODS.map((m) => ({ m, c: cur.paid.filter((t) => t.method === m).length })).filter((x) => x.c).map((x) => `${mLabel(x.m)} ${x.c}`).join(' · ') || '—'
+  const dayOfMonth = nd.getDate()
+  const dayOfYear = Math.max(1, Math.floor((now - rangeStart('year')) / 86400000) + 1)
 
   const byBooth = BOOTHS.map((b) => {
     const p = cur.paid.filter((t) => t.booth === b.id)
-    return { ...b, v: p.reduce((a, t) => a + t.amount, 0), c: p.length }
+    const mine = all.filter((t) => t.booth === b.id && !t.history && t.status === 'paid')
+    const todayN = mine.filter((t) => t.ts >= feedStart).length
+    return { ...b, v: p.reduce((a, t) => a + t.amount, 0), c: p.length, last: mine[0], todayN }
   })
-  const boothMax = Math.max(1, ...byBooth.map((b) => b.v))
-  const prodRows = [...products.map((p) => ({ id: p.id, name: p.name[lang] || p.name.ko })), { id: null, name: L('Other', '기타') }]
+  const prodRows = [...products.map((p) => ({ id: p.id, name: p.name[lang] || p.name.ko, price: p.price })), { id: null, name: L('Other', '기타') }]
     .map((p) => {
       const rows = cur.paid.filter((t) => (t.product || null) === p.id)
       return { ...p, c: rows.length, v: rows.reduce((a, t) => a + t.amount, 0) }
     })
     .filter((p) => p.c || p.id)
-  const prodMax = Math.max(1, ...prodRows.map((p) => p.v))
-  const byMethod = METHODS.map((m) => ({ m, c: cur.paid.filter((t) => t.method === m).length }))
-  const methodTotal = Math.max(1, byMethod.reduce((a, x) => a + x.c, 0))
-  const MC = ['#111', '#5B5B57', '#9A9A94', 'rgb(245 197 24)']
+  const methodRows = METHODS.map((m) => {
+    const rows = cur.paid.filter((t) => t.method === m)
+    return { m, c: rows.length, v: rows.reduce((a, t) => a + t.amount, 0) }
+  })
+
+  // 확인할 일: 데이터에서 바로 뽑는다
+  const todayRefunds = all.filter((t) => t.status === 'refunded' && !t.history && (t.refundedAt || t.ts) >= feedStart)
+  const offline = BOOTHS.filter((b) => !booth[b.id].online)
+  const lowCoupons = coupons.filter((c) => c.active && c.maxUses > 0 && c.uses >= c.maxUses - 1)
+  const offProducts = products.filter((p) => !p.enabled)
+  const paying = BOOTHS.filter((b) => booth[b.id].step === 'pay')
+  const todo = []
+  if (todayRefunds.length) todo.push({ id: 'refund', label: L('Refunds to review', '환불 내역 확인'), sub: todayRefunds.map((t) => `P${BOOTHS.find((b) => b.id === t.booth)?.n} ${hhmmss(t.refundedAt || t.ts)}`).slice(0, 2).join(' · '), value: `${todayRefunds.length}${L('', '건')}`, go: 'pos' })
+  if (offline.length) todo.push({ id: 'off', label: L('Offline booths', '연결 끊긴 부스'), sub: offline.map((b) => b.name[lang] || b.name.ko).join(', '), value: `${offline.length}${L('', '곳')}`, go: null })
+  if (lowCoupons.length) todo.push({ id: 'cp', label: L('Coupons almost used up', '쿠폰 소진 임박'), sub: lowCoupons.slice(0, 2).map((c) => c.code).join(' · '), value: `${lowCoupons.length}${L('', '개')}`, go: 'coupon' })
+  if (offProducts.length) todo.push({ id: 'prod', label: L('Products switched off', '판매 중지 상품'), sub: offProducts.slice(0, 2).map((p) => p.name[lang] || p.name.ko).join(' · '), value: `${offProducts.length}${L('', '개')}`, go: 'products' })
+  if (!hasHistory) todo.push({ id: 'hist', label: L('Monthly and yearly figures are empty', '월·연 통계가 비어 있음'), sub: L('Load past records to fill them', '지난 기록을 불러오면 채워진다'), value: L('Load', '불러오기'), go: 'history' })
+  if (paying.length) todo.push({ id: 'pay', label: L('Paying now', '지금 결제 중'), sub: paying.map((b) => b.name[lang] || b.name.ko).join(', '), value: `${paying.length}${L('', '곳')}`, go: null })
+
+  const doGo = (id) => {
+    if (id === 'history') return ops.loadHistory(makeHistoryTx({ products }))
+    if (id) onGo?.(id)
+  }
 
   return (
     <div ref={wrap} className={`op-dash ${tv ? 'op-tv' : ''} ${pseudo ? 'op-pseudo' : ''}`}>
-      <div className="op-dash-in" style={tv ? { zoom, '--op-z': zoom } : undefined}>
+      <div className="op-dash-in" style={tv ? { zoom, '--op-z': zoom, height: `calc(100vh / ${zoom})` } : undefined}>
         <header className="op-dash-head">
-          <div className="op-dash-title">
-            <h2 className="op-h2">{L('Live status', '실시간 현황')}</h2>
-            <span className={`op-live ${connected ? '' : 'op-live-off'}`}>
-              <i aria-hidden="true" />
-              {connected ? L('Live', '실시간') : L('Waiting for connection', '연결 대기 중')}
-            </span>
-            <Clock now={now} />
+          <div>
+            <DateLine now={now} />
+            <h2 className="op-h2">
+              {pageTitle}
+              <span className={`op-live ${connected ? '' : 'op-live-off'}`}>{connected ? L('Live', '실시간') : L('Waiting', '연결 대기')}</span>
+            </h2>
           </div>
           <div className="op-row">
             <Tabs
@@ -343,88 +313,201 @@ export default function Dashboard({ tv: tvForced = false, connected = true }) {
           </div>
         </header>
 
-        {tv ? <Devices now={now} /> : null}
-
-        <div className="op-kpis">
-          <Stat label={L('Revenue', '매출')} value={won(cur.revenue)} dot="#111">
-            <Delta cur={cur.revenue} prev={prev.revenue} label={vs} />
-          </Stat>
-          <Stat label={L('Payments', '결제 건수')} value={`${cur.count.toLocaleString()}${L('', '건')}`} dot="#5B5B57">
-            <Delta cur={cur.count} prev={prev.count} label={vs} />
-          </Stat>
-          <Stat label={L('Avg. ticket', '객단가')} value={won(cur.avg)} dot="rgb(245 197 24)">
-            <Delta cur={cur.avg} prev={prev.avg} label={vs} />
-          </Stat>
-          <Stat label={L('Refunds', '환불')} value={`${cur.refunds}${L('', '건')}`} dot="#B3261E">
-            <span className="op-delta op-delta-flat op-num">{won(cur.refundAmount)}</span>
-          </Stat>
-        </div>
-
-        <div className="op-dash-main">
-          <section className="op-card" aria-label={chartTitle}>
-            <Head title={chartTitle} />
-            <StackedChart series={series} nowKey={nowKey} title={chartTitle} unit={unit} />
-          </section>
-          <section className="op-card" aria-label={L('Live payments', '실시간 결제')}>
-            <Head title={L('Live payments', '실시간 결제')} right={<span className="op-meta">{L('Today', '오늘')}</span>} />
-            <Feed items={feed} products={products} now={now} />
-          </section>
-        </div>
-
-        <div className="op-dash-3">
-          <section className="op-card" aria-label={L('Revenue by booth', '부스별 매출')}>
-            <Head title={L('Revenue by booth', '부스별 매출')} />
-            <ul className="op-bars-h">
-              {byBooth.map((b) => (
-                <li key={b.id}>
-                  <span className="op-bar-label">
-                    <BoothDot id={b.id} />
-                    {b.name[lang] || b.name.ko}
-                  </span>
-                  <span className="op-bar-track">
-                    <span className="op-bar-fill" style={{ width: `${(b.v / boothMax) * 100}%`, background: `rgb(${BOOTH_COLOR[b.id]})` }} />
-                  </span>
-                  <span className="op-num op-bar-val">
-                    {won(b.v)} <span className="op-meta">{cur.revenue ? Math.round((b.v / cur.revenue) * 100) : 0}%</span>
-                  </span>
-                </li>
-              ))}
+        <div className="op-r1">
+          <section className="op-card op-card-inv" aria-label={L('Revenue summary', '매출 요약')}>
+            <Head title={L('Revenue summary', '매출 요약')} link={L('Sales', '거래·환불')} onLink={() => onGo?.('pos')} />
+            <p className="op-sum-label">{rangeName} {L('revenue', '매출')}</p>
+            <p className="op-sum-value op-num">{won(cur.revenue)}</p>
+            <p className="op-sum-sub op-num">
+              {vs} {pctText(cur.revenue, prev.revenue)}
+            </p>
+            <ul className="op-info-list">
+              <Row label={L('Payments', '결제 건수')} sub={methodLine} value={`${cur.count.toLocaleString()}${L('', '건')}`} />
+              <Row label={L('Average ticket', '객단가')} sub={`${vs} ${pctText(cur.avg, prev.avg)}`} value={won(cur.avg)} />
+              <Row label={L('Refunds', '환불')} sub={cur.refunds ? won(cur.refundAmount) : L('None', '없음')} value={`${cur.refunds}${L('', '건')}`} />
+              <Row label={L('Month to date', '이번 달 누계')} sub={`${L('Daily avg.', '일평균')} ${won(month.revenue / dayOfMonth)}`} value={won(month.revenue)} />
+              <Row label={L('Year to date', '올해 누계')} sub={`${L('Daily avg.', '일평균')} ${won(year.revenue / dayOfYear)}`} value={won(year.revenue)} />
             </ul>
           </section>
+
+          <section className="op-card" aria-label={chartTitle}>
+            <Head title={chartTitle} link={L('Sales', '거래·환불')} onLink={() => onGo?.('pos')} />
+            <p className="op-sub-line op-num">
+              {L('Highest', '가장 많은 때')} {series.reduce((m, s) => (s.v > m.v ? s : m), { v: 0, label: '—' }).label}
+              {series.some((s) => s.v) ? unit : ''} · {L('Total', '합계')} {won(series.reduce((a, s) => a + s.v, 0))}
+            </p>
+            <Bars series={series} nowKey={nowKey} title={chartTitle} unit={unit} />
+            <div className="op-chips" role="radiogroup" aria-label={L('Booth filter', '부스 필터')}>
+              {[{ id: 'all', label: L('All', '전체') }, ...BOOTHS.map((b) => ({ id: b.id, label: b.name[lang] || b.name.ko }))].map((c) => (
+                <button key={c.id} type="button" role="radio" aria-checked={chartBooth === c.id} className="op-chip-btn" onClick={() => setChartBooth(c.id)}>
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="op-card" aria-label={L('To check', '확인할 일')}>
+            <Head title={L('To check', '확인할 일')} />
+            {todo.length ? (
+              <ul className="op-info-list">
+                {todo.map((t) => (
+                  <Row key={t.id} label={t.label} sub={t.sub} value={t.value} onClick={t.go ? () => doGo(t.go) : undefined} />
+                ))}
+              </ul>
+            ) : (
+              <p className="op-empty">{L('Nothing to check right now.', '지금 확인할 일이 없다.')}</p>
+            )}
+          </section>
+        </div>
+
+        <div className="op-r2">
+          <section className="op-card" aria-label={L('Booths', '부스별 현황')}>
+            <Head title={L('Booths', '부스별 현황')} />
+            <div className="op-table-wrap">
+              <table className="op-table op-table-plain">
+                <thead>
+                  <tr>
+                    <th>{L('Booth', '부스')}</th>
+                    <th>{L('Status', '상태')}</th>
+                    <th>{L('Last payment', '마지막 결제')}</th>
+                    <th className="op-right">{L('Today', '오늘')}</th>
+                    <th className="op-right">{rangeName} {L('revenue', '매출')}</th>
+                    <th className="op-right">{L('Share', '비중')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {byBooth.map((b) => {
+                    const s = booth[b.id]
+                    const step = s.cameraActive ? L('Shooting', '촬영 중') : STEP_LABEL[s.step]?.[lang] || STEP_LABEL[s.step]?.ko || s.step
+                    return (
+                      <tr key={b.id} className={`op-tr-btn ${sel === b.id ? 'op-tr-sel' : ''}`} onClick={() => ops.selectBooth(b.id)}>
+                        <td className="op-strong">
+                          <button type="button" className="op-link-btn" aria-pressed={sel === b.id} onClick={() => ops.selectBooth(b.id)}>
+                            P{b.n} {b.name[lang] || b.name.ko}
+                          </button>
+                        </td>
+                        <td>{s.online ? step : <span className="op-pill">{L('Offline', '연결 끊김')}</span>}</td>
+                        <td className="op-num">{b.last ? `${hhmmss(b.last.ts)} · ${relTime(b.last.ts, now, lang)}` : '—'}</td>
+                        <td className="op-num op-right">
+                          {b.todayN}
+                          {L('', '건')}
+                        </td>
+                        <td className="op-num op-right">{won(b.v)}</td>
+                        <td className="op-num op-right">{cur.revenue ? Math.round((b.v / cur.revenue) * 100) : 0}%</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section className="op-card" aria-label={L('Live payments', '실시간 결제')}>
+            <Head title={L('Live payments', '실시간 결제')} link={L('Sales', '거래·환불')} onLink={() => onGo?.('pos')} />
+            {feed.length ? (
+              <div className="op-table-wrap" aria-live="polite">
+                <table className="op-table op-table-plain">
+                  <thead>
+                    <tr>
+                      <th>{L('Time', '시각')}</th>
+                      <th>{L('Booth', '부스')}</th>
+                      <th>{L('Product', '상품')}</th>
+                      <th>{L('Method', '결제수단')}</th>
+                      <th>{L('Coupon', '쿠폰')}</th>
+                      <th className="op-right">{L('Amount', '금액')}</th>
+                      <th>{L('Status', '상태')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {feed.map((t) => {
+                      const pr = products.find((x) => x.id === t.product)
+                      const label = pr ? pr.name[lang] || pr.name.ko : t.cuts ? `${t.cuts}${L(' cuts', '컷')}` : '—'
+                      const b = BOOTHS.find((x) => x.id === t.booth)
+                      return (
+                        <tr key={t.id} className={`${now - t.ts < 4000 ? 'op-new' : ''} ${t.status === 'refunded' ? 'op-refunded' : ''}`}>
+                          <td className="op-num">{hhmmss(t.ts)}</td>
+                          <td>P{b?.n} {b ? b.name[lang] || b.name.ko : ''}</td>
+                          <td className="op-strong">{label}</td>
+                          <td>{mLabel(t.method)}</td>
+                          <td className="op-mono">{t.coupon || '—'}</td>
+                          <td className="op-num op-right">{won(t.amount)}</td>
+                          <td>{t.status === 'refunded' ? <span className="op-pill">{L('Refunded', '환불됨')}</span> : L('Paid', '완료')}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="op-empty">{L('No payments yet today. A payment on any kiosk appears here at once.', '오늘 결제가 아직 없다. 키오스크에서 결제하면 바로 여기에 나타난다.')}</p>
+            )}
+          </section>
+        </div>
+
+        <div className="op-r3">
           <section className="op-card" aria-label={L('Sales by product', '상품별 판매')}>
             <Head title={L('Sales by product', '상품별 판매')} />
-            <ul className="op-bars-h">
-              {prodRows.map((p) => (
-                <li key={p.id || 'other'}>
-                  <span className="op-bar-label">{p.name}</span>
-                  <span className="op-bar-track">
-                    <span className="op-bar-fill" style={{ width: `${(p.v / prodMax) * 100}%`, background: '#111' }} />
-                  </span>
-                  <span className="op-num op-bar-val">
-                    {p.c}
-                    {L('', '건')} <span className="op-meta">{won(p.v)}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <table className="op-table op-table-plain">
+              <thead>
+                <tr>
+                  <th>{L('Product', '상품')}</th>
+                  <th className="op-right">{L('Price', '가격')}</th>
+                  <th className="op-right">{L('Sold', '판매')}</th>
+                  <th className="op-right">{L('Revenue', '매출')}</th>
+                  <th>{L('Share', '비중')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {prodRows.map((p) => (
+                  <tr key={p.id || 'other'}>
+                    <td className="op-strong">{p.name}</td>
+                    <td className="op-num op-right">{p.price ? won(p.price) : '—'}</td>
+                    <td className="op-num op-right">
+                      {p.c}
+                      {L('', '건')}
+                    </td>
+                    <td className="op-num op-right">{won(p.v)}</td>
+                    <td>
+                      <span className="op-share op-num">
+                        <i style={{ width: `${cur.revenue ? (p.v / cur.revenue) * 100 : 0}%` }} />
+                        {cur.revenue ? Math.round((p.v / cur.revenue) * 100) : 0}%
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </section>
           <section className="op-card" aria-label={L('Payment methods', '결제수단')}>
             <Head title={L('Payment methods', '결제수단')} />
-            <div className="op-stackbar" role="img" aria-label={byMethod.map((x) => `${METHOD_LABEL[x.m][lang] || METHOD_LABEL[x.m].ko} ${x.c}`).join(', ')}>
-              {byMethod.map((x, i) => (x.c ? <span key={x.m} style={{ flexGrow: x.c, background: MC[i] }} /> : null))}
-            </div>
-            <ul className="op-legend op-legend-col">
-              {byMethod.map((x, i) => (
-                <li key={x.m}>
-                  <span className="op-dot" style={{ width: 10, height: 10, background: MC[i] }} aria-hidden="true" />
-                  {METHOD_LABEL[x.m][lang] || METHOD_LABEL[x.m].ko}
-                  <span className="op-num op-meta">
-                    {x.c}
-                    {L('', '건')} · {Math.round((x.c / methodTotal) * 100)}%
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <table className="op-table op-table-plain">
+              <thead>
+                <tr>
+                  <th>{L('Method', '결제수단')}</th>
+                  <th className="op-right">{L('Payments', '건수')}</th>
+                  <th className="op-right">{L('Amount', '금액')}</th>
+                  <th>{L('Share', '비중')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {methodRows.map((x) => (
+                  <tr key={x.m}>
+                    <td className="op-strong">{mLabel(x.m)}</td>
+                    <td className="op-num op-right">
+                      {x.c}
+                      {L('', '건')}
+                    </td>
+                    <td className="op-num op-right">{won(x.v)}</td>
+                    <td>
+                      <span className="op-share op-num">
+                        <i style={{ width: `${cur.count ? (x.c / cur.count) * 100 : 0}%` }} />
+                        {cur.count ? Math.round((x.c / cur.count) * 100) : 0}%
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </section>
         </div>
       </div>

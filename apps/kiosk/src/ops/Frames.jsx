@@ -13,8 +13,8 @@ export default function Frames() {
   const frames = useOps((s) => s.frames)
   const base = allFrames()
   const [name, setName] = useState('')
-  const [bg, setBg] = useState('#F5C518')
-  const [fg, setFg] = useState('#111111')
+  const [bg, setBg] = useState('#FFD400')
+  const [fg, setFg] = useState('#000000')
   const [cuts, setCuts] = useState(4)
 
   const add = (e) => {

@@ -1,6 +1,6 @@
 // stations.js: Gyeongju Metro(코드 GY)와 GY-01 UrbanEdge 역. docs/NAMING.md 기준.
 // 경주에는 지하철이 없고, 이것은 어반엣지가 만든 가상의 지하철 관광 경험이다(실제 교통시설이 아님).
-// 실제 역은 GY-01 어반엣지(황리단길) 하나이고, 방 4곳이 그 역의 승강장(Platform 1에서 4)이다. 화장실 방은 없다.
+// 실제 역은 GY-01 어반엣지(황리단길) 하나이고, 방 3곳이 그 역의 승강장(Platform 1에서 3, 시간 순서)이다. 화장실 방은 없다.
 export const SYSTEM = {
   code: 'GY',
   name: { en: 'Gyeongju Metro', ko: '경주 메트로' },
@@ -19,14 +19,15 @@ export const METRO_STOPS = [
   { id: 'gy-04', code: 'GY-04', name: { en: 'Donggung & Wolji', ko: '동궁과 월지' }, status: 'concept' },
 ]
 
+// 승강장 번호는 시간 순서다: 1 Retro(1968), 2 Karaoke(2008), 3 Subway(2000년대 현재). 방 id와 색은 그대로다.
+// era는 시대 태그(화면에 아직 쓰지 않는다). 없어진 Public Phone 방은 목록에서 뺐다.
 const PLATFORMS = [
-  { id: 'subway', platform: 1, shot: 'SUBWAY SHOT', color: 'yellow', title: { en: 'Subway Shot', ko: '지하철 샷' } },
-  { id: 'karaoke', platform: 2, shot: 'KARAOKE SHOT', color: 'red', title: { en: 'Karaoke Shot', ko: '노래방 샷' } },
-  { id: 'phone', platform: 3, shot: 'PUBLIC PHONE SHOT', color: 'blue', title: { en: 'Public Phone Shot', ko: '공중전화 샷' } },
-  { id: 'retro', platform: 4, shot: 'RETRO SHOT', color: 'green', title: { en: 'Retro Shot', ko: '레트로 샷' } },
+  { id: 'retro', platform: 1, shot: 'RETRO SHOT', color: 'green', title: { en: 'Retro Shot', ko: '레트로 샷' }, era: { en: '1968 · The Roots', ko: '1968 · 뿌리' } },
+  { id: 'karaoke', platform: 2, shot: 'KARAOKE SHOT', color: 'red', title: { en: 'Karaoke Shot', ko: '노래방 샷' }, era: { en: '2008 · The Memory', ko: '2008 · 추억' } },
+  { id: 'subway', platform: 3, shot: 'SUBWAY SHOT', color: 'yellow', title: { en: 'Subway Shot', ko: '지하철 샷' }, era: { en: '2000s · The Present', ko: '2000년대 · 현재' } },
 ]
 
-// STATIONS: 승강장 4곳. 항목마다 역 정보(code 'GY-01', name 'URBANEDGE')와 승강장 정보(platform, platformText, pCode, shot, color)가 같이 있다.
+// STATIONS: 승강장 3곳. 항목마다 역 정보(code 'GY-01', name 'URBANEDGE')와 승강장 정보(platform, platformText, pCode, shot, color)가 같이 있다.
 export const STATIONS = PLATFORMS.map((pl) => ({
   ...pl,
   code: STATION.code,
@@ -35,17 +36,19 @@ export const STATIONS = PLATFORMS.map((pl) => ({
   pCode: `P${pl.platform}`,
 }))
 
-// roomId: 'karaoke' 같은 id, 'P2', 2, 'Platform 2', 예전 노선 코드 'L2'. 알 수 없으면 karaoke(팀 샘플 인화물이 찍힌 승강장).
-// 없어진 'toilet'과 5 이상의 번호는 Subway Shot으로 돌려 오류를 막고, 화면에는 나타나지 않는다.
+// roomId: 'karaoke' 같은 id, 'P2', 2, 'Platform 2', 예전 노선 코드 'L2'(번호가 아니라 예전 방 기준으로 읽는다). 알 수 없으면 karaoke(팀 샘플 인화물이 찍힌 승강장).
+// 없어진 'toilet', 'phone'과 4 이상의 번호는 Subway Shot으로 돌려 오류를 막고, 화면에는 나타나지 않는다.
+const BY_ID = Object.fromEntries(STATIONS.map((s) => [s.id, s]))
 export function getStation(roomId) {
   const k = String(roomId ?? '').trim().toLowerCase().replace(/[\s_-]+/g, '')
-  const num = k.match(/^(?:p|l|platform)?([1-9])$/)
+  const num = k.match(/^(?:p|platform)?([1-9])$/)
+  const legacy = k.match(/^l([1-9])$/) // 예전 노선 코드: L1 subway, L2 karaoke, L3 phone, L4 retro, L5 toilet
   return (
     STATIONS.find((s) => s.id === k || s.shot.toLowerCase().replace(/\s/g, '') === k || s.title.en.toLowerCase().replace(/\s/g, '') === k) ||
-    (num && (STATIONS[Number(num[1]) - 1] || STATIONS[0])) ||
-    (/toilet/.test(k) && STATIONS[0]) ||
-    (k === 'publicphone' && STATIONS[2]) ||
-    STATIONS[1]
+    (legacy && (BY_ID[{ 1: 'subway', 2: 'karaoke', 4: 'retro' }[legacy[1]]] || BY_ID.subway)) ||
+    (num && (STATIONS[Number(num[1]) - 1] || BY_ID.subway)) ||
+    (/toilet|phone/.test(k) && BY_ID.subway) ||
+    BY_ID.karaoke
   )
 }
 

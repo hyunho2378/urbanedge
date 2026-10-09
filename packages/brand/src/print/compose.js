@@ -60,7 +60,7 @@ function newCanvas(w, h) {
 // composeStrip({ frameId, photos, date, roomId, stamp, message, mode, scale, background })
 //  photos: 이미지 배열(HTMLImageElement, ImageBitmap, canvas, Blob, URL). 슬롯보다 적으면 순환, 없으면 번호 슬롯.
 //  date: Date | 'YYYY-MM-DD' | 'YYYY.MM.DD' | 타임스탬프(없으면 오늘)  -> 2026.10.09 형식으로 작게 인쇄
-//  roomId: 'subway' | 'karaoke' | 'phone' | 'retro' 또는 'P2', 2 같은 승강장 번호(예전 'toilet'은 subway로 처리)
+//  roomId: 'retro'(P1) | 'karaoke'(P2) | 'subway'(P3) 또는 'P2', 2 같은 승강장 번호(예전 'toilet'은 subway로 처리)
 //  stamp: 정거장 id 또는 코드(있으면 스탬프를 얹는다). message: 한 줄 메시지(40자까지)
 //  mode: 'sheet'(기본, 4x6 한 장 1200x1800. 스트립형은 같은 스트립 두 장) | 'single'(스트립형은 600x1800 한 장)
 //  scale: 출력 배율(기본 1). 미리보기는 0.4에서 0.6.

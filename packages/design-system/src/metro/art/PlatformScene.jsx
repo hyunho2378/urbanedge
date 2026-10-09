@@ -16,10 +16,9 @@ const LABEL = typography.family.label
 const SANS = typography.family.sans
 
 export const PLATFORM_SCENES = {
-  1: { accent: 'yellow', name: 'SUBWAY SHOT', ko: '지하철 샷', icon: 'subway' },
+  1: { accent: 'green', name: 'RETRO SHOT', ko: '레트로 샷', icon: 'retro' },
   2: { accent: 'red', name: 'KARAOKE SHOT', ko: '노래방 샷', icon: 'mic' },
-  3: { accent: 'blue', name: 'PUBLIC PHONE SHOT', ko: '공중전화 샷', icon: 'phone' },
-  4: { accent: 'green', name: 'RETRO SHOT', ko: '레트로 샷', icon: 'retro' },
+  3: { accent: 'yellow', name: 'SUBWAY SHOT', ko: '지하철 샷', icon: 'subway' },
 }
 
 function Ceiling({ uid }) {
@@ -277,7 +276,7 @@ export function PlatformSceneArt({ uid, supergraphic = false, platform = 1, acce
   )
 }
 
-// 독립 SVG. platform 1에서 4가 강조색과 포스터를 정한다(accent로 덮어쓸 수 있음).
+// 독립 SVG. platform 1에서 3이 강조색과 포스터를 정한다(1 Retro 초록, 2 Karaoke 빨강, 3 Subway 노랑)(accent로 덮어쓸 수 있음).
 // trainShift 0이면 열차가 승강장에 정차, 1이면 화면 오른쪽 밖. 감속 모션에서는 즉시 이동한다.
 export function PlatformScene({ platform = 1, accent, name, train = true, doorsOpen = false, trainShift = 0, cars = 3, lang: langProp, className, title }) {
   const ctxLang = useLangValue()

@@ -235,7 +235,7 @@ export function drawBoard(tex, P, { phase, boarding, next, blink = 1 }) {
     row(h * 0.83, 'Next', next.name, `PLATFORM ${next.platform}`, false)
   } else {
     row(h * 0.55, phase === 1 ? 'Arriving' : 'Stand by', 'Gyeongju Metro', '', true)
-    row(h * 0.83, 'Next', 'Platform 1 Subway Shot', '', false)
+    row(h * 0.83, 'Next', 'Platform 1 Retro Shot', '', false)
   }
   tex.needsUpdate = true
 }

@@ -7,7 +7,6 @@ import { usePick } from '../i18n/index.jsx'
 import LangToggle from './LangToggle.jsx'
 import { lockScroll, unlockScroll } from './scroll.js'
 import Wordmark from './Wordmark.jsx'
-import ZebraBar from './ZebraBar.jsx'
 import { Wrap } from './Wrap.jsx'
 import { B } from './B.jsx'
 
@@ -108,7 +107,6 @@ export default function Header() {
       <div className="relative h-header-m lg:h-header">
         <span aria-hidden="true" className={cx('absolute inset-0 bg-gradient-to-b from-bg-base/85 to-transparent transition-opacity duration-base ease-out', solid ? 'opacity-0' : 'opacity-100')} />
         <span aria-hidden="true" className={cx('absolute inset-0 bg-bg-base transition-opacity duration-base ease-out', solid ? 'opacity-100' : 'opacity-0')} />
-        <ZebraBar className="absolute inset-x-0 bottom-0" />
         <Wrap className="relative flex h-full items-center gap-16 pb-8 lg:gap-24">
           <div className="flex min-w-0 flex-1 items-center">
             <Link
@@ -175,7 +173,6 @@ export default function Header() {
           className="fixed inset-0 z-overlay flex animate-fade-in flex-col overflow-y-auto bg-bg-base lg:hidden"
         >
           <div className="relative flex h-header-m shrink-0 items-center justify-between px-page pb-8">
-            <ZebraBar className="absolute inset-x-0 bottom-0" />
             <Link to="/" className="ue-press flex items-center rounded-md py-8" aria-label={pick({ en: 'UrbanEdge, home', ko: '어반엣지 홈' })}>
               <Wordmark className="h-14 w-auto text-text-pri sm:h-20" />
             </Link>

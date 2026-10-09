@@ -7,7 +7,6 @@ import { PageTop } from '../components/pages/PageTop.jsx'
 import { usePageTitle } from '../components/pages/usePageTitle.js'
 import { SITE } from '../data/site.js'
 import { JOURNEY } from '../data/story.js'
-import { ZebraBar } from '../layout/ZebraBar.jsx'
 
 const T = {
   title: { en: 'How to', ko: '이용 방법' },
@@ -45,7 +44,6 @@ export default function Guide() {
   return (
     <PageShell>
       <PageTop title={T.title} lead={T.lead} />
-      <ZebraBar thickness="12px" />
 
       <section aria-labelledby="guide-glance" className="ue-light py-32 md:py-64">
         <Container className="4xl:max-w-screen-4xl">
@@ -79,7 +77,6 @@ export default function Guide() {
         </Container>
       </section>
 
-      <ZebraBar thickness="12px" />
 
       <section aria-labelledby="guide-steps" className="bg-bg-base py-40 md:py-80">
         <Container className="4xl:max-w-screen-4xl">

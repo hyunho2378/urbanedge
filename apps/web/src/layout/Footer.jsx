@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 import { SITE, FOOT_LINKS } from '../data/site.js'
 import { usePick } from '../i18n/index.jsx'
 import Wordmark from './Wordmark.jsx'
-import ZebraBar from './ZebraBar.jsx'
 import { ExtLink } from './ExtLink.jsx'
 import { InstagramGlyph, NaverGlyph } from './SocialLinks.jsx'
 import { Wrap } from './Wrap.jsx'
@@ -14,8 +13,7 @@ export default function Footer() {
   const link = 'inline-flex min-h-40 items-center gap-6 whitespace-nowrap text-body-sm text-text-sec transition-colors duration-fast ease-out hover:text-text-pri hover:underline'
 
   return (
-    <footer className="ue-light relative">
-      <ZebraBar />
+    <footer className="ue-light relative border-t border-black/10">
       <Wrap className="pb-80 pt-24 md:pb-80 md:pt-32">
         <div className="flex flex-col gap-16 md:flex-row md:items-center md:justify-between">
           <Link to="/" aria-label={pick({ en: 'UrbanEdge, home', ko: '어반엣지 홈' })} className="flex items-center rounded-md py-8">

@@ -10,7 +10,6 @@ import { usePick } from '../i18n/index.jsx'
 import { B } from '../layout/B.jsx'
 import Wordmark from '../layout/Wordmark.jsx'
 import { Wrap } from '../layout/Wrap.jsx'
-import { ZebraBar } from '../layout/ZebraBar.jsx'
 
 const COPY = {
   assets: { en: 'Brand assets', ko: '브랜드 자산' },
@@ -53,7 +52,6 @@ export default function Brand() {
           <h1 id="brand-title" className="t-label text-yellow"><B v={BRAND_TITLE} inline /></h1>
           <p className="t-title mt-16 max-w-5xl text-text-pri md:text-display-m"><B v={SLOGAN} /></p>
         </Wrap>
-        <ZebraBar thickness="16px" />
       </section>
 
       <section aria-labelledby="brand-identity" className="ue-light py-40 md:py-80">
@@ -82,7 +80,6 @@ export default function Brand() {
         </Wrap>
       </section>
 
-      <ZebraBar thickness="12px" />
 
       <section aria-labelledby="brand-assets" className="ue-light py-40 md:py-80">
         <Wrap>
@@ -104,12 +101,6 @@ export default function Brand() {
               </li>
             ))}
           </ul>
-
-          <h3 className="t-subhead mt-40 text-text-pri"><B v={COPY.pattern} inline /></h3>
-          <div className="mt-16 overflow-hidden rounded-lg ring-1 ring-black/15">
-            <ZebraBar thickness="96px" />
-          </div>
-          <p className="t-caption mt-8 text-text-meta"><B v={COPY.patternNote} /></p>
         </Wrap>
       </section>
 
@@ -137,7 +128,6 @@ export default function Brand() {
         </Wrap>
       </section>
 
-      <ZebraBar thickness="12px" />
 
       <section aria-label={pick({ en: 'Next', ko: '다음' })} className="bg-bg-base py-40 md:py-64">
         <Wrap className="flex flex-wrap items-center gap-x-24 gap-y-12">

@@ -20,7 +20,7 @@ export function Ticket({ platform, line, station, fare, date, admit, wink, class
         <Tx {...wink} as="p" role="caption" className="mt-4 text-bg-raised" />
         {children && <div className="mt-20">{children}</div>}
       </div>
-      <div aria-hidden="true" className="relative w-0 border-l border-dashed border-bg-raised">
+      <div aria-hidden="true" className="relative w-0 border-l border-solid border-bg-raised">
         <span className="absolute -left-12 -top-12 size-24 rounded-pill bg-bg-base" />
         <span className="absolute -bottom-12 -left-12 size-24 rounded-pill bg-bg-base" />
       </div>

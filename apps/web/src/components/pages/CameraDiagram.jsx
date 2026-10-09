@@ -65,7 +65,7 @@ export function CameraDiagram({ active, onSelect, ariaLabel, className }) {
       </g>
       {/* 시선: 모니터 중앙에서 렌즈로 내려오는 화살표 */}
       <g aria-hidden="true" className={cx('transition-opacity duration-base ease-out', on('lens') ? 'opacity-100' : 'opacity-0')}>
-        <path d="M220 222 V 236" className="fill-none stroke-yellow" strokeWidth="3" strokeDasharray="4 5" strokeLinecap="round" />
+        <path d="M220 222 V 236" className="fill-none stroke-yellow" strokeWidth="3" strokeLinecap="round" />
         <path d="M212 232 L220 242 L228 232" className="fill-none stroke-yellow" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
       </g>
 

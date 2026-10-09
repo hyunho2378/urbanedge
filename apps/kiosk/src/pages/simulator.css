@@ -69,3 +69,7 @@
 .screen-only-box {
   width: min(100vw, calc(100dvh * 16 / 9));
 }
+
+/* /screen: 운영 데모에서 들어왔을 때만 보이는 끝내기 버튼 */
+.screen-exit { position: fixed; top: 14px; right: 14px; z-index: 3000; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; background: #FFD400; color: #000; font-size: 16px; font-weight: 700; border: 2px solid #000; border-radius: 12px; box-shadow: 0 4px 0 #000, 0 0 0 3px #fff; text-decoration: none; }
+.screen-exit:hover { text-decoration: underline; }

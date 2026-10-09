@@ -146,7 +146,7 @@ export default function Simulator({ options = {} }) {
     devH = Math.floor(((w - FRAME) * 9) / 16) + FRAME
   }
   const L = opsLang
-  const fsQ = new URLSearchParams({ room: units === 1 ? single : selected || 'subway', lang: options.lang || 'en' })
+  const fsQ = new URLSearchParams({ room: units === 1 ? single : selected || 'subway', lang: options.lang || 'en', from: 'sim' })
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-black text-white">

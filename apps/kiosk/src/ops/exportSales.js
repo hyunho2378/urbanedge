@@ -1,5 +1,6 @@
 // ops/exportSales.js: 서버 없이도 되는 CSV 내보내기. 엑셀에서 한글이 깨지지 않게 BOM을 붙인다.
 import { BOOTHS } from './store.js'
+import { allFrames } from '../flow/prints.js'
 
 const esc = (v) => {
   const s = v == null ? '' : String(v)
@@ -12,11 +13,12 @@ const stamp = (ts) => {
 }
 
 export function salesCsv(rows) {
+  const names = Object.fromEntries(allFrames().map((f) => [f.id, f.name?.ko || f.id]))
   const head = ['시각', '부스', '상품', '프레임', '결제수단', '쿠폰', '할인', '금액', '상태']
   const lines = [head.join(',')]
   for (const t of rows) {
     const b = BOOTHS.find((x) => x.id === t.booth)
-    lines.push([stamp(t.ts), b ? b.name.ko : t.booth, t.product || '', t.frameId || '', t.method, t.coupon || '', t.discount || 0, t.amount, t.status === 'refunded' ? '환불' : '완료'].map(esc).join(','))
+    lines.push([stamp(t.ts), b ? b.name.ko : t.booth, t.product || '', t.frameId ? names[t.frameId] || t.frameId : '', t.method, t.coupon || '', t.discount || 0, t.amount, t.status === 'refunded' ? '환불' : '완료'].map(esc).join(','))
   }
   return `\uFEFF${lines.join('\r\n')}\r\n`
 }

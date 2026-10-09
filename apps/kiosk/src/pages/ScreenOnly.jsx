@@ -1,8 +1,9 @@
 // ScreenOnly.jsx v2: 경로 `/screen`. 프로그램 화면만 1920x1080 비율로 창을 꽉 채워(레터박스) 보여 준다.
 // 코치마크 투어는 ?tour=1일 때만 열린다, 우클릭과 텍스트 선택과 드래그를 막는다.
 // ?embed=1이면 웹 iframe용으로 건너뛰기 링크와 긴 투어를 빼고 짧은 안내만 보인다.
-import { Link, useSearchParams } from 'react-router-dom'
-import { RotateCw } from 'lucide-react'
+import { useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { LogOut, RotateCw } from 'lucide-react'
 import { Bi, pickLang, useLangValue } from '@urbanedge/ds'
 import Stage from '../device/Stage.jsx'
 import Tour from '../device/Tour.jsx'
@@ -15,6 +16,21 @@ import './simulator.css'
 export default function ScreenOnly({ ctrl }) {
   const [params] = useSearchParams()
   const embed = params.get('embed') === '1'
+  // 운영 데모의 '전체 화면'으로 들어왔을 때만 나가기를 보인다(매장의 실제 키오스크에는 손님용 나가기가 없다).
+  const fromSim = params.get('from') === 'sim' && !embed
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (!fromSim) return undefined
+    const k = (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName)) return
+      if (e.key === 'Escape' || e.key === 'f' || e.key === 'F' || e.key === 'ㄹ') {
+        e.preventDefault()
+        navigate('/')
+      }
+    }
+    window.addEventListener('keydown', k)
+    return () => window.removeEventListener('keydown', k)
+  }, [fromSim, navigate])
   const lang = useLangValue()
   const ctx = embed ? 'embed' : 'screen'
   // v3: 투어는 자동으로 열지 않는다(?tour=1로만 연다). 화면 안 온보딩은 결제와 첫 촬영 전 팁 두 번과 탑승 안내 한 장이다.
@@ -36,6 +52,16 @@ export default function ScreenOnly({ ctrl }) {
           <Bi inline en="Back to the simulator" ko="시뮬레이터로 돌아가기" />
         </Link>
       )}
+      {fromSim ? (
+        <Link
+          to="/"
+          aria-label="전체화면 끝내기 (F 또는 Esc)"
+          className="screen-exit"
+        >
+          <LogOut size={18} aria-hidden="true" />
+          전체화면 끝내기
+        </Link>
+      ) : null}
       <div className="screen-only-box" data-tour="screen">
         <Stage label={pickLang(lang, 'Kiosk screen', '키오스크 화면')}>
           <KioskScreen ctrl={ctrl} />

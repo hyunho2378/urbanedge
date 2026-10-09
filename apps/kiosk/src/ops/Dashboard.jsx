@@ -246,11 +246,11 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
     const id = requestAnimationFrame(() => {
       const el = innerRef.current
       if (!el) return
-      const cap = Math.max(0.8, Math.min(2, window.innerWidth / 1280))
+      const cap = Math.max(1, Math.min(2, window.innerWidth / 1280))
       const avail = window.innerHeight - 40
       const h = el.getBoundingClientRect().height
       if (!h) return
-      const want = Math.max(0.8, Math.min(cap, zoom * (avail / h)))
+      const want = Math.max(1, Math.min(cap, zoom * (avail / h)))
       if (Math.abs(want - zoom) / zoom > 0.03) setZoom(want)
     })
     return () => cancelAnimationFrame(id)
@@ -339,21 +339,30 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
     if (real) return real.name?.[lang] || real.name?.ko || id
     return frameDefs.find((f) => f.id === id)?.custom?.name || id
   }
+  // 프레임별 판매는 대시보드 기간과 따로 오늘, 7일, 30일을 고른다. 팔리지 않은 프레임도 0건으로 모두 보여 준다.
+  const [fRange, setFRange] = useState('ftoday')
+  const fStart = useMemo(() => {
+    const d = new Date()
+    const t0 = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+    return fRange === 'ftoday' ? t0 : t0 - (fRange === 'fweek' ? 6 : 29) * 86400000
+  }, [fRange, dayKey])
   const frameRows = useMemo(() => {
     const m = new Map()
-    for (const t of cur.paid) {
+    for (const f of allFrames()) m.set(f.id, { id: f.id, c: 0, v: 0 })
+    for (const f of frameDefs) if (!m.has(f.id)) m.set(f.id, { id: f.id, c: 0, v: 0 })
+    for (const t of all) {
+      if (t.status !== 'paid' || t.ts < fStart) continue
       const k = t.frameId || null
       const r = m.get(k) || { id: k, c: 0, v: 0 }
       r.c += 1
       r.v += t.amount
       m.set(k, r)
     }
-    return [...m.values()].sort((a, b) => b.c - a.c || b.v - a.v)
-  }, [cur])
+    return [...m.values()].filter((r) => r.id || r.c).sort((a, b) => b.c - a.c || b.v - a.v)
+  }, [all, fStart, frameDefs, minute])
   const frameTotal = frameRows.reduce((a, r) => a + r.c, 0)
-  // 많이 팔린 순으로 보여 주고, 나머지는 '그 외'로 묶어 카드가 길어지지 않게 한다
-  const frameLimit = tv ? 5 : 10
-  const frameShown = frameRows.length > frameLimit ? [...frameRows.slice(0, frameLimit - 1), { id: '__rest', c: frameRows.slice(frameLimit - 1).reduce((a, r) => a + r.c, 0), v: frameRows.slice(frameLimit - 1).reduce((a, r) => a + r.v, 0), n: frameRows.length - frameLimit + 1 }] : frameRows
+  const frameRevenue = frameRows.reduce((a, r) => a + r.v, 0)
+  const frameMax = Math.max(1, ...frameRows.map((r) => r.c))
   // 쿠폰 사용: 웹사이트 쿠폰과 제휴처별로 묶는다
   const couponRows = useMemo(() => {
     const m = new Map()
@@ -393,7 +402,7 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
       <div ref={innerRef} className="op-dash-in" style={tv ? { zoom } : undefined}>
         <header className="op-dash-head">
           <div>
-            {tv ? <p className="op-hint">{L('Press F or Esc to exit', 'F 또는 Esc로 나가기')}</p> : null}
+            {tv ? <p className="op-hint">{on ? L('Press F or Esc to end full screen', 'F 또는 Esc로 전체화면 끝내기') : L('Press F or Esc to exit', 'F 또는 Esc로 나가기')}</p> : null}
             <DateLine now={now} />
             <h2 className="op-h2">
               {pageTitle}
@@ -428,9 +437,9 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
             ) : null}
             <ExportMenu range={range} rows={all.filter((t) => t.ts >= start)} L={L} />
             {tv ? (
-              <button type="button" className="op-exit" onClick={exitFull} aria-label={L('Exit (F or Esc)', '나가기 (F 또는 Esc)')}>
+              <button type="button" className="op-exit" onClick={exitFull} aria-label={on ? L('End full screen (F or Esc)', '전체화면 끝내기 (F 또는 Esc)') : L('Exit (F or Esc)', '나가기 (F 또는 Esc)')}>
                 <LogOut size={18} aria-hidden="true" />
-                {L('Exit', '나가기')}
+                {on ? L('End full screen', '전체화면 끝내기') : L('Exit', '나가기')}
               </button>
             ) : (
               <button type="button" className="op-btn op-btn-dark op-btn-sm" onClick={toggleFull} aria-pressed={on}>
@@ -572,6 +581,38 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
           </section>
         </div>
 
+        <section className="op-card op-fcard" aria-label={L('Sales by frame', '프레임별 판매')}>
+          <div className="op-card-head">
+            <h3 className="op-h3 op-fcard-title">{L('Sales by frame', '프레임별 판매')}</h3>
+            <Tabs
+              size="sm"
+              label={L('Frame period', '프레임 판매 기간')}
+              value={fRange}
+              onChange={setFRange}
+              items={[
+                { id: 'ftoday', label: L('Today', '오늘') },
+                { id: 'fweek', label: L('7 days', '7일') },
+                { id: 'fmonth', label: L('30 days', '30일') },
+              ]}
+            />
+          </div>
+          <p className="op-fcard-sum op-num">
+            {L('Total', '합계')} <strong>{frameTotal}{L('', '건')}</strong>, <strong>{won(frameRevenue)}</strong>, {L(`${frameRows.filter((r) => r.id).length} frames`, `프레임 ${frameRows.filter((r) => r.id).length}종`)}
+          </p>
+          <ol className="op-flist">
+            {frameRows.map((r, i) => (
+              <li key={r.id || 'none'} className={`op-frow ${r.c ? '' : 'op-frow-zero'}`}>
+                <span className="op-frank op-num">{r.c ? i + 1 : '—'}</span>
+                <span className="op-fname op-strong" title={r.id ? frameName(r.id) : ''}>{r.id ? frameName(r.id) : L('No frame chosen', '프레임 미선택')}</span>
+                <span className="op-fbar" aria-hidden="true"><i style={{ width: `${(r.c / frameMax) * 100}%` }} /></span>
+                <span className="op-fcount op-num">{r.c}{L('', '건')}</span>
+                <span className="op-frev op-num">{won(r.v)}</span>
+                <span className="op-fshare op-num">{frameTotal ? Math.round((r.c / frameTotal) * 100) : 0}%</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+
         <h3 className="op-sec-title">{L('Sales breakdown', '판매 분석')} {rangeName}</h3>
         <div className="op-r3">
           <section className="op-card" aria-label={L('Sales by product', '상품별 판매')}>
@@ -604,38 +645,6 @@ export default function Dashboard({ tv: tvForced = false, connected = true, onGo
                 ))}
               </tbody>
             </table></div>
-          </section>
-          <section className="op-card" aria-label={L('Sales by frame', '프레임별 판매')}>
-            <Head title={L('Sales by frame', '프레임별 판매')} />
-            {frameRows.length ? (
-              <div className="op-table-wrap"><table className="op-table op-table-plain">
-                <thead>
-                  <tr>
-                    <th>{L('Frame', '프레임')}</th>
-                    <th className="op-right">{L('Sold', '판매')}</th>
-                    <th className="op-right">{L('Revenue', '매출')}</th>
-                    <th>{L('Share', '비중')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {frameShown.map((r) => (
-                    <tr key={r.id || 'none'}>
-                      <td className="op-strong op-ell" title={r.id && r.id !== '__rest' ? frameName(r.id) : ''}>{r.id === '__rest' ? `그 외 ${r.n}종` : r.id ? frameName(r.id) : '미선택'}</td>
-                      <td className="op-num op-right">{r.c}{L('', '건')}</td>
-                      <td className="op-num op-right">{won(r.v)}</td>
-                      <td>
-                        <span className="op-share op-num">
-                          <i style={{ width: `${frameTotal ? (r.c / frameTotal) * 100 : 0}%` }} />
-                          {frameTotal ? Math.round((r.c / frameTotal) * 100) : 0}%
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table></div>
-            ) : (
-              <p className="op-empty">{L('No frame sales in this period.', '이 기간 판매된 프레임 없음')}</p>
-            )}
           </section>
           <section className="op-card" aria-label={L('Payment methods', '결제수단')}>
             <Head title={L('Payment methods', '결제수단')} />
